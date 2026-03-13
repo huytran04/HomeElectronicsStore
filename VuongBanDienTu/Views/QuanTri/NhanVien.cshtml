@@ -1,0 +1,75 @@
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Bán hàng & Hỗ trợ (Nhân viên)";
+}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Đơn hàng cần xử lý -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-primary/5">
+            <h3 class="font-bold text-primary flex items-center gap-2">
+                <i class="fa fa-shopping-bag"></i> Đơn hàng cần xử lý
+            </h3>
+            <span class="bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-full">8 MỚI</span>
+        </div>
+        <div class="p-4 space-y-3">
+            <div class="p-4 rounded-xl border border-slate-100 hover:border-primary/30 transition-colors cursor-pointer group">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-black text-slate-800">#DH-2026-001</span>
+                    <span class="text-[10px] text-slate-400">10 phút trước</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100">
+                        <i class="fa fa-tv text-slate-400"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-800 truncate">Smart Tivi Samsung 55 Inch 4K</p>
+                        <p class="text-[10px] text-slate-500">Khách: <span class="font-medium">Nguyễn Văn Khách</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-black text-primary">11.290.000đ</p>
+                        <span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded uppercase leading-none">Chờ xác nhận</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button class="flex-1 bg-primary text-white text-[10px] font-bold py-2 rounded-lg hover:bg-primary-dark transition-colors">XÁC NHẬN</button>
+                    <button class="flex-1 bg-slate-100 text-slate-600 text-[10px] font-bold py-2 rounded-lg hover:bg-slate-200 transition-colors">HỖ TRỢ</button>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-slate-50 text-center">
+            <button class="text-xs text-slate-500 font-bold hover:text-primary transition-colors">XEM TẤT CẢ ĐƠN HÀNG</button>
+        </div>
+    </div>
+
+    <!-- Công cụ hỗ trợ -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <i class="fa fa-warehouse text-amber-500"></i> Kiểm tra tồn kho nhanh
+            </h3>
+            <div class="relative mb-4">
+                <input type="text" placeholder="Nhập tên sản phẩm hoặc mã..." class="w-full bg-slate-50 border-none rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-primary/20 transition-all pl-10">
+                <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs text-center"></i>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                    <span class="text-xs font-medium text-slate-700">Tivi Samsung 55"...</span>
+                    <span class="text-xs font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Còn 12</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <i class="fa fa-headset text-blue-500"></i> Công cụ hỗ trợ
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="bg-blue-50 text-blue-600 p-4 rounded-xl flex flex-col items-center gap-2 hover:bg-blue-100 transition-colors">
+                    <i class="fa fa-comments text-xl text-center"></i>
+                    <span class="text-[10px] font-black uppercase">Chat trực tuyến</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

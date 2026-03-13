@@ -1,0 +1,271 @@
+@model IEnumerable<VuongBanDienTu.Models.SanPham>
+@{
+    ViewBag.Title = "Trang chủ";
+}
+
+<div class="max-w-screen-xl mx-auto px-3 pt-1.5 pb-3">
+
+    <!-- ===================== HERO SECTION ===================== -->
+    <!--
+        Breakpoints:
+        mobile       : carousel full width, no sidebar, no promo
+        md (768px+)  : sidebar (160px) + carousel
+        xl (1280px+) : sidebar (200px) + carousel + promo cards (220px)
+    -->
+    <section class="flex gap-2 mb-1.5 items-stretch">
+
+        <!-- LEFT: Category Sidebar — hidden on mobile, shown md+ -->
+        <aside class="hidden md:flex flex-col bg-white rounded-lg overflow-hidden shadow-sm flex-shrink-0 w-40 xl:w-52">
+            <ul class="flex-1">
+                @if (ViewBag.Categories != null)
+                {
+                    foreach (var cat in (IEnumerable<VuongBanDienTu.Models.DanhMuc>)ViewBag.Categories)
+                    {
+                        <li class="cat-item border-b border-gray-100 transition-colors hover:bg-red-50 hover:text-primary">
+                            <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-3 py-1.5 text-xs cursor-pointer">
+                                <span class="flex items-center gap-1.5 min-w-0">
+                                    <i class="fa fa-chevron-right text-primary w-3 flex-shrink-0 text-[8px]"></i>
+                                    <span class="truncate">@cat.TenDanhMuc</span>
+                                </span>
+                                <i class="fa fa-chevron-right text-gray-400 text-[9px] flex-shrink-0 ml-1"></i>
+                            </a>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="px-3 py-4 text-center text-[10px] text-slate-400">Đang cập nhật...</li>
+                }
+            </ul>
+        </aside>
+
+        <!-- CENTER: Hero Carousel — always visible, flex-1 takes remaining space -->
+        <div class="relative rounded-xl overflow-hidden shadow-lg flex-1 min-w-0 self-stretch min-h-[340px]" id="hero-carousel">
+
+            <!-- Slide 1 -->
+            <div class="hero-slide active absolute inset-0 flex items-center justify-center text-white overflow-hidden"
+                 style="background: linear-gradient(135deg,#c0001a 0%,#ff3b3b 45%,#ff8800 100%);">
+                <div class="text-center px-4 w-full">
+                    <span class="inline-block bg-white/20 text-xs font-semibold px-4 py-1 rounded-full mb-2">VuongBanDienTu.com</span>
+                    <h2 class="text-3xl sm:text-4xl font-black leading-tight drop-shadow-lg">KHAI DEAL<br/>ĐÓN VƯỢNG KHÍ</h2>
+                    <p class="text-xs opacity-90 my-2">27.02 - 24.03.2026</p>
+                    <div class="flex gap-2 justify-center flex-wrap mt-2">
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl">
+                            <div class="text-[9px] font-black text-primary uppercase">SAMSUNG</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Smart Tivi 55 Inch Crystal UHD</div>
+                            <span class="inline-block bg-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">4K</span>
+                            <div class="text-[10px] text-primary font-semibold">-16%</div>
+                            <div class="text-[10px] text-gray-400 line-through">12.500.000₫</div>
+                            <div class="text-base font-black text-primary">11.290.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Tặng quà 850K</div>
+                        </div>
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl hidden sm:block">
+                            <div class="text-[9px] font-black text-primary uppercase">SONY</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Bravia 3 Tivi 55 Inch Google TV</div>
+                            <span class="inline-block bg-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">4K</span>
+                            <div class="text-[10px] text-primary font-semibold">-17%</div>
+                            <div class="text-[10px] text-gray-400 line-through">19.990.000₫</div>
+                            <div class="text-base font-black text-primary">16.690.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Tặng quà 869K</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="hero-slide absolute inset-0 flex items-center justify-center text-white overflow-hidden"
+                 style="background: linear-gradient(135deg,#1565c0 0%,#42a5f5 60%,#00e5ff 100%);">
+                <div class="text-center px-4 w-full">
+                    <span class="inline-block bg-white/20 text-xs font-semibold px-4 py-1 rounded-full mb-2">Siêu Sale Mùa Hè</span>
+                    <h2 class="text-3xl sm:text-4xl font-black leading-tight drop-shadow-lg">MÁY LẠNH<br/>GIẢM SỐC</h2>
+                    <p class="text-xs opacity-90 my-2">Ưu đãi đặc quyền tháng 3/2026</p>
+                    <div class="flex gap-2 justify-center flex-wrap mt-2">
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl">
+                            <div class="text-[9px] font-black text-primary uppercase">DAIKIN</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Máy Lạnh Inverter 1.5HP Tiết Kiệm</div>
+                            <span class="inline-block bg-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">INVERTER</span>
+                            <div class="text-[10px] text-primary font-semibold">-25%</div>
+                            <div class="text-[10px] text-gray-400 line-through">11.900.000₫</div>
+                            <div class="text-base font-black text-primary">8.900.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Tặng dịch vụ lắp</div>
+                        </div>
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl hidden sm:block">
+                            <div class="text-[9px] font-black text-primary uppercase">LG</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Máy Lạnh Dual Inverter 2HP Wi-Fi</div>
+                            <span class="inline-block bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">WIFI</span>
+                            <div class="text-[10px] text-primary font-semibold">-20%</div>
+                            <div class="text-[10px] text-gray-400 line-through">14.500.000₫</div>
+                            <div class="text-base font-black text-primary">11.590.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Lắp đặt miễn phí</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="hero-slide absolute inset-0 flex items-center justify-center text-white overflow-hidden"
+                 style="background: linear-gradient(135deg,#2e7d32 0%,#66bb6a 55%,#aeea00 100%);">
+                <div class="text-center px-4 w-full">
+                    <span class="inline-block bg-white/20 text-xs font-semibold px-4 py-1 rounded-full mb-2">Công nghệ mới 2026</span>
+                    <h2 class="text-3xl sm:text-4xl font-black leading-tight drop-shadow-lg">LAPTOP GAMING<br/>GIÁ SINH VIÊN</h2>
+                    <p class="text-xs opacity-90 my-2">Trả góp 0% - Giao ngay hôm nay</p>
+                    <div class="flex gap-2 justify-center flex-wrap mt-2">
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl">
+                            <div class="text-[9px] font-black text-primary uppercase">ASUS</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Laptop Gaming ROG RTX 4060 16GB</div>
+                            <span class="inline-block bg-green-700 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">GAMING</span>
+                            <div class="text-[10px] text-primary font-semibold">-18%</div>
+                            <div class="text-[10px] text-gray-400 line-through">28.990.000₫</div>
+                            <div class="text-base font-black text-primary">23.790.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Tặng chuột gaming</div>
+                        </div>
+                        <div class="bg-white/95 rounded-lg p-2.5 w-32 sm:w-36 text-left text-gray-800 shadow-xl hidden sm:block">
+                            <div class="text-[9px] font-black text-primary uppercase">LENOVO</div>
+                            <div class="text-[11px] font-bold leading-tight my-1">Laptop IdeaPad i5 Gen12 SSD 512GB</div>
+                            <span class="inline-block bg-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1">SSD</span>
+                            <div class="text-[10px] text-primary font-semibold">-15%</div>
+                            <div class="text-[10px] text-gray-400 line-through">16.990.000₫</div>
+                            <div class="text-base font-black text-primary">14.490.000₫</div>
+                            <div class="text-[9px] text-primary mt-1"><i class="fa fa-gift"></i> Kèm túi xách</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prev / Next buttons -->
+            <button id="carousel-prev"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/30 hover:bg-white/50 text-white text-xl flex items-center justify-center border-none cursor-pointer transition-colors z-10">&#8249;</button>
+            <button id="carousel-next"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/30 hover:bg-white/50 text-white text-xl flex items-center justify-center border-none cursor-pointer transition-colors z-10">&#8250;</button>
+
+            <!-- Dots -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                <span class="dot w-2 h-2 rounded-full bg-white cursor-pointer" data-index="0"></span>
+                <span class="dot w-2 h-2 rounded-full bg-white/40 cursor-pointer" data-index="1"></span>
+                <span class="dot w-2 h-2 rounded-full bg-white/40 cursor-pointer" data-index="2"></span>
+            </div>
+        </div>
+
+        <!-- RIGHT: Promo Cards — only xl (1280px+) -->
+        <div class="hidden xl:flex flex-col gap-2 w-52 flex-shrink-0">
+
+            <a href="#" class="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <i class="fa fa-snowflake text-2xl text-blue-500 mb-1"></i>
+                <div class="text-[11px] font-black text-primary leading-tight uppercase">MÁY LẠNH ƯU ĐÃI ĐỘC QUYỀN</div>
+                <div class="text-[10px] text-gray-500 my-1">HIC09TMU</div>
+                <div class="text-base font-black text-navy">Funiki</div>
+                <span class="mt-1 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Xem ngay</span>
+            </a>
+
+            <a href="#" class="flex-1 bg-gradient-to-br from-red-50 to-orange-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <i class="fa fa-percent text-2xl text-primary mb-1"></i>
+                <div class="text-xl font-black text-primary uppercase">GIẢM 5%</div>
+                <div class="text-[10px] text-gray-500 mt-1 leading-snug">Khi mua từ 2 sản phẩm gia dụng<br/>Tới 500K giặt sấy</div>
+                <span class="mt-1.5 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Áp dụng ngay</span>
+            </a>
+
+            <a href="#" class="flex-1 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <i class="fa fa-gift text-2xl text-yellow-500 mb-1"></i>
+                <div class="text-[11px] font-black text-primary uppercase">Đón Vượng Khí</div>
+                <div class="text-[10px] text-gray-500">Quà tặng lên đến</div>
+                <div class="text-3xl font-black text-primary leading-none">3<span class="text-lg">M</span></div>
+                <span class="mt-1 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Nhận ngay</span>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Promo cards strip — shown on md and lg (when right sidebar is hidden) -->
+    <div class="flex gap-2 mb-1.5 xl:hidden overflow-x-auto scrollbar-hide min-w-0">
+        <a href="#" class="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
+            <i class="fa fa-snowflake text-xl text-blue-500"></i>
+            <div>
+                <div class="text-xs font-black text-primary">MÁY LẠNH ƯU ĐÃI</div>
+                <div class="text-[10px] text-gray-500">Funiki HIC09TMU</div>
+            </div>
+        </a>
+        <a href="#" class="flex-1 bg-gradient-to-br from-red-50 to-orange-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
+            <i class="fa fa-percent text-xl text-primary"></i>
+            <div>
+                <div class="text-xs font-black text-primary uppercase">GIẢM 5%</div>
+                <div class="text-[10px] text-gray-500">Mua từ 2 sản phẩm</div>
+            </div>
+        </a>
+        <a href="#" class="flex-1 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
+            <i class="fa fa-gift text-xl text-yellow-500"></i>
+            <div>
+                <div class="text-xs font-black text-primary">QUÀ TẶNG 3 TRIỆU</div>
+                <div class="text-[10px] text-gray-500 uppercase">Đón Vượng Khí</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- ===================== FLASH SALE BAR ===================== -->
+    <div class="bg-primary rounded-xl px-4 flex items-center gap-3 mb-2 h-12 shadow-md shadow-red-300/40 overflow-hidden">
+        <div class="flex items-center gap-2 text-white font-black text-base sm:text-lg uppercase whitespace-nowrap">
+            <i class="fa fa-bolt text-gold text-lg"></i>
+            <span>FLASH SALE</span>
+        </div>
+        <span class="text-white/40 text-lg hidden sm:block">|</span>
+        <span class="text-white/90 text-xs font-semibold whitespace-nowrap hidden sm:block">GIÁ CỰC SỐC</span>
+        <div class="flex items-center gap-1 ml-2">
+            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-h">09</div>
+            <span class="text-white font-black">:</span>
+            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-m">59</div>
+            <span class="text-white font-black">:</span>
+            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-s">59</div>
+        </div>
+        <a href="@Url.Action("Index", "SanPham", new { id = "" })" class="ml-auto text-white/90 hover:text-white text-xs font-semibold whitespace-nowrap flex items-center gap-1">
+            Xem thêm <i class="fa fa-chevron-right text-[9px]"></i>
+        </a>
+    </div>
+
+
+    <!-- ===================== SAN PHAM NOI BAT ===================== -->
+    <h2 class="flex items-center gap-2 text-base sm:text-lg font-black text-gray-800 mb-3">
+        <span class="w-1 h-5 bg-primary rounded inline-block"></span>
+        Sản Phẩm Nổi Bật
+    </h2>
+
+    @Html.Action("SanPhamNoiBat", "SanPham")
+</div>
+
+@section scripts {
+<script>
+(function () {
+    var slides = document.querySelectorAll('.hero-slide');
+    var dots   = document.querySelectorAll('.dot');
+    var current = 0, timer;
+
+    function goTo(idx) {
+        slides[current].classList.remove('active');
+        dots[current].classList.replace('bg-white', 'bg-white/40');
+        current = (idx + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.replace('bg-white/40', 'bg-white');
+    }
+
+    function startAuto() { timer = setInterval(function(){ goTo(current + 1); }, 4000); }
+
+    document.getElementById('carousel-next').addEventListener('click', function () { clearInterval(timer); goTo(current + 1); startAuto(); });
+    document.getElementById('carousel-prev').addEventListener('click', function () { clearInterval(timer); goTo(current - 1); startAuto(); });
+    dots.forEach(function (dot) {
+        dot.addEventListener('click', function () { clearInterval(timer); goTo(+this.dataset.index); startAuto(); });
+    });
+    startAuto();
+})();
+
+(function () {
+    var end = new Date(Date.now() + 9*3600000 + 59*60000 + 59000);
+    function pad(n){ return (n<10?'0':'')+n; }
+    function tick(){
+        var d = Math.max(0, Math.floor((end - Date.now()) / 1000));
+        document.getElementById('t-h').textContent = pad(Math.floor(d/3600));
+        document.getElementById('t-m').textContent = pad(Math.floor((d%3600)/60));
+        document.getElementById('t-s').textContent = pad(d%60);
+        if(d>0) setTimeout(tick, 1000);
+    }
+    tick();
+})();
+</script>
+}

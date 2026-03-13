@@ -1,0 +1,119 @@
+@model VuongBanDienTu.Models.DonHang
+
+@{
+    ViewBag.Title = "Kết quả tra cứu đơn hàng #" + Model.MaDonHang;
+}
+
+<div class="max-w-3xl mx-auto py-12 px-4">
+    <!-- Header -->
+    <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-8 sm:p-10 border border-slate-100 mb-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="text-center sm:text-left">
+                <p class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Thông tin đơn hàng</p>
+                <h2 class="text-3xl font-black text-slate-800">#ORD-@Model.MaDonHang</h2>
+                <p class="text-xs text-slate-400 font-medium mt-1 italic">Ngày đặt: @(Model.NgayDat.HasValue ? Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---")</p>
+            </div>
+            
+            <div class="flex flex-col items-center sm:items-end gap-3">
+                @if (Model.TrangThaiDonHang == "Chờ xử lý") {
+                    <span class="px-6 py-2 rounded-2xl bg-amber-50 text-amber-600 text-xs font-black uppercase tracking-widest border border-amber-100">Đang chờ xử lý</span>
+                } else if (Model.TrangThaiDonHang == "Đã xác nhận") {
+                    <span class="px-6 py-2 rounded-2xl bg-green-50 text-green-600 text-xs font-black uppercase tracking-widest border border-green-100">Đã xác nhận</span>
+                } else if (Model.TrangThaiDonHang == "Đã hủy") {
+                    <span class="px-6 py-2 rounded-2xl bg-red-50 text-primary text-xs font-black uppercase tracking-widest border border-red-100">Đã hủy bỏ</span>
+                }
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Trạng thái thanh toán: <span class="text-slate-600">@Model.TrangThaiThanhToan</span></p>
+            </div>
+        </div>
+
+        @if (Model.TrangThaiDonHang == "Đã hủy" && !string.IsNullOrEmpty(Model.GhiChu))
+        {
+            <div class="mt-8 p-6 bg-red-50/50 rounded-3xl border-2 border-dashed border-red-100">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-info-circle text-primary mt-1"></i>
+                    <div>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Lý do hủy đơn:</p>
+                        <p class="text-sm font-bold text-slate-700 leading-relaxed">@Model.GhiChu</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Details Table -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-50">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa fa-box-open text-primary"></i> Danh sách mặt hàng
+                    </h3>
+                </div>
+                <div class="divide-y divide-slate-50">
+                    @foreach (var item in Model.ChiTietDonHangs)
+                    {
+                        <div class="p-6 flex items-center gap-4 group">
+                            <div class="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden flex-shrink-0 border border-slate-100">
+                                <img src="/Content/Images/Products/@item.SanPham.AnhChinh" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-black text-slate-800 truncate">@item.SanPham.TenSanPham</p>
+                                <p class="text-xs text-slate-400 font-bold mt-0.5">SL: @item.SoLuong &nbsp;|&nbsp; Đơn giá: @(item.GiaLuuTru.HasValue ? item.GiaLuuTru.Value.ToString("N0") : "0")₫</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-black text-slate-800">@((item.GiaLuuTru * item.SoLuong).Value.ToString("N0"))₫</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="p-8 bg-slate-50/50 border-t border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tổng cộng thanh toán</span>
+                        <span class="text-2xl font-black text-primary tracking-tight">@(Model.TongTien.HasValue ? Model.TongTien.Value.ToString("N0") : "0")₫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-50">Thông tin giao hàng</h3>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Người nhận</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5">@(Model.NguoiDung != null ? Model.NguoiDung.HoTen : "Chưa cập nhật")</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Số điện thoại</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5">@(Model.NguoiDung != null ? Model.NguoiDung.SoDienThoai : "---")</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Địa chỉ nhận</p>
+                            <p class="text-xs font-bold text-slate-600 leading-relaxed mt-1">@Model.DiaChiGiaoHang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="@Url.Action("Index", "DonHang")" class="w-full py-4 bg-slate-800 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-slate-900 transition-all group shadow-lg shadow-slate-200">
+                <i class="fa fa-chevron-left text-[8px] group-hover:-translate-x-1 transition-transform"></i>
+                Trở lại tra cứu
+            </a>
+        </div>
+    </div>
+</div>

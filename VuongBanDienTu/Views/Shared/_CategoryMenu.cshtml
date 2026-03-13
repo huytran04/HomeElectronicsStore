@@ -1,0 +1,16 @@
+@model IEnumerable<VuongBanDienTu.Models.DanhMuc>
+
+<div class="bg-white rounded-xl shadow-xl border border-slate-100 py-2 w-[calc(100vw-1.5rem)] sm:w-64">
+    <div class="px-4 py-2 border-b border-slate-50 mb-1">
+        <p class="text-[10px] font-bold text-slate-400 uppercase">Danh mục sản phẩm</p>
+    </div>
+    <div class="max-h-[60vh] overflow-y-auto scrollbar-hide">
+        @foreach (var cat in Model)
+        {
+            <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center gap-2 px-4 py-2.5 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                <i class="fa fa-chevron-right text-[10px] opacity-50"></i>
+                <span class="font-medium">@cat.TenDanhMuc</span>
+            </a>
+        }
+    </div>
+</div>

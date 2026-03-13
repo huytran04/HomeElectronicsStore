@@ -1,0 +1,61 @@
+<div id="toast-container" class="fixed top-24 right-6 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+<template id="toast-template">
+    <div class="toast-item transform translate-x-full opacity-0 transition-[transform,opacity] duration-300 ease-out pointer-events-auto flex items-center gap-4 px-6 py-4 rounded-[1.5rem] shadow-xl bg-white border min-w-[320px] max-w-md">
+        <div class="toast-icon w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+            <i class="fa text-lg"></i>
+        </div>
+        <div class="flex-1">
+            <p class="toast-message text-sm font-black text-slate-800 leading-tight"></p>
+        </div>
+        <button class="toast-close text-slate-400 hover:text-slate-800 transition-colors p-1">
+            <i class="fa fa-times text-xs"></i>
+        </button>
+    </div>
+</template>
+
+<style>
+    .toast-success { background: #f0fdf4; border-color: #10b98133; }
+    .toast-success .toast-icon { background: #10b981; color: white; }
+    .toast-success .toast-icon i::before { content: "\f00c"; }
+
+    .toast-error { background: #fef2f2; border-color: #e8192c33; }
+    .toast-error .toast-icon { background: #e8192c; color: white; }
+    .toast-error .toast-icon i::before { content: "\f06a"; }
+
+    .toast-warning { background: #fffbeb; border-color: #f59e0b33; }
+    .toast-warning .toast-icon { background: #f59e0b; color: white; }
+    .toast-warning .toast-icon i::before { content: "\f071"; }
+
+    .toast-item.show { transform: translateX(0); opacity: 1; }
+</style>
+
+<script>
+    window.showToast = function(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const template = document.getElementById('toast-template');
+        const clone = template.content.cloneNode(true);
+        const item = clone.querySelector('.toast-item');
+        
+        item.classList.add('toast-' + type);
+        item.querySelector('.toast-message').innerText = message;
+        
+        const closeBtn = item.querySelector('.toast-close');
+        closeBtn.onclick = () => removeToast(item);
+        
+        container.appendChild(item);
+        
+        // Trigger animation
+        setTimeout(() => item.classList.add('show'), 10);
+        
+        // Auto remove
+        const timeout = setTimeout(() => removeToast(item), 5000);
+        
+        function removeToast(el) {
+            el.classList.remove('show');
+            el.classList.add('translate-x-full', 'opacity-0');
+            clearTimeout(timeout);
+            setTimeout(() => el.remove(), 500);
+        }
+    }
+</script>

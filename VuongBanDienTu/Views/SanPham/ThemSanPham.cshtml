@@ -1,0 +1,82 @@
+@model VuongBanDienTu.Models.SanPham
+
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Thêm sản phẩm mới";
+}
+
+<div class="max-w-4xl">
+    <div class="mb-6 flex items-center justify-between">
+        <a href="@Url.Action("Index", "SanPham")" class="text-slate-500 hover:text-primary transition-colors flex items-center gap-2 font-bold text-xs uppercase tracking-wider">
+            <i class="fa fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-8 border-b border-slate-100 bg-slate-50/50">
+            <h2 class="text-xl font-black text-slate-800">Thông tin sản phẩm</h2>
+            <p class="text-sm text-slate-500 mt-1">Vui lòng nhập đầy đủ các thông tin cần thiết bên dưới.</p>
+        </div>
+
+        @using (Html.BeginForm("ThemSanPham", "SanPham", FormMethod.Post, new { @class = "p-8 space-y-6", enctype = "multipart/form-data" }))
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tên sản phẩm -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tên sản phẩm *</label>
+                    @Html.TextBoxFor(m => m.TenSanPham, new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", placeholder = "Ví dụ: Tivi Samsung 55 Inch..." })
+                </div>
+
+                <!-- Danh mục -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Danh mục *</label>
+                    @Html.DropDownList("MaDanhMuc", null, "-- Chọn danh mục --", new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer" })
+                </div>
+
+                <!-- Trạng thái -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Trạng thái</label>
+                    @Html.DropDownListFor(m => m.TrangThai, new SelectList(new[] { "Đang bán", "Ngừng kinh doanh", "Hết hàng" }), new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer" })
+                </div>
+
+                <!-- Giá bán -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Giá bán (VNĐ) *</label>
+                    @Html.TextBoxFor(m => m.GiaBan, new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", type = "number" })
+                </div>
+
+                <!-- Số lượng tồn -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Số lượng tồn</label>
+                    @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", type = "number" })
+                </div>
+
+                <!-- Ảnh chính File Upload -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ảnh chính sản phẩm</label>
+                    <input type="file" name="AnhChinhFile" class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" />
+                    <p class="text-[10px] text-slate-400 mt-1">Lưu ý: Hình ảnh sẽ được lưu trữ trực tiếp vào thư mục hệ thống.</p>
+                </div>
+
+                <!-- Mô tả tổng quan -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Mô tả tổng quan</label>
+                    @Html.TextAreaFor(m => m.MoTaTongQuan, new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[120px]", placeholder = "Mô tả chi tiết về sản phẩm..." })
+                </div>
+
+                <!-- Thông số kỹ thuật -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Thông số kỹ thuật</label>
+                    @Html.TextAreaFor(m => m.ThongSoKyThuat, new { @class = "w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[120px]", placeholder = "Nhập thông số kỹ thuật (có thể sử dụng HTML)..." })
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+                <a href="@Url.Action("Index", "SanPham")" class="px-6 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all">HỦY BỎ</a>
+                <button type="submit" class="bg-primary text-white px-8 py-3 rounded-xl text-xs font-black shadow-lg shadow-red-200 hover:bg-primary-dark hover:-translate-y-0.5 transition-all">
+                    LƯU SẢN PHẨM
+                </button>
+            </div>
+        }
+    </div>
+</div>

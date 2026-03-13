@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="0df99788391148fd9e88ff429288e574" Name="Diagram1" ZoomLevel="55">
+        <EntityTypeShape EntityType="VuongDienTu1Model.ChiTietDonHang" Width="1.5" PointX="4.375" PointY="3" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.DanhMuc" Width="1.5" PointX="1.5" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.DonHang" Width="1.5" PointX="4.375" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.GioHang" Width="1.5" PointX="7.625" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.HinhAnhSanPham" Width="1.5" PointX="1.5" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.NguoiDung" Width="1.5" PointX="1.5" PointY="14.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.SanPham" Width="1.5" PointX="0.75" PointY="4.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.ThanhToan" Width="1.5" PointX="3" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="VuongDienTu1Model.VaiTro" Width="1.5" PointX="1.5" PointY="19.125" IsExpanded="true" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__ChiTietDo__MaDon__5812160E" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__ChiTietDo__MaSan__59063A47" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__SanPham__MaDanhM__4222D4EF" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK_DanhMuc_Parent" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__DonHang__MaKhach__5070F446" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__DonHang__MaNhanV__5165187F" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__ThanhToan__MaDon__5BE2A6F2" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__GioHang__MaNguoi__4AB81AF0" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__GioHang__MaSanPh__4BAC3F29" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__HinhAnhSa__MaSan__47DBAE45" ManuallyRouted="false" />
+        <AssociationConnector Association="VuongDienTu1Model.FK__NguoiDung__MaVai__3A81B327" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

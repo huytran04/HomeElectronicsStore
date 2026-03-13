@@ -1,0 +1,50 @@
+@model VuongBanDienTu.Models.DonHang
+
+@{
+    ViewBag.Title = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-screen-xl mx-auto px-4 py-24 flex flex-col items-center text-center">
+    <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mb-8 animate-bounce">
+        <i class="fa fa-circle-check text-6xl"></i>
+    </div>
+    
+    <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tight mb-4 italic">Cảm ơn bạn đã đặt hàng!</h1>
+    <p class="text-lg text-slate-500 font-medium mb-12">Đơn hàng <span class="text-primary font-black">#DH-@Model.MaDonHang.ToString("D4")</span> của bạn đã được tiếp nhận và đang xử lý.</p>
+
+    <div class="bg-white rounded-[3rem] border border-slate-100 p-12 shadow-sm max-w-lg w-full mb-12 space-y-8">
+        <div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tổng thanh toán (COD)</p>
+            <p class="text-4xl font-black text-primary italic">@(((decimal)(Model.TongTien ?? 0m)).ToString("N0"))₫</p>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 text-sm">
+            <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-4">
+                <i class="fa fa-location-dot text-slate-300 text-xl"></i>
+                <div class="text-left">
+                    <p class="text-[10px] font-black text-slate-500 uppercase">Giao tới</p>
+                    <p class="font-bold text-slate-800 line-clamp-2">@Model.DiaChiGiaoHang</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-4">
+                <i class="fa fa-truck-fast text-slate-300 text-xl"></i>
+                <div class="text-left">
+                    <p class="text-[10px] font-black text-slate-500 uppercase">Dự kiến nhận hàng</p>
+                    <p class="font-bold text-slate-800">@DateTime.Now.AddDays(2).ToString("dd/MM/yyyy") (2-3 ngày làm việc)</p>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-xs text-slate-400 leading-relaxed italic">Chúng tôi sẽ gọi điện xác nhận đơn hàng sớm nhất có thể. Vui lòng giữ liên lạc qua số điện thoại đã đăng ký.</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4">
+        <a href="@Url.Action("Index", "Home")" class="px-12 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-200">
+            Quay lại trang chủ
+        </a>
+        <a href="#" class="px-12 py-4 border-2 border-primary text-primary rounded-2xl font-black uppercase tracking-widest hover:bg-red-50 transition-all">
+            Xem chi tiết đơn hàng
+        </a>
+    </div>
+</div>

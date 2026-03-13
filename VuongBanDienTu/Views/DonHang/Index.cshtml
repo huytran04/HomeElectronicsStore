@@ -1,0 +1,70 @@
+@{
+    ViewBag.Title = "Tra cứu đơn hàng";
+}
+
+<div class="max-w-xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+        <div class="p-8 sm:p-12">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3 hover:rotate-0 transition-transform duration-500">
+                    <i class="fa fa-search-location text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Tra cứu đơn hàng</h2>
+                <p class="text-slate-400 font-medium mt-2">Nhập thông tin để theo dõi tiến độ đơn hàng của bạn</p>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="mb-8 p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 text-primary animate-shake">
+                    <i class="fa fa-exclamation-circle text-lg"></i>
+                    <p class="text-xs font-bold uppercase tracking-wider">@ViewBag.Error</p>
+                </div>
+            }
+
+            <form action="@Url.Action("TimKiem", "DonHang")" method="post" class="space-y-6">
+                <div class="space-y-1.5 group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-primary transition-colors">Mã đơn hàng</label>
+                    <div class="relative">
+                        <i class="fa fa-hashtag absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors"></i>
+                        <input type="number" name="maDon" required value="@ViewBag.MaDon"
+                            class="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-slate-800 placeholder:text-slate-300 shadow-inner" 
+                            placeholder="VD: 12345">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5 group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-primary transition-colors">Số điện thoại đặt hàng</label>
+                    <div class="relative">
+                        <i class="fa fa-phone-alt absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors"></i>
+                        <input type="tel" name="sdt" required value="@ViewBag.SDT"
+                            class="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-slate-800 placeholder:text-slate-300 shadow-inner" 
+                            placeholder="Nhập số điện thoại...">
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-primary-dark hover:-translate-y-1 transition-all flex items-center justify-center gap-3 group">
+                        <span>Kiểm tra trạng thái</span>
+                        <i class="fa fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-10 pt-8 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-slate-400 font-medium italic">* Vui lòng kiểm tra lại chính xác mã đơn trong email xác nhận.</p>
+                <a href="@Url.Action("LichSu", "DonHang")" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">
+                    <i class="fa fa-history"></i> Xem lịch sử mua hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+.animate-shake { animation: shake 0.4s ease-in-out; }
+</style>

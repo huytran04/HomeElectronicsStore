@@ -1,0 +1,123 @@
+@model VuongBanDienTu.Models.SanPham
+
+<div class="bg-white rounded-3xl overflow-hidden">
+    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <div>
+            <h2 class="text-lg font-black text-slate-800">Chỉnh sửa sản phẩm</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Cập nhật thông tin cho sản phẩm: <span class="font-bold text-primary">@Model.TenSanPham</span></p>
+        </div>
+        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+            <i class="fa fa-times text-xl"></i>
+        </button>
+    </div>
+
+    @using (Html.BeginForm("SuaSanPham", "QuanLySanPham", FormMethod.Post, new { id = "editForm", @class = "p-6 space-y-5", enctype = "multipart/form-data" }))
+    {
+        @Html.HiddenFor(m => m.MaSanPham)
+        @Html.HiddenFor(m => m.NgayTao)
+        @Html.HiddenFor(m => m.AnhChinh)
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="md:col-span-2">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Tên sản phẩm *</label>
+                @Html.TextBoxFor(m => m.TenSanPham, new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", placeholder = "Ví dụ: Tivi Samsung...", required = "required" })
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Danh mục *</label>
+                @Html.DropDownList("MaDanhMuc", null, "-- Chọn danh mục --", new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer", required = "required" })
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Trạng thái</label>
+                @Html.DropDownListFor(m => m.TrangThai, new SelectList(new[] { "Đang bán", "Ngừng kinh doanh", "Hết hàng" }), new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" })
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Giá bán (VNĐ) *</label>
+                @Html.TextBoxFor(m => m.GiaBan, new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", type = "number", required = "required" })
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Số lượng tồn</label>
+                @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all", type = "number" })
+            </div>
+
+            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 flex justify-between items-center">
+                        <span>Ảnh chính hiện tại</span>
+                        <span class="text-[9px] text-primary normal-case font-black">CHỌN ĐỂ THAY ĐỔI</span>
+                    </label>
+                    <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="w-12 h-12 rounded-lg overflow-hidden border border-white shadow-sm flex-shrink-0">
+                            <img src="~/Content/Images/Products/@Model.AnhChinh" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <input type="file" name="AnhChinhFile" class="flex-1 text-xs file:hidden cursor-pointer" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Thêm ảnh phụ mới</label>
+                    <input type="file" name="AnhPhuFiles" id="galleryInputEdit" multiple class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" onchange="checkFileLimitEdit(this)" />
+                </div>
+            </div>
+
+            <!-- Existing Gallery Section -->
+            @if (Model.HinhAnhSanPhams != null && Model.HinhAnhSanPhams.Any())
+            {
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Bộ sưu tập ảnh phụ hiện có</label>
+                    <div class="flex flex-wrap gap-3">
+                        @foreach (var hinh in Model.HinhAnhSanPhams)
+                        {
+                            <div class="relative group w-20 h-20 rounded-xl overflow-hidden border border-slate-100" id="img-phu-@hinh.MaHinhAnh">
+                                <img src="~/Content/Images/Gallery/@hinh.DuongDanAnh" class="w-full h-full object-cover">
+                                <button type="button" onclick="deleteGalleryImage(@hinh.MaHinhAnh)" class="absolute inset-0 bg-primary/80 text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                                    <i class="fa fa-trash-can"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="md:col-span-2">
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Mô tả tổng quan</label>
+                @Html.TextAreaFor(m => m.MoTaTongQuan, new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[80px]" })
+            </div>
+
+            <!-- Fixed Specs Section -->
+            <div class="md:col-span-2 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                <label class="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4">Thông số kỹ thuật chi tiết</label>
+                
+                @Html.HiddenFor(m => m.ThongSoKyThuat, new { id = "hiddenThongSoKyThuat" })
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Thông số (VD: Công suất, Loa bass...)</label>
+                        <input type="text" id="spec_ThongSo" placeholder="Nhập tóm tắt thông số" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary transition-all" oninput="updateSpecsFixed()">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Nhà sản xuất</label>
+                        <input type="text" id="spec_NhaSanXuat" placeholder="VD: JBL, Samsung..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary transition-all" oninput="updateSpecsFixed()">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Xuất xứ</label>
+                        <input type="text" id="spec_XuatXu" placeholder="VD: Việt Nam, Trung Quốc..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary transition-all" oninput="updateSpecsFixed()">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Thời gian bảo hành</label>
+                        <input type="text" id="spec_BaoHanh" placeholder="VD: 12 tháng, 24 tháng..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary transition-all" oninput="updateSpecsFixed()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-5 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 hover:bg-slate-50 transition-all">HUỶ BỎ</button>
+            <button type="submit" class="bg-primary text-white px-6 py-2.5 rounded-xl text-[11px] font-black shadow-lg shadow-red-200 hover:bg-primary-dark hover:-translate-y-0.5 transition-all uppercase tracking-widest">
+                Cập nhật
+            </button>
+        </div>
+    }
+</div>

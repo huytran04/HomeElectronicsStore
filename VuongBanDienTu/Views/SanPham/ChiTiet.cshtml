@@ -1,0 +1,290 @@
+@model VuongBanDienTu.Models.SanPham
+
+@{
+    ViewBag.Title = Model.TenSanPham;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var relatedProducts = ViewBag.RelatedProducts as List<VuongBanDienTu.Models.SanPham>;
+}
+
+<div class="bg-slate-50 border-b border-slate-200">
+    <div class="max-w-screen-xl mx-auto px-4 py-4 flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <a href="@Url.Action("Index", "Home")" class="hover:text-primary">Trang chủ</a>
+        <i class="fa fa-chevron-right text-[8px]"></i>
+        <a href="@Url.Action("Index", "SanPham")" class="hover:text-primary">Sản phẩm</a>
+        <i class="fa fa-chevron-right text-[8px]"></i>
+        <a href="@Url.Action("Index", "SanPham", new { id = Model.MaDanhMuc })" class="hover:text-primary">@(Model.DanhMuc != null ? Model.DanhMuc.TenDanhMuc : "Khác")</a>
+        <i class="fa fa-chevron-right text-[8px]"></i>
+        <span class="text-slate-900 font-bold truncate">@Model.TenSanPham</span>
+    </div>
+</div>
+
+<main class="max-w-screen-xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <!-- Product Images -->
+        <div class="md:col-span-5">
+            <div class="sticky top-24 space-y-6">
+                <!-- Main Slider -->
+                <div class="relative group">
+                    <div class="aspect-square bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm group-hover:shadow-xl transition-all duration-500 overflow-hidden flex items-center justify-center">
+                        <img id="mainImage" src="~/Content/Images/Products/@Model.AnhChinh" 
+                             alt="@Model.TenSanPham" 
+                             class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    
+                    <!-- Navigation Buttons -->
+                    <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur shadow-md rounded-full flex items-center justify-center text-slate-700 opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white z-10">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur shadow-md rounded-full flex items-center justify-center text-slate-700 opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white z-10">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Mini Thumbnails -->
+                <div class="flex gap-3 px-1 overflow-x-auto scrollbar-hide pb-2" id="thumbnailList">
+                    <div class="thumbnail-item active w-20 h-20 rounded-2xl border-2 border-primary p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0" 
+                         data-src="@Url.Content("~/Content/Images/Products/" + Model.AnhChinh)"
+                         onclick="jumpToSlide(0)">
+                        <img src="~/Content/Images/Products/@Model.AnhChinh" class="w-full h-full object-contain">
+                    </div>
+                    @if (Model.HinhAnhSanPhams != null) {
+                        var hinhAnhs = Model.HinhAnhSanPhams.ToList();
+                        for (int i = 0; i < hinhAnhs.Count; i++) {
+                            var img = hinhAnhs[i];
+                            var displayIdx = i + 1;
+                            // Chỉ hiển thị tối đa 4 thumbnail phụ, cái cuối cùng hiện +N nếu còn
+                            if (i < 3 || (i == 3 && hinhAnhs.Count == 4)) {
+                                <div class="thumbnail-item w-20 h-20 rounded-2xl border-2 border-transparent hover:border-slate-200 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0"
+                                     data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"
+                                     onclick="jumpToSlide(@displayIdx)">
+                                    <img src="~/Content/Images/Gallery/@img.DuongDanAnh" class="w-full h-full object-contain">
+                                </div>
+                            } else if (i == 3 && hinhAnhs.Count > 4) {
+                                <div class="thumbnail-item w-20 h-20 rounded-2xl border-2 border-transparent hover:border-slate-200 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0 relative"
+                                     data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"
+                                     onclick="jumpToSlide(@displayIdx)">
+                                    <img src="~/Content/Images/Gallery/@img.DuongDanAnh" class="w-full h-full object-contain opacity-40">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white font-black text-sm">
+                                        +@(hinhAnhs.Count - 3)
+                                    </div>
+                                </div>
+                            } else {
+                                // Các ảnh còn lại vẫn render nhưng ẩn đi (để script jumpToSlide vẫn chạy đúng index)
+                                <div class="thumbnail-item hidden" data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"></div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="md:col-span-7 space-y-8">
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
+                    Mới nhất
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">@Model.TenSanPham</h1>
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-1 text-yellow-400">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star text-slate-200"></i>
+                        <span class="text-slate-400 text-xs font-bold ml-2">(4.2)</span>
+                    </div>
+                    <div class="h-4 w-px bg-slate-200"></div>
+                    <span class="text-xs text-slate-500 font-bold uppercase tracking-widest">Mã SP: SP-@Model.MaSanPham.ToString("D4")</span>
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between">
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Giá niêm yết</p>
+                    <p class="text-3xl font-black text-primary">@Model.GiaBan.ToString("N0") <span class="text-lg">₫</span></p>
+                </div>
+                <div class="hidden sm:block text-right">
+                    @if (Model.SoLuongTon > 0)
+                    {
+                        <p class="text-[10px] text-green-600 font-black px-3 py-1 bg-green-50 rounded-full inline-block mb-1">CÒN HÀNG</p>
+                        <p class="text-[11px] text-slate-400 font-medium">Kho còn: <span class="font-black text-slate-600">@Model.SoLuongTon</span> sản phẩm</p>
+                    }
+                    else
+                    {
+                        <p class="text-[10px] text-primary font-black px-3 py-1 bg-red-50 rounded-full inline-block mb-1 text-red-600 bg-red-50">HẾT HÀNG</p>
+                        <p class="text-[11px] text-slate-400 font-medium">Liên hệ để đặt trước</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-4">
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest border-l-4 border-primary pl-3">Mô tả sản phẩm</h3>
+                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                    @Html.Raw(Model.MoTaTongQuan ?? "Đang cập nhật nội dung mô tả sản phẩm...")
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-6 space-y-4">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    @if (Model.SoLuongTon > 0)
+                    {
+                        <div class="flex items-center bg-slate-100 rounded-2xl p-1 w-fit">
+                            <button class="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-primary transition-colors" onclick="changeQty(-1)"><i class="fa fa-minus"></i></button>
+                            <input type="number" id="buyQty" value="1" min="1" max="@Model.SoLuongTon" readonly class="w-12 text-center bg-transparent border-none font-black text-slate-800 outline-none">
+                            <button class="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-primary transition-colors" onclick="changeQty(1)"><i class="fa fa-plus"></i></button>
+                        </div>
+                        
+                        <button onclick="addToCart(@Model.MaSanPham, event, false)" class="flex-1 bg-slate-100 text-slate-700 h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-3">
+                            <i class="fa fa-cart-shopping"></i>
+                            Thêm vào giỏ
+                        </button>
+                        
+                        <button onclick="addToCart(@Model.MaSanPham, event, true)" class="flex-1 bg-primary text-white h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-primary-dark hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                            <i class="fa fa-bolt"></i>
+                            Mua ngay
+                        </button>
+                    }
+                    else
+                    {
+                        <button disabled class="flex-1 bg-slate-200 text-slate-400 h-14 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-3">
+                            <i class="fa fa-box-open"></i>
+                            Sản phẩm tạm hết hàng
+                        </button>
+                    }
+                </div>
+                @if (Model.SoLuongTon > 0 && Model.SoLuongTon < 10)
+                {
+                    <p class="text-xs text-primary font-black animate-pulse uppercase tracking-widest">
+                        <i class="fa fa-fire mr-1"></i> Chỉ còn @Model.SoLuongTon sản phẩm trong kho!
+                    </p>
+                }
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 py-4">
+                <div class="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                        <i class="fa fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase">Bảo hành chính hãng</p>
+                        <p class="text-[10px] text-slate-500 font-medium">12 tháng toàn quốc</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-4 bg-orange-50/50 rounded-2xl border border-orange-100/50">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                        <i class="fa fa-arrows-rotate"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase">Đổi trả 30 ngày</p>
+                        <p class="text-[10px] text-slate-500 font-medium">Lỗi là đổi mới ngay</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (relatedProducts != null && relatedProducts.Count > 0)
+    {
+        <div class="mt-20 space-y-10">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Sản phẩm liên quan</h2>
+                    <p class="text-sm text-slate-500 mt-1">Gợi ý dành riêng cho bạn từ danh mục @(Model.DanhMuc?.TenDanhMuc)</p>
+                </div>
+                <a href="@Url.Action("Index", "SanPham", new { id = Model.MaDanhMuc })" class="text-xs font-black text-primary hover:underline uppercase tracking-widest flex items-center gap-2">
+                    Xem tất cả <i class="fa fa-chevron-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                @foreach (var item in relatedProducts)
+                {
+                    <div class="group bg-white rounded-[1.5rem] p-4 border border-slate-100 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 flex flex-col">
+                        <div class="aspect-square bg-slate-50 rounded-2xl p-4 mb-4 relative overflow-hidden">
+                            <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" 
+                                 class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-2">
+                                <a href="@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary shadow-lg hover:bg-slate-50 transition-colors">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                <button onclick="addToCart(@item.MaSanPham)" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary shadow-lg hover:bg-slate-50 transition-colors">
+                                    <i class="fa fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <h4 class="text-sm font-black text-slate-800 line-clamp-2 mb-2 group-hover:text-primary transition-colors">@item.TenSanPham</h4>
+                        <p class="mt-auto text-lg font-black text-primary">@item.GiaBan.ToString("N0")₫</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</main>
+
+@section scripts {
+    <script>
+        let currentSlide = 0;
+        const thumbnails = document.querySelectorAll('.thumbnail-item');
+        
+        function updateSlider() {
+            const activeThumb = thumbnails[currentSlide];
+            if (!activeThumb) return;
+            
+            const src = activeThumb.getAttribute('data-src');
+            
+            // Update main image
+            const mainImg = document.getElementById('mainImage');
+            mainImg.style.opacity = '0';
+            mainImg.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+                mainImg.style.transform = 'scale(1)';
+            }, 200);
+
+            // Update thumbnails
+            thumbnails.forEach(t => {
+                t.classList.remove('border-primary', 'active');
+                t.classList.add('border-transparent');
+            });
+            activeThumb.classList.add('border-primary', 'active');
+            activeThumb.classList.remove('border-transparent');
+            
+            // Scroll thumbnail into view
+            activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % thumbnails.length;
+            updateSlider();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + thumbnails.length) % thumbnails.length;
+            updateSlider();
+        }
+
+        function jumpToSlide(idx) {
+            currentSlide = idx;
+            updateSlider();
+        }
+
+        function changeQty(n) {
+            const input = document.getElementById('buyQty');
+            const max = parseInt(input.getAttribute('max'));
+            let val = parseInt(input.value) + n;
+            if (val < 1) val = 1;
+            if (val > max) {
+                showToast('Rất tiếc, kho chỉ còn ' + max + ' sản phẩm!', 'warning');
+                val = max;
+            }
+            input.value = val;
+        }
+    </script>
+}

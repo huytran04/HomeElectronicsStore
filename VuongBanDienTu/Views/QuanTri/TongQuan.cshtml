@@ -1,0 +1,133 @@
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Tổng quan hệ thống (Admin)";
+}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Thẻ thống kê -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa fa-users"></i>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-500">Người dùng mới</p>
+            <p class="text-2xl font-black text-slate-800">1,248</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +12%</p>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa fa-dollar-sign"></i>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-500">Doanh thu tháng</p>
+            <p class="text-2xl font-black text-slate-800">2.4 tỷ</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +8.4%</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa fa-shopping-cart"></i>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-500">Đơn hàng mới</p>
+            <p class="text-2xl font-black text-slate-800">56</p>
+            <p class="text-[10px] text-primary font-bold"><i class="fa fa-arrow-down"></i> -3%</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa fa-eye"></i>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-500">Lượt truy cập</p>
+            <p class="text-2xl font-black text-slate-800">45.2K</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +24%</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Hoạt động gần đây -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="font-bold text-slate-800">Hoạt động gần đây</h3>
+            <button class="text-xs text-primary font-bold hover:underline">Xem tất cả</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                        <th class="px-6 py-3">Người dùng</th>
+                        <th class="px-6 py-3">Hành động</th>
+                        <th class="px-6 py-3">Thời gian</th>
+                        <th class="px-6 py-3 text-right">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    <tr>
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">NV</div>
+                            <div>
+                                <p class="font-bold text-slate-800 leading-none">Nguyễn Văn A</p>
+                                <p class="text-[10px] text-slate-400 mt-1">Nhân viên Bán hàng</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">Cập nhật đơn hàng #DH1234</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">2 phút trước</td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Thành công</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">QL</div>
+                            <div>
+                                <p class="font-bold text-slate-800 leading-none">Trần Thị B</p>
+                                <p class="text-[10px] text-slate-400 mt-1">Quản lý Kho</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">Thêm sản phẩm mới: iPhone 16</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">15 phút trước</td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Thành công</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tình trạng hệ thống -->
+    <div class="flex flex-col gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="font-bold text-slate-800 mb-4">Hệ thống</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Cơ sở dữ liệu</span>
+                    <span class="text-xs font-bold text-green-500">Ổn định</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-green-500 h-full w-[95%]"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Dung lượng ổ đĩa</span>
+                    <span class="text-xs font-bold text-amber-500">75%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-amber-500 h-full w-[75%]"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-primary p-6 rounded-2xl shadow-lg shadow-red-200 text-white relative overflow-hidden">
+            <i class="fa fa-shield-halved absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
+            <h3 class="font-bold text-lg mb-2">Bảo mật</h3>
+            <p class="text-xs opacity-80 mb-4 lh-relaxed">Hệ thống đang được bảo vệ. Có 0 cảnh báo mới từ tường lửa.</p>
+            <button class="bg-white text-primary text-[10px] font-black px-4 py-2 rounded-lg uppercase">Kiểm tra ngay</button>
+        </div>
+    </div>
+</div>

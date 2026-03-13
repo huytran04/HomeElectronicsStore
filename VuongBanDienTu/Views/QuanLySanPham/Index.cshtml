@@ -1,0 +1,336 @@
+@model IEnumerable<VuongBanDienTu.Models.SanPham>
+
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Quản lý sản phẩm";
+}
+
+<div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Quản lý sản phẩm</h1>
+        <p class="text-sm text-slate-500">Danh sách toàn bộ sản phẩm đang kinh doanh trên hệ thống.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <button onclick="openAddModal()" class="bg-primary text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center gap-2 shadow-lg shadow-red-200">
+            <i class="fa fa-plus"></i> THÊM SẢN PHẨM MỚI
+        </button>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left" id="productTable">
+            <thead>
+                <tr class="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                    <th class="px-6 py-4">Sản phẩm</th>
+                    <th class="px-6 py-4">Danh mục</th>
+                    <th class="px-6 py-4">Giá bán</th>
+                    <th class="px-6 py-4 text-center">Tồn kho</th>
+                    <th class="px-6 py-4 text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50/50 transition-colors" id="row-@item.MaSanPham">
+                        <td class="px-6 py-4 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-100 overflow-hidden flex-shrink-0">
+                                @if (!string.IsNullOrEmpty(item.AnhChinh))
+                                {
+                                    <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" class="w-full h-full object-cover">
+                                }
+                                else
+                                {
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <i class="fa fa-image text-slate-300"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-slate-800 truncate">@item.TenSanPham</p>
+                                <p class="text-[10px] text-slate-400 mt-1 uppercase">Mã: SP-@item.MaSanPham.ToString("D4")</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-medium text-slate-600">@(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "Không có")</span>
+                        </td>
+                        <td class="px-6 py-4 font-black text-slate-800">
+                            @item.GiaBan.ToString("N0")đ
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            @if (item.SoLuongTon <= 5)
+                            {
+                                <span class="bg-red-50 text-red-600 font-bold px-2 py-1 rounded text-xs">@item.SoLuongTon</span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-600">@item.SoLuongTon</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="openEditModal(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProduct(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-red-50 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL STRUCTURE -->
+<div id="crudModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0 duration-300" id="modalContainer">
+            <!-- Content will be loaded here via AJAX -->
+            <div class="p-12 text-center" id="modalLoading">
+                <i class="fa fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
+                <p class="text-sm text-slate-500 font-bold uppercase tracking-widest">Đang tải dữ liệu...</p>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" class="fixed inset-0 z-[60] hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
+        <div class="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0 duration-300 p-8 text-center" id="deleteModalContainer">
+            <div class="w-20 h-20 bg-red-50 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-trash-can text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase">Xóa sản phẩm?</h3>
+            <p class="text-sm text-slate-500 mb-8">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa sản phẩm này khỏi hệ thống?</p>
+            <div class="flex flex-col gap-3">
+                <button id="confirmDeleteBtn" class="w-full bg-primary text-white py-3.5 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-200 hover:bg-primary-dark transition-all">XÁC NHẬN XÓA</button>
+                <button onclick="closeDeleteModal()" class="w-full bg-slate-50 text-slate-500 py-3.5 rounded-2xl font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">HỦY BỎ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        const modal = document.getElementById('crudModal');
+        const modalContainer = document.getElementById('modalContainer');
+        const modalContent = document.getElementById('modalContent');
+        const modalLoading = document.getElementById('modalLoading');
+
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteModalContainer = document.getElementById('deleteModalContainer');
+        let currentDeleteId = null;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContainer.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContainer.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.innerHTML = '';
+            }, 300);
+        }
+
+        function openDeleteModal(id) {
+            currentDeleteId = id;
+            deleteModal.classList.remove('hidden');
+            setTimeout(() => {
+                deleteModalContainer.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            deleteModalContainer.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                deleteModal.classList.add('hidden');
+                currentDeleteId = null;
+            }, 300);
+        }
+
+        document.getElementById('confirmDeleteBtn').onclick = function() {
+            if (!currentDeleteId) return;
+            
+            this.disabled = true;
+            this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> ĐANG XÓA...';
+
+            fetch('@Url.Action("XoaSanPham", "QuanLySanPham")/' + currentDeleteId, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.getElementById('row-' + currentDeleteId);
+                    if (row) row.remove();
+                    closeDeleteModal();
+                    showToast('Xóa sản phẩm thành công!', 'success');
+                } else {
+                    showToast(data.message || 'Không thể xóa sản phẩm.', 'error');
+                }
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = 'XÁC NHẬN XÓA';
+            });
+        };
+
+        function checkFileLimit(input) {
+            if (input.files.length > 9) {
+                alert("Bạn chỉ được chọn tối đa 9 ảnh phụ!");
+                input.value = "";
+            }
+        }
+
+        function checkFileLimitEdit(input) {
+            const currentImages = document.querySelectorAll('[id^="img-phu-"]').length;
+            if (input.files.length + currentImages > 9) {
+                alert("Tổng số ảnh phụ (cũ + mới) không được vượt quá 9 tấm! Hiện tại đã có " + currentImages + " ảnh.");
+                input.value = "";
+            }
+        }
+
+        function updateSpecsFixed() {
+            const hiddenInput = document.getElementById('hiddenThongSoKyThuat');
+            if (!hiddenInput) return;
+            
+            const thongSo = document.getElementById('spec_ThongSo').value.trim();
+            const nhaSX = document.getElementById('spec_NhaSanXuat').value.trim();
+            const xuatXu = document.getElementById('spec_XuatXu').value.trim();
+            const baoHanh = document.getElementById('spec_BaoHanh').value.trim();
+
+            const specs = [];
+            if (thongSo) specs.push(`Thông số: ${thongSo}`);
+            if (nhaSX) specs.push(`Nhà sản xuất: ${nhaSX}`);
+            if (xuatXu) specs.push(`Xuất xứ: ${xuatXu}`);
+            if (baoHanh) specs.push(`Bảo hành: ${baoHanh}`);
+
+            hiddenInput.value = specs.join(' | ');
+        }
+
+        function initSpecs() {
+            const hiddenInput = document.getElementById('hiddenThongSoKyThuat');
+            if (!hiddenInput) return;
+            const rawValue = hiddenInput.value;
+            
+            // Map keys to IDs
+            const fieldMap = {
+                'Thông số': 'spec_ThongSo',
+                'Nhà sản xuất': 'spec_NhaSanXuat',
+                'Xuất xứ': 'spec_XuatXu',
+                'Bảo hành': 'spec_BaoHanh'
+            };
+
+            if (rawValue) {
+                const pairs = rawValue.split(' | ');
+                pairs.forEach(pair => {
+                    const parts = pair.split(': ');
+                    if (parts.length === 2 && fieldMap[parts[0]]) {
+                        document.getElementById(fieldMap[parts[0]]).value = parts[1];
+                    }
+                });
+            }
+        }
+
+        function openAddModal() {
+            modalLoading.classList.remove('hidden');
+            modalContent.innerHTML = '';
+            openModal();
+            fetch('@Url.Action("ThemSanPham", "QuanLySanPham")', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                modalLoading.classList.add('hidden');
+                modalContent.innerHTML = html;
+                initForm('addForm');
+                // No need to initSpecs here as _ThemSanPhamPartial has a default row now
+            });
+        }
+
+        function openEditModal(id) {
+            modalLoading.classList.remove('hidden');
+            modalContent.innerHTML = '';
+            openModal();
+            fetch('@Url.Action("SuaSanPham", "QuanLySanPham")/' + id, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                modalLoading.classList.add('hidden');
+                modalContent.innerHTML = html;
+                initForm('editForm');
+                initSpecs(); // Initialize specs for Edit
+            });
+        }
+
+        function initForm(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> ĐANG XỬ LÝ...';
+
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload(); 
+                    } else {
+                        showToast('Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.', 'error');
+                    }
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            };
+        }
+
+        function deleteProduct(id) {
+            openDeleteModal(id);
+        }
+        function deleteGalleryImage(id) {
+            if (!confirm('Bạn có chắc muốn xóa ảnh này khỏi bộ sưu tập?')) return;
+            
+            fetch('@Url.Action("XoaAnhPhu", "QuanLySanPham")/' + id, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const el = document.getElementById('img-phu-' + id);
+                    if (el) {
+                        el.style.transform = 'scale(0)';
+                        el.style.opacity = '0';
+                        setTimeout(() => el.remove(), 300);
+                    }
+                    showToast('Đã xóa ảnh phụ!', 'success');
+                } else {
+                    showToast(data.message || 'Lỗi khi xóa ảnh.', 'error');
+                }
+            });
+        }
+    </script>
+}

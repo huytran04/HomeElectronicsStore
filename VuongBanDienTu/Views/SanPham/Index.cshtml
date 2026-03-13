@@ -1,0 +1,134 @@
+@model IEnumerable<VuongBanDienTu.Models.SanPham>
+
+@{
+    var currentCat = ViewBag.CurrentCategory as VuongBanDienTu.Models.DanhMuc;
+    ViewBag.Title = currentCat != null ? currentCat.TenDanhMuc : "Tất cả sản phẩm";
+}
+
+<div class="max-w-screen-xl mx-auto px-4 py-8 flex gap-6">
+    <!-- Sidebar for filtering -->
+    <aside class="hidden md:flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm flex-shrink-0 w-60 border border-slate-100 self-start">
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
+            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Danh mục</h3>
+        </div>
+        <ul class="flex-1 py-1">
+            <li class="transition-colors hover:bg-red-50 @(currentCat == null ? "bg-red-50 text-primary font-bold" : "text-slate-600")">
+                <a href="@Url.Action("Index", "SanPham", new { id = "" })" class="flex items-center gap-2 px-4 py-2.5 text-xs">
+                    <i class="fa fa-grid-2 text-[10px]"></i> Tất cả sản phẩm
+                </a>
+            </li>
+            @if (ViewBag.Categories != null)
+            {
+                foreach (var cat in (IEnumerable<VuongBanDienTu.Models.DanhMuc>)ViewBag.Categories)
+                {
+                    <li class="transition-colors hover:bg-red-50 @(currentCat != null && currentCat.MaDanhMuc == cat.MaDanhMuc ? "bg-red-50 text-primary font-bold" : "text-slate-600")">
+                        <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-4 py-2.5 text-xs">
+                            <span class="truncate">@cat.TenDanhMuc</span>
+                            @if (currentCat != null && currentCat.MaDanhMuc == cat.MaDanhMuc)
+                            {
+                                <i class="fa fa-check text-[8px]"></i>
+                            }
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </aside>
+
+    <div class="flex-1 min-w-0">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">@(currentCat != null ? currentCat.TenDanhMuc : "Tất cả sản phẩm")</h1>
+                <p class="text-sm text-slate-500 mt-1">@(currentCat != null ? "Danh sách sản phẩm thuộc nhóm " + currentCat.TenDanhMuc : "Khám phá hàng ngàn ưu đãi hấp dẫn tại VuongBanDienTu")</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-slate-400 uppercase">Sắp xếp:</span>
+                <select class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-primary transition-colors cursor-pointer">
+                    <option>Mới nhất</option>
+                    <option>Giá thấp đến cao</option>
+                    <option>Giá cao đến thấp</option>
+                    <option>Bán chạy nhất</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="prod-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer relative group border border-slate-100 flex flex-col h-full" onclick="location.href='@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })'">
+                    <div class="h-48 sm:h-56 flex items-center justify-center p-4 overflow-hidden relative">
+                        @if (!string.IsNullOrEmpty(item.AnhChinh))
+                        {
+                            <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" class="main-img max-h-full object-contain transition-all duration-500 group-hover:scale-105 @(item.HinhAnhSanPhams != null && item.HinhAnhSanPhams.Any() ? "group-hover:opacity-0" : "")" />
+                            if (item.HinhAnhSanPhams != null && item.HinhAnhSanPhams.Any())
+                            {
+                                var secondaryImg = item.HinhAnhSanPhams.First().DuongDanAnh;
+                                <img src="~/Content/Images/Gallery/@secondaryImg" alt="@item.TenSanPham" class="secondary-img absolute inset-0 m-auto max-h-full object-contain opacity-0 group-hover:opacity-100 transition-all duration-500 scale-95 group-hover:scale-105" />
+                            }
+                        }
+                        else
+                        {
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fa fa-image text-slate-200 text-5xl"></i>
+                                <span class="text-[10px] text-slate-300 uppercase font-black tracking-widest">No Image</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="px-4 pb-4 flex-1 flex flex-col">
+                        <div class="mb-3">
+                            <h3 class="text-sm font-medium text-slate-700 line-clamp-2 h-10 mb-1 leading-snug group-hover:text-primary transition-colors">@(string.IsNullOrEmpty(item.TenSanPham) ? "Sản phẩm chưa có tên" : item.TenSanPham)</h3>
+                            
+                            <div class="flex flex-col gap-0.5 mb-2">
+                                <div class="text-base font-bold text-primary">@(item.GiaBan > 0 ? item.GiaBan.ToString("N0") + "₫" : "Liên hệ")</div>
+                                @if (item.GiaBan > 1000000) {
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-slate-400 line-through">@((item.GiaBan * 1.2m).ToString("N0"))₫</span>
+                                        <span class="bg-primary text-white text-[10px] font-black px-1.5 py-0.5 rounded">-20%</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="space-y-1 text-[11px] text-slate-500 font-medium h-20 overflow-hidden">
+                                @if (!string.IsNullOrEmpty(item.ThongSoKyThuat))
+                                {
+                                    var specs = item.ThongSoKyThuat.Split(new[] { '\n', '\r', ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (var spec in specs.Take(4))
+                                    {
+                                        <div class="truncate">• @spec.Trim()</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="truncate">Đang cập nhật thông số...</div>
+                                    <div class="truncate">Nhà sản xuất: @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "Đang cập nhật")</div>
+                                    <div class="truncate">Bảo hành: 12-24 tháng</div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto border-t border-slate-50 pt-3">
+                            <div class="flex items-center gap-2 text-[11px] text-blue-600 font-bold hover:text-blue-800 transition-colors">
+                                <i class="fa fa-circle-plus"></i> Thêm vào so sánh
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-span-full py-24 text-center bg-white rounded-3xl shadow-sm border-2 border-dashed border-slate-100">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa fa-search text-slate-200 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Không tìm thấy sản phẩm</h3>
+                <p class="text-slate-400 text-sm mt-2">Dữ liệu đang được cập nhật, vui lòng quay lại sau!</p>
+                <a href="@Url.Action("Index", "Home")" class="inline-block mt-8 px-8 py-3 bg-primary text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-red-200 hover:-translate-y-0.5 transition-all">Quay về trang chủ</a>
+            </div>
+        }
+    </div>
+</div>
+</div>

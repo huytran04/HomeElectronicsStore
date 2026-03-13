@@ -1,0 +1,58 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập - VươngBánĐiệnTử</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e8192c',
+                        'primary-dark': '#c0001a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold text-slate-800">Chào mừng bạn trở lại!</h2>
+            <p class="text-sm text-slate-500 mt-2">Đăng nhập để tiếp tục mua sắm.</p>
+        </div>
+
+        <form action="@Url.Action("DangNhap", "Home")" method="post" class="space-y-5">
+            @if (ViewBag.Error != null)
+            {
+                <div class="bg-red-50 text-primary text-xs font-bold p-4 rounded-xl border border-red-100 flex items-center gap-2">
+                    <i class="fa fa-circle-exclamation"></i>
+                    @ViewBag.Error
+                </div>
+            }
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Tên đăng nhập</label>
+                <input type="text" name="TenDangNhap" required placeholder="Nhập tên đăng nhập" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Mật khẩu</label>
+                <input type="password" name="MatKhau" required placeholder="••••••••" class="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+            </div>
+            <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg hover:bg-primary-dark transition-all">
+                ĐĂNG NHẬP
+            </button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng ký - VươngBánĐiệnTử</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e8192c',
+                        'primary-dark': '#c0001a',
+                        facebook: '#3b5998',
+                        google: '#4285f4'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 2px solid #e8192c; color: #e8192c; font-weight: 700; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="bg-primary text-white h-12 flex items-center shadow-md">
+        <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
+            <div class="flex items-center gap-8">
+                <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về</a>
+                <div class="flex items-center gap-2 cursor-pointer opacity-90 hover:opacity-100">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Xem giá tại <span class="font-bold">Hà Nội</span></span>
+                </div>
+            </div>
+            <div class="text-xl font-black italic tracking-tighter uppercase">
+                <span class="text-yellow-400">VUONG</span>BANDIENTU
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-[480px] bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            
+            <!-- Tabs -->
+            <div class="flex justify-center gap-12 mb-8 border-b border-gray-100">
+                <button class="pb-3 text-sm tab-active uppercase tracking-wider">ĐĂNG KÝ</button>
+                <a href="@Url.Action("DangNhap", "TaiKhoan")" class="pb-3 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider">ĐĂNG NHẬP</a>
+            </div>
+
+            <!-- Register Form -->
+            <form action="@Url.Action("DangKy", "TaiKhoan")" method="post" class="space-y-4">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-exclamation"></i>
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <div class="relative">
+                    <input type="text" name="TenDangNhap" required placeholder="Tên đăng nhập" 
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                </div>
+
+                <div class="relative">
+                    <input type="password" name="MatKhau" required placeholder="Nhập mật khẩu" 
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                </div>
+
+                <div class="relative">
+                    <input type="text" name="HoTen" required placeholder="Họ và tên" 
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                </div>
+
+                <div class="relative">
+                    <input type="email" name="Email" required placeholder="Email" 
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                </div>
+
+                <div class="relative">
+                    <input type="tel" name="SoDienThoai" required placeholder="Số điện thoại" 
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                </div>
+
+                <div class="flex items-start gap-2 px-1 py-2">
+                    <input type="checkbox" required id="terms" class="mt-1">
+                    <label for="terms" class="text-[11px] text-gray-500 leading-tight">
+                        Tôi đồng ý với các <a href="#" class="text-blue-600">điều khoản dịch vụ</a> và <a href="#" class="text-blue-600">chính sách bảo mật</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded shadow-sm hover:bg-primary-dark transition-all flex items-center justify-center gap-2 tracking-widest uppercase">
+                    ĐĂNG KÝ <i class="fa fa-chevron-right text-[10px]"></i>
+                </button>
+            </form>
+
+            <!-- Separator -->
+            <div class="flex items-center gap-4 my-8">
+                <div class="flex-1 h-px bg-gray-200"></div>
+                <span class="text-xs text-gray-400 font-medium">Hoặc</span>
+                <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <!-- Social Logins -->
+            <div class="space-y-3 text-center">
+                <p class="text-[11px] text-gray-400 mb-4">Bạn đã có tài khoản? <a href="@Url.Action("DangNhap", "TaiKhoan")" class="text-primary font-bold">ĐĂNG NHẬP NGAY</a></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200 py-4">
+        <div class="max-w-screen-xl mx-auto px-4 text-center text-[11px] text-gray-600 font-medium">
+            Bạn gặp khó khăn khi đăng nhập, đăng ký? Gọi <span class="text-primary font-bold">1800 6800</span> để được hỗ trợ tốt nhất.
+        </div>
+    </footer>
+
+</body>
+</html>
