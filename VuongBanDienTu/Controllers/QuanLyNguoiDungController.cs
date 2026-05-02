@@ -15,7 +15,7 @@ namespace VuongBanDienTu.Controllers
         private bool IsAdmin()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && user.MaVaiTro == 1;
+            return user != null && PhanQuyen.IsAdmin(user.MaVaiTro);
         }
 
         public ActionResult Index()
@@ -65,6 +65,22 @@ namespace VuongBanDienTu.Controllers
                 return Json(new { success = true });
             }
             return Json(new { success = false });
+        }
+
+        [HttpPost]
+        public ActionResult UpdateUserRole(int maND, int maVT)
+        {
+            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền!" });
+
+            var user = db.NguoiDungs.Find(maND);
+            if (user != null)
+            {
+                user.MaVaiTro = maVT;
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = "Không tìm thấy người dùng!" });
         }
     }
 }

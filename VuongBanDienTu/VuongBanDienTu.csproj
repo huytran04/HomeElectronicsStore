@@ -129,6 +129,7 @@
     <Compile Include="Controllers\DonHangController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
+     <Compile Include="Controllers\PhanQuyenController.cs" />
     <Compile Include="Controllers\QuanLyDanhMucController.cs" />
     <Compile Include="Controllers\QuanLyDonHangController.cs" />
     <Compile Include="Controllers\QuanLyNguoiDungController.cs" />
@@ -136,8 +137,12 @@
     <Compile Include="Controllers\QuanTriController.cs" />
     <Compile Include="Controllers\SanPhamController.cs" />
     <Compile Include="Controllers\TaiKhoanController.cs" />
+    <Compile Include="Helpers\HinhAnh.cs" />
     <Compile Include="Helpers\MaHoa.cs" />
+    <Compile Include="Helpers\PhanQuyen.cs" />
     <Compile Include="Controllers\GioHangController.cs" />
+    <Compile Include="Controllers\ThanhToanController.cs" />
+    <Compile Include="Services\VnPayService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -159,7 +164,13 @@
     <Compile Include="Models\NguoiDung.cs">
       <DependentUpon>VuongBanDienTu.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\QuyenHan.cs">
+      <DependentUpon>VuongBanDienTu.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SanPham.cs">
+      <DependentUpon>VuongBanDienTu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\sysdiagram.cs">
       <DependentUpon>VuongBanDienTu.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ThanhToan.cs">
@@ -275,7 +286,9 @@
     <Content Include="Views\QuanLySanPham\SuaSanPham.cshtml" />
     <Content Include="Views\QuanLySanPham\ThemSanPham.cshtml" />
     <Content Include="Views\QuanLySanPham\_SuaSanPhamPartial.cshtml" />
+     <Content Include="Views\PhanQuyen\Index.cshtml" />
     <Content Include="Views\QuanLySanPham\_ThemSanPhamPartial.cshtml" />
+    <Content Include="Views\ThanhToan\VnpayReturn.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

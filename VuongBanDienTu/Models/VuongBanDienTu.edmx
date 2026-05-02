@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="VuongDienTu1Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="VuongDienTu1Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ChiTietDonHang">
           <Key>
             <PropertyRef Name="MaChiTiet" />
@@ -21,7 +21,6 @@
           </Key>
           <Property Name="MaDanhMuc" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TenDanhMuc" Type="nvarchar" MaxLength="100" Nullable="false" />
-          <Property Name="MaDanhMucCha" Type="int" />
           <Property Name="MoTa" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="DonHang">
@@ -56,6 +55,7 @@
           <Property Name="MaHinhAnh" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="MaSanPham" Type="int" />
           <Property Name="DuongDanAnh" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="AnhChinh" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="NguoiDung">
           <Key>
@@ -72,6 +72,22 @@
           <Property Name="NgayTao" Type="datetime" />
           <Property Name="TrangThai" Type="bit" />
         </EntityType>
+        <EntityType Name="PhanQuyen">
+          <Key>
+            <PropertyRef Name="MaVaiTro" />
+            <PropertyRef Name="MaQuyen" />
+          </Key>
+          <Property Name="MaVaiTro" Type="int" Nullable="false" />
+          <Property Name="MaQuyen" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="QuyenHan">
+          <Key>
+            <PropertyRef Name="MaQuyen" />
+          </Key>
+          <Property Name="MaQuyen" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenQuyen" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="SanPham">
           <Key>
             <PropertyRef Name="MaSanPham" />
@@ -83,9 +99,18 @@
           <Property Name="SoLuongTon" Type="int" />
           <Property Name="MoTaTongQuan" Type="nvarchar(max)" />
           <Property Name="ThongSoKyThuat" Type="nvarchar(max)" />
-          <Property Name="AnhChinh" Type="nvarchar" MaxLength="500" />
           <Property Name="TrangThai" Type="nvarchar" MaxLength="50" />
           <Property Name="NgayTao" Type="datetime" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="ThanhToan">
           <Key>
@@ -201,6 +226,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK__PhanQuyen__MaQuy__05D8E0BE">
+          <End Role="QuyenHan" Type="Self.QuyenHan" Multiplicity="1" />
+          <End Role="PhanQuyen" Type="Self.PhanQuyen" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="QuyenHan">
+              <PropertyRef Name="MaQuyen" />
+            </Principal>
+            <Dependent Role="PhanQuyen">
+              <PropertyRef Name="MaQuyen" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__PhanQuyen__MaVai__04E4BC85">
+          <End Role="VaiTro" Type="Self.VaiTro" Multiplicity="1" />
+          <End Role="PhanQuyen" Type="Self.PhanQuyen" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VaiTro">
+              <PropertyRef Name="MaVaiTro" />
+            </Principal>
+            <Dependent Role="PhanQuyen">
+              <PropertyRef Name="MaVaiTro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__SanPham__MaDanhM__4222D4EF">
           <End Role="DanhMuc" Type="Self.DanhMuc" Multiplicity="0..1" />
           <End Role="SanPham" Type="Self.SanPham" Multiplicity="*" />
@@ -225,18 +274,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_DanhMuc_Parent">
-          <End Role="DanhMuc" Type="Self.DanhMuc" Multiplicity="0..1" />
-          <End Role="DanhMuc1" Type="Self.DanhMuc" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="DanhMuc">
-              <PropertyRef Name="MaDanhMuc" />
-            </Principal>
-            <Dependent Role="DanhMuc1">
-              <PropertyRef Name="MaDanhMucCha" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="VuongDienTu1ModelStoreContainer">
           <EntitySet Name="ChiTietDonHang" EntityType="Self.ChiTietDonHang" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DanhMuc" EntityType="Self.DanhMuc" Schema="dbo" store:Type="Tables" />
@@ -244,7 +281,10 @@
           <EntitySet Name="GioHang" EntityType="Self.GioHang" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="HinhAnhSanPham" EntityType="Self.HinhAnhSanPham" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="NguoiDung" EntityType="Self.NguoiDung" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PhanQuyen" EntityType="Self.PhanQuyen" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="QuyenHan" EntityType="Self.QuyenHan" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SanPham" EntityType="Self.SanPham" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ThanhToan" EntityType="Self.ThanhToan" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VaiTro" EntityType="Self.VaiTro" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__ChiTietDo__MaDon__5812160E" Association="Self.FK__ChiTietDo__MaDon__5812160E">
@@ -279,6 +319,14 @@
             <End Role="VaiTro" EntitySet="VaiTro" />
             <End Role="NguoiDung" EntitySet="NguoiDung" />
           </AssociationSet>
+          <AssociationSet Name="FK__PhanQuyen__MaQuy__05D8E0BE" Association="Self.FK__PhanQuyen__MaQuy__05D8E0BE">
+            <End Role="QuyenHan" EntitySet="QuyenHan" />
+            <End Role="PhanQuyen" EntitySet="PhanQuyen" />
+          </AssociationSet>
+          <AssociationSet Name="FK__PhanQuyen__MaVai__04E4BC85" Association="Self.FK__PhanQuyen__MaVai__04E4BC85">
+            <End Role="VaiTro" EntitySet="VaiTro" />
+            <End Role="PhanQuyen" EntitySet="PhanQuyen" />
+          </AssociationSet>
           <AssociationSet Name="FK__SanPham__MaDanhM__4222D4EF" Association="Self.FK__SanPham__MaDanhM__4222D4EF">
             <End Role="DanhMuc" EntitySet="DanhMuc" />
             <End Role="SanPham" EntitySet="SanPham" />
@@ -287,13 +335,8 @@
             <End Role="DonHang" EntitySet="DonHang" />
             <End Role="ThanhToan" EntitySet="ThanhToan" />
           </AssociationSet>
-          <AssociationSet Name="FK_DanhMuc_Parent" Association="Self.FK_DanhMuc_Parent">
-            <End Role="DanhMuc" EntitySet="DanhMuc" />
-            <End Role="DanhMuc1" EntitySet="DanhMuc" />
-          </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="VuongDienTu1Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -315,11 +358,10 @@
           </Key>
           <Property Name="MaDanhMuc" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TenDanhMuc" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="MaDanhMucCha" Type="Int32" />
+
           <Property Name="MoTa" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="SanPhams" Relationship="Self.FK__SanPham__MaDanhM__4222D4EF" FromRole="DanhMuc" ToRole="SanPham" />
-          <NavigationProperty Name="DanhMuc1" Relationship="Self.FK_DanhMuc_Parent" FromRole="DanhMuc" ToRole="DanhMuc1" />
-          <NavigationProperty Name="DanhMuc2" Relationship="Self.FK_DanhMuc_Parent" FromRole="DanhMuc1" ToRole="DanhMuc" />
+
         </EntityType>
         <EntityType Name="DonHang">
           <Key>
@@ -359,6 +401,7 @@
           <Property Name="MaHinhAnh" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="MaSanPham" Type="Int32" />
           <Property Name="DuongDanAnh" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AnhChinh" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="SanPham" Relationship="Self.FK__HinhAnhSa__MaSan__47DBAE45" FromRole="HinhAnhSanPham" ToRole="SanPham" />
         </EntityType>
         <EntityType Name="NguoiDung">
@@ -391,7 +434,7 @@
           <Property Name="SoLuongTon" Type="Int32" />
           <Property Name="MoTaTongQuan" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ThongSoKyThuat" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="AnhChinh" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+
           <Property Name="TrangThai" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="NgayTao" Type="DateTime" Precision="3" />
           <NavigationProperty Name="ChiTietDonHangs" Relationship="Self.FK__ChiTietDo__MaSan__59063A47" FromRole="SanPham" ToRole="ChiTietDonHang" />
@@ -418,6 +461,7 @@
           <Property Name="MaVaiTro" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TenVaiTro" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="NguoiDungs" Relationship="Self.FK__NguoiDung__MaVai__3A81B327" FromRole="VaiTro" ToRole="NguoiDung" />
+          <NavigationProperty Name="QuyenHans" Relationship="VuongDienTu1Model.PhanQuyen" FromRole="VaiTro" ToRole="QuyenHan" />
         </EntityType>
         <Association Name="FK__ChiTietDo__MaDon__5812160E">
           <End Role="DonHang" Type="Self.DonHang" Multiplicity="0..1" />
@@ -455,18 +499,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_DanhMuc_Parent">
-          <End Role="DanhMuc" Type="Self.DanhMuc" Multiplicity="0..1" />
-          <End Role="DanhMuc1" Type="Self.DanhMuc" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="DanhMuc">
-              <PropertyRef Name="MaDanhMuc" />
-            </Principal>
-            <Dependent Role="DanhMuc1">
-              <PropertyRef Name="MaDanhMucCha" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+
         <Association Name="FK__DonHang__MaKhach__5070F446">
           <End Role="NguoiDung" Type="Self.NguoiDung" Multiplicity="0..1" />
           <End Role="DonHang" Type="Self.DonHang" Multiplicity="*" />
@@ -573,10 +606,7 @@
             <End Role="DanhMuc" EntitySet="DanhMucs" />
             <End Role="SanPham" EntitySet="SanPhams" />
           </AssociationSet>
-          <AssociationSet Name="FK_DanhMuc_Parent" Association="Self.FK_DanhMuc_Parent">
-            <End Role="DanhMuc" EntitySet="DanhMucs" />
-            <End Role="DanhMuc1" EntitySet="DanhMucs" />
-          </AssociationSet>
+
           <AssociationSet Name="FK__DonHang__MaKhach__5070F446" Association="Self.FK__DonHang__MaKhach__5070F446">
             <End Role="NguoiDung" EntitySet="NguoiDungs" />
             <End Role="DonHang" EntitySet="DonHangs" />
@@ -605,7 +635,36 @@
             <End Role="VaiTro" EntitySet="VaiTroes" />
             <End Role="NguoiDung" EntitySet="NguoiDungs" />
           </AssociationSet>
+          <EntitySet Name="QuyenHans" EntityType="VuongDienTu1Model.QuyenHan" />
+          <EntitySet Name="sysdiagrams" EntityType="VuongDienTu1Model.sysdiagram" />
+          <AssociationSet Name="PhanQuyen" Association="VuongDienTu1Model.PhanQuyen">
+            <End Role="QuyenHan" EntitySet="QuyenHans" />
+            <End Role="VaiTro" EntitySet="VaiTroes" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="QuyenHan">
+          <Key>
+            <PropertyRef Name="MaQuyen" />
+          </Key>
+          <Property Name="MaQuyen" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenQuyen" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="VaiTroes" Relationship="VuongDienTu1Model.PhanQuyen" FromRole="QuyenHan" ToRole="VaiTro" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <Association Name="PhanQuyen">
+          <End Type="VuongDienTu1Model.QuyenHan" Role="QuyenHan" Multiplicity="*" />
+          <End Type="VuongDienTu1Model.VaiTro" Role="VaiTro" Multiplicity="*" />
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -628,7 +687,7 @@
               <MappingFragment StoreEntitySet="DanhMuc">
                 <ScalarProperty Name="MaDanhMuc" ColumnName="MaDanhMuc" />
                 <ScalarProperty Name="TenDanhMuc" ColumnName="TenDanhMuc" />
-                <ScalarProperty Name="MaDanhMucCha" ColumnName="MaDanhMucCha" />
+
                 <ScalarProperty Name="MoTa" ColumnName="MoTa" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -666,6 +725,7 @@
                 <ScalarProperty Name="MaHinhAnh" ColumnName="MaHinhAnh" />
                 <ScalarProperty Name="MaSanPham" ColumnName="MaSanPham" />
                 <ScalarProperty Name="DuongDanAnh" ColumnName="DuongDanAnh" />
+                <ScalarProperty Name="AnhChinh" ColumnName="AnhChinh" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -695,7 +755,7 @@
                 <ScalarProperty Name="SoLuongTon" ColumnName="SoLuongTon" />
                 <ScalarProperty Name="MoTaTongQuan" ColumnName="MoTaTongQuan" />
                 <ScalarProperty Name="ThongSoKyThuat" ColumnName="ThongSoKyThuat" />
-                <ScalarProperty Name="AnhChinh" ColumnName="AnhChinh" />
+
                 <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
                 <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
               </MappingFragment>
@@ -721,6 +781,34 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="QuyenHans">
+            <EntityTypeMapping TypeName="VuongDienTu1Model.QuyenHan">
+              <MappingFragment StoreEntitySet="QuyenHan">
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="TenQuyen" ColumnName="TenQuyen" />
+                <ScalarProperty Name="MaQuyen" ColumnName="MaQuyen" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="VuongDienTu1Model.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="definition" ColumnName="definition" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="PhanQuyen" TypeName="VuongDienTu1Model.PhanQuyen" StoreEntitySet="PhanQuyen">
+            <EndProperty Name="VaiTro">
+              <ScalarProperty Name="MaVaiTro" ColumnName="MaVaiTro" />
+            </EndProperty>
+            <EndProperty Name="QuyenHan">
+              <ScalarProperty Name="MaQuyen" ColumnName="MaQuyen" />
+            </EndProperty>
+          </AssociationSetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

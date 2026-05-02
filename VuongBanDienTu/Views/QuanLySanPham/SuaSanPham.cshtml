@@ -28,7 +28,6 @@
         {
             @Html.HiddenFor(m => m.MaSanPham)
             @Html.HiddenFor(m => m.NgayTao)
-            @Html.HiddenFor(m => m.AnhChinh)
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Tên sản phẩm -->
@@ -65,10 +64,13 @@
                 <div class="md:col-span-2">
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Thay đổi ảnh chính</label>
                     <div class="flex items-center gap-4">
-                        @if (!string.IsNullOrEmpty(Model.AnhChinh))
+                        @{
+                            var mainImage = Model.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                        }
+                        @if (mainImage != null)
                         {
                             <div class="w-16 h-16 rounded-lg overflow-hidden border border-slate-200">
-                                <img src="~/Content/Images/Products/@Model.AnhChinh" class="w-full h-full object-cover" />
+                                <img src="@Url.Content("~/Content/Images/Products/" + mainImage.DuongDanAnh)" class="w-full h-full object-cover" />
                             </div>
                         }
                         <input type="file" name="AnhChinhFile" class="flex-1 bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" />

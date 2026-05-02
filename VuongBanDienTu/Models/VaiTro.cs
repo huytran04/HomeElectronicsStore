@@ -17,11 +17,13 @@ namespace VuongBanDienTu.Models
         public VaiTro()
         {
             this.NguoiDungs = new HashSet<NguoiDung>();
+            this.QuyenHans = new HashSet<QuyenHan>();
         }
     
         public int MaVaiTro { get; set; }
         public string TenVaiTro { get; set; }
     
         public virtual ICollection<NguoiDung> NguoiDungs { get; set; }
+        public virtual ICollection<QuyenHan> QuyenHans { get; set; }
     }
 }

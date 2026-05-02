@@ -1,5 +1,6 @@
 @model IEnumerable<VuongBanDienTu.Models.NguoiDung>
 
+@using VuongBanDienTu.Helpers
 @{
     Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
     ViewBag.Title = "Quản lý nhân sự & Hệ thống";
@@ -8,14 +9,28 @@
 
 <div class="space-y-6">
     <!-- Header Actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div>
-            <h2 class="text-xl font-black text-slate-800">Danh sách nhân sự</h2>
-            <p class="text-xs text-slate-400 font-medium">Quản lý tài khoản nhân viên, quản lý và admin hệ thống</p>
+    <div class="flex flex-col gap-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+                <h2 id="pageTitle" class="text-xl font-black text-slate-800">Quản lý nhân sự</h2>
+                <p id="pageDescription" class="text-xs text-slate-400 font-medium">Quản lý tài khoản nhân viên, quản lý và admin hệ thống</p>
+            </div>
+            <div id="actionButtons">
+                <button onclick="openAddStaffModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                    <i class="fa fa-user-plus text-sm"></i> Thêm nhân sự mới
+                </button>
+            </div>
         </div>
-        <button onclick="openAddStaffModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-            <i class="fa fa-user-plus text-sm"></i> Thêm nhân sự mới
-        </button>
+
+        <!-- Tabs -->
+        <div class="flex items-center gap-1 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 w-fit">
+            <button onclick="switchTab('staff')" id="tabStaff" class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-red-100">
+                Nhân sự
+            </button>
+            <button onclick="switchTab('customer')" id="tabCustomer" class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-50">
+                Khách hàng
+            </button>
+        </div>
     </div>
 
     <!-- Table -->
@@ -24,9 +39,9 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50/50">
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nhân sự</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Người dùng</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tài khoản</th>
-                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vai trò</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest col-vai-tro">Vai trò</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ngày tạo</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái</th>
                         <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Thao tác</th>
@@ -35,7 +50,7 @@
                 <tbody class="divide-y divide-slate-50">
                     @foreach (var item in Model)
                     {
-                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <tr class="user-row hover:bg-slate-50/50 transition-colors group" data-vai-tro="@item.MaVaiTro">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-black text-sm group-hover:bg-primary/10 group-hover:text-primary transition-colors">
@@ -55,10 +70,15 @@
                                 <p class="text-[10px] text-slate-400 mt-0.5">SĐT: @item.SoDienThoai</p>
                             </td>
                             <td class="px-6 py-4">
-                                @if (item.MaVaiTro == 1) { <span class="px-2.5 py-1 rounded-lg bg-red-50 text-primary text-[10px] font-black uppercase tracking-tight">Admin</span> }
-                                else if (item.MaVaiTro == 2) { <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-tight">Quản lý</span> }
-                                else if (item.MaVaiTro == 3) { <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-tight">Nhân viên</span> }
-                                else { <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-tight">Khách hàng</span> }
+                                <select onchange="updateUserRole(@item.MaNguoiDung, this.value)" 
+                                        class="bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-600 focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                                    @foreach (var role in ViewBag.Roles as List<VuongBanDienTu.Models.VaiTro>)
+                                    {
+                                        <option value="@role.MaVaiTro" @(item.MaVaiTro == role.MaVaiTro ? "selected" : "")>
+                                            @role.TenVaiTro
+                                        </option>
+                                    }
+                                </select>
                             </td>
                             <td class="px-6 py-4 text-xs font-medium text-slate-500">
                                 @(item.NgayTao.HasValue ? item.NgayTao.Value.ToString("dd/MM/yyyy") : "---")
@@ -132,7 +152,7 @@
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cấp quyền (Vai trò)</label>
                     <select name="MaVaiTro" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm appearance-none">
-                        @foreach (var role in roles.Where(r => r.MaVaiTro != 4))
+                        @foreach (var role in roles.Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
                         {
                             <option value="@role.MaVaiTro">@role.TenVaiTro</option>
                         }
@@ -152,6 +172,50 @@
 
 @section scripts {
     <script>
+        // Tab Logic
+        function switchTab(type) {
+            const isStaff = type === 'staff';
+            const tabStaff = document.getElementById('tabStaff');
+            const tabCustomer = document.getElementById('tabCustomer');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageDescription = document.getElementById('pageDescription');
+            const actionButtons = document.getElementById('actionButtons');
+            const roleCols = document.querySelectorAll('.col-vai-tro');
+
+            // Update Tab UI
+            if (isStaff) {
+                tabStaff.className = "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-red-100";
+                tabCustomer.className = "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-50";
+                pageTitle.innerText = "Quản lý nhân sự";
+                pageDescription.innerText = "Quản lý tài khoản nhân viên, quản lý và admin hệ thống";
+                actionButtons.style.display = 'block';
+                roleCols.forEach(col => col.style.display = '');
+            } else {
+                tabCustomer.className = "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-red-100";
+                tabStaff.className = "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-50";
+                pageTitle.innerText = "Quản lý khách hàng";
+                pageDescription.innerText = "Danh sách tài khoản khách hàng đã đăng ký mua sắm";
+                actionButtons.style.display = 'none';
+                roleCols.forEach(col => col.style.display = 'none');
+            }
+
+            // Filter Rows
+            const rows = document.querySelectorAll('.user-row');
+            rows.forEach(row => {
+                const maVaiTro = parseInt(row.getAttribute('data-vai-tro'));
+                if (isStaff) {
+                    row.style.display = (maVaiTro === 1 || maVaiTro === 2 || maVaiTro === 3) ? '' : 'none';
+                } else {
+                    row.style.display = (maVaiTro === 4) ? '' : 'none';
+                }
+            });
+        }
+
+        // Initialize view
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('staff');
+        });
+
         function openAddStaffModal() {
             const modal = document.getElementById('addStaffModal');
             const content = document.getElementById('addStaffContent');
@@ -175,7 +239,22 @@
             }, 300);
         }
 
-        async function handleAddStaffForm(e) {
+        async function updateUserRole(maND, maVT) {
+            try {
+                const response = await fetch('@Url.Action("UpdateUserRole", "QuanLyNguoiDung")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `maND=${maND}&maVT=${maVT}`
+                });
+                const res = await response.json();
+                if (res.success) showToast('Cập nhật vai trò thành công', 'success');
+                else showToast(res.message, 'error');
+            } catch (err) {
+                showToast('Lỗi kết nối máy chủ', 'error');
+            }
+        }
+
+        async function createNhanVien(e) {
             e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);

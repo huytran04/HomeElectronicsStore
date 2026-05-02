@@ -34,5 +34,7 @@ namespace VuongBanDienTu.Models
         public DbSet<SanPham> SanPhams { get; set; }
         public DbSet<ThanhToan> ThanhToans { get; set; }
         public DbSet<VaiTro> VaiTroes { get; set; }
+        public DbSet<QuyenHan> QuyenHans { get; set; }
+        public DbSet<sysdiagram> sysdiagrams { get; set; }
     }
 }

@@ -35,27 +35,30 @@ namespace VuongBanDienTu.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Đảm bảo thư mục tồn tại
                 string folderPath = Server.MapPath("~/Content/Images/Products/");
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
 
-                // Xử lý ảnh chính
                 if (AnhChinhFile != null && AnhChinhFile.ContentLength > 0)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(AnhChinhFile.FileName);
                     string path = Path.Combine(folderPath, fileName);
                     AnhChinhFile.SaveAs(path);
-                    sp.AnhChinh = fileName;
+                    
+                    db.HinhAnhSanPhams.Add(new HinhAnhSanPham
+                    {
+                        MaSanPham = sp.MaSanPham,
+                        DuongDanAnh = fileName,
+                        AnhChinh = true
+                    });
                 }
 
                 sp.NgayTao = DateTime.Now;
                 db.SanPhams.Add(sp);
-                db.SaveChanges(); // Lưu SP để lấy MaSanPham
+                db.SaveChanges(); 
 
-                // Xử lý ảnh phụ
                 if (AnhPhuFiles != null && AnhPhuFiles.Any())
                 {
                     string galleryPath = Server.MapPath("~/Content/Images/Gallery/");
@@ -64,7 +67,6 @@ namespace VuongBanDienTu.Controllers
                         Directory.CreateDirectory(galleryPath);
                     }
 
-                    // Lấy tối đa 9 ảnh
                     var filesToSave = AnhPhuFiles.Where(f => f != null && f.ContentLength > 0).Take(9);
 
                     foreach (var file in filesToSave)
@@ -114,7 +116,6 @@ namespace VuongBanDienTu.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Đảm bảo thư mục tồn tại
                 string folderPath = Server.MapPath("~/Content/Images/Products/");
                 if (!Directory.Exists(folderPath))
                 {
@@ -124,7 +125,6 @@ namespace VuongBanDienTu.Controllers
                 var existingProduct = db.SanPhams.Find(sp.MaSanPham);
                 if (existingProduct == null) return HttpNotFound();
 
-                // Cập nhật thông tin cơ bản
                 existingProduct.TenSanPham = sp.TenSanPham;
                 existingProduct.MaDanhMuc = sp.MaDanhMuc;
                 existingProduct.GiaBan = sp.GiaBan;
@@ -133,18 +133,33 @@ namespace VuongBanDienTu.Controllers
                 existingProduct.ThongSoKyThuat = sp.ThongSoKyThuat;
                 existingProduct.TrangThai = sp.TrangThai;
 
-                // Xử lý ảnh chính mới nếu có
                 if (AnhChinhFile != null && AnhChinhFile.ContentLength > 0)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(AnhChinhFile.FileName);
                     string path = Path.Combine(folderPath, fileName);
                     AnhChinhFile.SaveAs(path);
-                    existingProduct.AnhChinh = fileName;
+
+                    var mainImage = db.HinhAnhSanPhams.FirstOrDefault(h => h.MaSanPham == existingProduct.MaSanPham && h.AnhChinh);
+                    if (mainImage != null)
+                    {
+                        string oldPath = Path.Combine(folderPath, mainImage.DuongDanAnh);
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                        
+                        mainImage.DuongDanAnh = fileName;
+                    }
+                    else
+                    {
+                        db.HinhAnhSanPhams.Add(new HinhAnhSanPham
+                        {
+                            MaSanPham = existingProduct.MaSanPham,
+                            DuongDanAnh = fileName,
+                            AnhChinh = true
+                        });
+                    }
                 }
 
                 db.SaveChanges();
 
-                // Xử lý thêm ảnh phụ mới
                 if (AnhPhuFiles != null && AnhPhuFiles.Any())
                 {
                     string galleryPath = Server.MapPath("~/Content/Images/Gallery/");
@@ -153,7 +168,6 @@ namespace VuongBanDienTu.Controllers
                         Directory.CreateDirectory(galleryPath);
                     }
 
-                    // Kiểm tra số lượng ảnh hiện có
                     int currentCount = db.HinhAnhSanPhams.Count(h => h.MaSanPham == existingProduct.MaSanPham);
                     int canAdd = 9 - currentCount;
 
@@ -196,7 +210,6 @@ namespace VuongBanDienTu.Controllers
             var hinhAnh = db.HinhAnhSanPhams.Find(id);
             if (hinhAnh != null)
             {
-                // Xóa file vật lý trong thư mục Gallery
                 string path = Path.Combine(Server.MapPath("~/Content/Images/Gallery/"), hinhAnh.DuongDanAnh);
                 if (System.IO.File.Exists(path))
                 {

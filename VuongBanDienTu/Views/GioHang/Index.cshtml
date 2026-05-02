@@ -1,4 +1,5 @@
 @model IEnumerable<VuongBanDienTu.Models.GioHang>
+@using VuongBanDienTu.Helpers
 
 @{
     ViewBag.Title = "Giỏ hàng của bạn";
@@ -50,7 +51,13 @@
                 {
                     <div class="bg-white rounded-3xl border border-slate-100 p-6 flex items-center gap-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 cart-item" data-id="@item.MaSanPham">
                         <div class="w-24 h-24 bg-slate-50 rounded-2xl p-2 flex-shrink-0 overflow-hidden">
-                            <img src="~/Content/Images/Products/@item.SanPham.AnhChinh" class="w-full h-full object-contain">
+                            @{
+                                var mainImage = item.SanPham.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                            }
+                            @if (mainImage != null)
+                            {
+                                <img src="@HinhAnh.GetImageUrl(mainImage.DuongDanAnh, true)" class="w-full h-full object-contain">
+                            }
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between gap-4 mb-2">

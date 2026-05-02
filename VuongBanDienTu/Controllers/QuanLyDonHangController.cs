@@ -23,6 +23,7 @@ namespace VuongBanDienTu.Controllers
 
             var orders = db.DonHangs
                 .Include("NguoiDung")
+                .Include("NguoiDung1")
                 .Include("ChiTietDonHangs")
                 .Include("ChiTietDonHangs.SanPham")
                 .OrderByDescending(o => o.NgayDat).ToList();

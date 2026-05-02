@@ -21,8 +21,7 @@ namespace VuongBanDienTu.Controllers
         {
             if (!IsInternal()) return RedirectToAction("DangNhap", "TaiKhoan");
             
-            var categories = db.DanhMucs.Include("DanhMuc2").OrderByDescending(d => d.MaDanhMuc).ToList();
-            ViewBag.ParentCategories = db.DanhMucs.Where(d => d.MaDanhMucCha == null).ToList();
+            var categories = db.DanhMucs.OrderByDescending(d => d.MaDanhMuc).ToList();
             return View(categories);
         }
 
@@ -39,7 +38,6 @@ namespace VuongBanDienTu.Controllers
                     if (existing != null)
                     {
                         existing.TenDanhMuc = dm.TenDanhMuc;
-                        existing.MaDanhMucCha = dm.MaDanhMucCha;
                         existing.MoTa = dm.MoTa;
                         db.SaveChanges();
                     }
@@ -68,10 +66,6 @@ namespace VuongBanDienTu.Controllers
                 if (dm.SanPhams.Any())
                 {
                     return Json(new { success = false, message = "Không thể xóa danh mục đang có sản phẩm!" });
-                }
-                if (dm.DanhMuc1.Any())
-                {
-                    return Json(new { success = false, message = "Không thể xóa danh mục đang có danh mục con!" });
                 }
                 db.DanhMucs.Remove(dm);
                 db.SaveChanges();

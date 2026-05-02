@@ -17,6 +17,7 @@ namespace VuongBanDienTu.Models
         public int MaHinhAnh { get; set; }
         public Nullable<int> MaSanPham { get; set; }
         public string DuongDanAnh { get; set; }
+        public bool AnhChinh { get; set; }
     
         public virtual SanPham SanPham { get; set; }
     }

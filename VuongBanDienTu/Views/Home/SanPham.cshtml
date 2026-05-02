@@ -59,9 +59,12 @@
             {
                 <div class="prod-card bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all cursor-pointer relative group border border-slate-100 flex flex-col h-full">
                     <div class="h-44 sm:h-52 flex items-center justify-center bg-gray-50 p-4 overflow-hidden relative">
-                        @if (!string.IsNullOrEmpty(item.AnhChinh))
+                        @{
+                            var mainImage = item.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                        }
+                        @if (mainImage != null)
                         {
-                            <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" class="max-h-full object-contain transition-transform duration-500 group-hover:scale-105" />
+                            <img src="@VuongBanDienTu.Helpers.HinhAnh.GetImageUrl(mainImage.DuongDanAnh, true)" alt="@item.TenSanPham" class="max-h-full object-contain transition-transform duration-500 group-hover:scale-105" />
                         }
                         else
                         {

@@ -1,4 +1,5 @@
 @model IEnumerable<VuongBanDienTu.Models.SanPham>
+@using VuongBanDienTu.Helpers
 
 @{
     Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
@@ -35,9 +36,12 @@
                     <tr class="hover:bg-slate-50/50 transition-colors" id="row-@item.MaSanPham">
                         <td class="px-6 py-4 flex items-center gap-4">
                             <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-100 overflow-hidden flex-shrink-0">
-                                @if (!string.IsNullOrEmpty(item.AnhChinh))
+                                @{
+                                    var mainImage = item.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                                }
+                                @if (mainImage != null)
                                 {
-                                    <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" class="w-full h-full object-cover">
+                                    <img src="@HinhAnh.GetImageUrl(mainImage.DuongDanAnh, true)" alt="@item.TenSanPham" class="w-full h-full object-cover">
                                 }
                                 else
                                 {

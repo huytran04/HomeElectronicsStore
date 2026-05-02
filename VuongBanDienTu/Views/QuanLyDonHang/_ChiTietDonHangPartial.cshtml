@@ -31,7 +31,13 @@
                     <tr class="hover:bg-white transition-colors">
                         <td class="px-6 py-4 flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
-                                <img src="/Content/Images/Products/@item.SanPham.AnhChinh" class="w-full h-full object-cover">
+                                @{
+                                    var mainImage = item.SanPham.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                                }
+                                @if (mainImage != null)
+                                {
+                                    <img src="@Url.Content("~/Content/Images/Products/" + mainImage.DuongDanAnh)" class="w-full h-full object-cover">
+                                }
                             </div>
                             <span class="text-xs font-bold text-slate-700 truncate max-w-[150px]">@item.SanPham.TenSanPham</span>
                         </td>

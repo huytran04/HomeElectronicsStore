@@ -1,4 +1,5 @@
 @model VuongBanDienTu.Models.SanPham
+@using VuongBanDienTu.Helpers
 
 @{
     ViewBag.Title = Model.TenSanPham;
@@ -26,9 +27,21 @@
                 <!-- Main Slider -->
                 <div class="relative group">
                     <div class="aspect-square bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm group-hover:shadow-xl transition-all duration-500 overflow-hidden flex items-center justify-center">
-                        <img id="mainImage" src="~/Content/Images/Products/@Model.AnhChinh" 
+                        @{
+                            var mainImage = Model.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                            var mainImgSrc = mainImage != null ? HinhAnh.GetImageUrl(mainImage.DuongDanAnh, true) : "";
+                        }
+                        <img id="mainImage" src="@mainImgSrc" 
                              alt="@Model.TenSanPham" 
-                             class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700">
+                             class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700"
+                             style="@(string.IsNullOrEmpty(mainImgSrc) ? "display:none" : "")">
+                        @if (string.IsNullOrEmpty(mainImgSrc))
+                        {
+                            <div id="noImagePlaceholder" class="flex flex-col items-center gap-2 text-slate-300">
+                                <i class="fa fa-image text-6xl"></i>
+                                <span class="text-xs font-black uppercase">No Image</span>
+                            </div>
+                        }
                     </div>
                     
                     <!-- Navigation Buttons -->
@@ -42,36 +55,36 @@
 
                 <!-- Mini Thumbnails -->
                 <div class="flex gap-3 px-1 overflow-x-auto scrollbar-hide pb-2" id="thumbnailList">
-                    <div class="thumbnail-item active w-20 h-20 rounded-2xl border-2 border-primary p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0" 
-                         data-src="@Url.Content("~/Content/Images/Products/" + Model.AnhChinh)"
-                         onclick="jumpToSlide(0)">
-                        <img src="~/Content/Images/Products/@Model.AnhChinh" class="w-full h-full object-contain">
-                    </div>
-                    @if (Model.HinhAnhSanPhams != null) {
-                        var hinhAnhs = Model.HinhAnhSanPhams.ToList();
-                        for (int i = 0; i < hinhAnhs.Count; i++) {
-                            var img = hinhAnhs[i];
-                            var displayIdx = i + 1;
-                            // Chỉ hiển thị tối đa 4 thumbnail phụ, cái cuối cùng hiện +N nếu còn
-                            if (i < 3 || (i == 3 && hinhAnhs.Count == 4)) {
-                                <div class="thumbnail-item w-20 h-20 rounded-2xl border-2 border-transparent hover:border-slate-200 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0"
-                                     data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"
-                                     onclick="jumpToSlide(@displayIdx)">
-                                    <img src="~/Content/Images/Gallery/@img.DuongDanAnh" class="w-full h-full object-contain">
+                    @{
+                        var allImages = Model.HinhAnhSanPhams.OrderByDescending(h => h.AnhChinh).ToList();
+                    }
+                    @for (int i = 0; i < allImages.Count; i++)
+                    {
+                        var img = allImages[i];
+                        var folder = img.AnhChinh ? "Products" : "Gallery";
+                        
+                        if (i < 4 || (i == 4 && allImages.Count == 5))
+                        {
+                            <div class="thumbnail-item @(img.AnhChinh ? "active border-primary" : "border-transparent") w-20 h-20 rounded-2xl border-2 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0" 
+                                 data-src="@HinhAnh.GetImageUrl(img.DuongDanAnh, img.AnhChinh)"
+                                 onclick="jumpToSlide(@i)">
+                                <img src="@HinhAnh.GetImageUrl(img.DuongDanAnh, img.AnhChinh)" class="w-full h-full object-contain">
+                            </div>
+                        }
+                        else if (i == 4 && allImages.Count > 5)
+                        {
+                             <div class="thumbnail-item w-20 h-20 rounded-2xl border-2 border-transparent hover:border-slate-200 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0 relative"
+                                 data-src="@HinhAnh.GetImageUrl(img.DuongDanAnh, img.AnhChinh)"
+                                 onclick="jumpToSlide(@i)">
+                                <img src="@HinhAnh.GetImageUrl(img.DuongDanAnh, img.AnhChinh)" class="w-full h-full object-contain opacity-40">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white font-black text-sm">
+                                    +@(allImages.Count - 4)
                                 </div>
-                            } else if (i == 3 && hinhAnhs.Count > 4) {
-                                <div class="thumbnail-item w-20 h-20 rounded-2xl border-2 border-transparent hover:border-slate-200 p-2 cursor-pointer bg-white transition-all overflow-hidden flex-shrink-0 relative"
-                                     data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"
-                                     onclick="jumpToSlide(@displayIdx)">
-                                    <img src="~/Content/Images/Gallery/@img.DuongDanAnh" class="w-full h-full object-contain opacity-40">
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white font-black text-sm">
-                                        +@(hinhAnhs.Count - 3)
-                                    </div>
-                                </div>
-                            } else {
-                                // Các ảnh còn lại vẫn render nhưng ẩn đi (để script jumpToSlide vẫn chạy đúng index)
-                                <div class="thumbnail-item hidden" data-src="@Url.Content("~/Content/Images/Gallery/" + img.DuongDanAnh)"></div>
-                            }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="thumbnail-item hidden" data-src="@HinhAnh.GetImageUrl(img.DuongDanAnh, img.AnhChinh)"></div>
                         }
                     }
                 </div>
@@ -206,8 +219,14 @@
                 {
                     <div class="group bg-white rounded-[1.5rem] p-4 border border-slate-100 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 flex flex-col">
                         <div class="aspect-square bg-slate-50 rounded-2xl p-4 mb-4 relative overflow-hidden">
-                            <img src="~/Content/Images/Products/@item.AnhChinh" alt="@item.TenSanPham" 
-                                 class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700">
+                            @{
+                                var relatedMainImage = item.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                            }
+                            @if (relatedMainImage != null)
+                            {
+                                <img src="@HinhAnh.GetImageUrl(relatedMainImage.DuongDanAnh, true)" alt="@item.TenSanPham" 
+                                     class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700">
+                            }
                             <div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-2">
                                 <a href="@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary shadow-lg hover:bg-slate-50 transition-colors">
                                     <i class="fa fa-eye"></i>
@@ -244,6 +263,10 @@
             
             setTimeout(() => {
                 mainImg.src = src;
+                mainImg.style.display = 'block';
+                const placeholder = document.getElementById('noImagePlaceholder');
+                if (placeholder) placeholder.style.display = 'none';
+                
                 mainImg.style.opacity = '1';
                 mainImg.style.transform = 'scale(1)';
             }, 200);

@@ -32,12 +32,32 @@ namespace VuongBanDienTu.Controllers
             return PartialView("SanPhamNoiBat/Index", products);
         }
 
+        public ActionResult SanPhamBanChay()
+        {
+            var bestSellerIds = db.ChiTietDonHangs
+                .GroupBy(ct => ct.MaSanPham)
+                .Select(g => new { MaSanPham = g.Key, TotalSold = g.Sum(ct => ct.SoLuong) })
+                .OrderByDescending(x => x.TotalSold)
+                .Take(4)
+                .Select(x => x.MaSanPham)
+                .ToList();
+
+            var products = db.SanPhams
+                .Include(p => p.HinhAnhSanPhams)
+                .Where(p => bestSellerIds.Contains(p.MaSanPham))
+                .ToList()
+                .OrderBy(p => bestSellerIds.IndexOf(p.MaSanPham)) 
+                .ToList();
+
+            return PartialView("_SanPhamBanChayPartial", products);
+        }
+
         public ActionResult ChiTiet(int id)
         {
             var sp = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).FirstOrDefault(p => p.MaSanPham == id);
             if (sp == null) return HttpNotFound();
             
-            ViewBag.RelatedProducts = db.SanPhams.Where(p => p.MaDanhMuc == sp.MaDanhMuc && p.MaSanPham != id).Take(4).ToList();
+            ViewBag.RelatedProducts = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.MaDanhMuc == sp.MaDanhMuc && p.MaSanPham != id).Take(4).ToList();
             
             return View(sp);
         }

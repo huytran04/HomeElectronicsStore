@@ -148,7 +148,6 @@ namespace VuongBanDienTu.Controllers
             NguoiDung user = (NguoiDung)Session["TaiKhoan"];
             List<GioHang> lstGioHang = LayGioHang();
 
-            // Kiểm tra tồn kho lần cuối
             foreach (var item in lstGioHang)
             {
                 var sp = db.SanPhams.Find(item.MaSanPham);
@@ -179,13 +178,16 @@ namespace VuongBanDienTu.Controllers
                 ctdh.SoLuong = (int)item.SoLuong;
                 ctdh.GiaLuuTru = (decimal)item.SanPham.GiaBan;
                 db.ChiTietDonHangs.Add(ctdh);
-                
-                // Lưu ý: Không trừ tồn kho ở đây, trừ khi duyệt đơn để đảm bảo giữ chỗ tạm thời?
-                // Tuy nhiên theo luồng trước đó thì trừ ở Duyệt nên ở đây giữ nguyên.
+
             }
             db.SaveChanges();
 
             Session["GioHang"] = null;
+
+            if (dh.PhuongThucThanhToan == "VNPAY")
+            {
+                return RedirectToAction("ThanhToanVnPay", "ThanhToan", new { orderId = dh.MaDonHang });
+            }
 
             return View("ThanhCong", dh);
         }

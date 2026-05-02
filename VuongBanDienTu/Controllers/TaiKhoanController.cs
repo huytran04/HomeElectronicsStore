@@ -27,7 +27,7 @@ namespace VuongBanDienTu.Controllers
                 {
                     user.MatKhau = MaHoa.ToSHA256(user.MatKhau);
                     user.NgayTao = DateTime.Now;
-                    user.MaVaiTro = 4;
+                    user.MaVaiTro = PhanQuyen.KHACH_HANG;
                     user.TrangThai = true;
                     
                     db.Configuration.ValidateOnSaveEnabled = false;
@@ -83,9 +83,10 @@ namespace VuongBanDienTu.Controllers
                 }
 
                 Session["TaiKhoan"] = user;
+                PhanQuyen.RefreshPermissions();
                 
                 string redirectUrl = Url.Action("Index", "Home");
-                if (user.MaVaiTro == 1 || user.MaVaiTro == 2 || user.MaVaiTro == 3)
+                if (PhanQuyen.HasPermission("TRUY_CAP_QUAN_TRI"))
                 {
                     redirectUrl = Url.Action("TongQuan", "QuanTri");
                 }
@@ -106,6 +107,48 @@ namespace VuongBanDienTu.Controllers
         {
             Session["TaiKhoan"] = null;
             return RedirectToAction("Index", "Home");
+        }
+
+        public ActionResult ThongTinCaNhan()
+        {
+            if (Session["TaiKhoan"] == null) return RedirectToAction("DangNhap");
+            
+            var userSession = (NguoiDung)Session["TaiKhoan"];
+            var user = db.NguoiDungs.Find(userSession.MaNguoiDung);
+            return View(user);
+        }
+
+        [HttpPost]
+        public ActionResult CapNhatThongTin()
+        {
+            if (Session["TaiKhoan"] == null) return Json(new { success = false, message = "Vui lòng đăng nhập lại!" });
+
+            var userSession = (NguoiDung)Session["TaiKhoan"];
+            var existingUser = db.NguoiDungs.Find(userSession.MaNguoiDung);
+
+            if (existingUser != null)
+            {
+                string hoTen = Request["HoTen"];
+                string sdt = Request["SoDienThoai"];
+                string diaChi = Request["DiaChi"];
+                string email = Request["Email"];
+
+                if (string.IsNullOrEmpty(hoTen)) 
+                    return Json(new { success = false, message = "Họ tên không được để trống!" });
+
+                existingUser.HoTen = hoTen;
+                existingUser.SoDienThoai = sdt;
+                existingUser.DiaChi = diaChi;
+                existingUser.Email = email;
+
+                db.Configuration.ValidateOnSaveEnabled = false; 
+                db.SaveChanges();
+                Session["TaiKhoan"] = existingUser; 
+
+                return Json(new { success = true, message = "Cập nhật thông tin thành công!" });
+            }
+
+            return Json(new { success = false, message = "Không tìm thấy người dùng!" });
         }
     }
 }

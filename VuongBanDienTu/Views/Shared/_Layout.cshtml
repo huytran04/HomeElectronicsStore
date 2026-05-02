@@ -115,9 +115,9 @@
                     </span>
                     <span class="text-[10px]">Giỏ hàng</span>
                 </a>
-                <a href="@Url.Action("Index", "DonHang")" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity">
+                <a href="@(Session["TaiKhoan"] != null ? Url.Action("LichSu", "DonHang") : Url.Action("Index", "DonHang"))" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity">
                     <i class="fa fa-clipboard-list text-xl"></i>
-                    <span class="text-[10px]">Tra cứu đơn</span>
+                    <span class="text-[10px]">@(Session["TaiKhoan"] != null ? "Đơn hàng" : "Tra cứu đơn")</span>
                 </a>
                 @if (Session["TaiKhoan"] != null)
                 {
@@ -133,13 +133,16 @@
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">Tài khoản của tôi</p>
                                 <p class="text-xs font-bold text-slate-800 truncate">@user.HoTen</p>
                             </div>
-                            @if (user.MaVaiTro == 1 || user.MaVaiTro == 2 || user.MaVaiTro == 3)
+                            @if (VuongBanDienTu.Helpers.PhanQuyen.HasPermission("TRUY_CAP_QUAN_TRI"))
                             {
                                 <a href="@Url.Action("TongQuan", "QuanTri")" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
                                     <i class="fa fa-gauge-high w-4"></i> Trang quản trị
                                 </a>
                             }
-                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                            <a href="@Url.Action("ThongTinCaNhan", "TaiKhoan")" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                                <i class="fa fa-user-circle w-4"></i> Thông tin cá nhân
+                            </a>
+                            <a href="@Url.Action("LichSu", "DonHang")" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
                                 <i class="fa fa-box-open w-4"></i> Đơn hàng của tôi
                             </a>
                             <a href="@Url.Action("DangXuat", "TaiKhoan")" class="flex items-center gap-2 px-4 py-2 text-xs text-primary font-bold hover:bg-red-50 transition-colors mt-1 border-t border-slate-50 pt-2">
@@ -190,7 +193,7 @@
                 <div id="categoryDropdown" class="absolute left-0 top-full mt-0.5 z-[70] opacity-0 invisible translate-y-2 transition-all duration-200">
                     @try {
                         @Html.Action("CategoryMenu", "Menu")
-                    } catch (Exception ex) {
+                    } catch (Exception) {
                         <div class="p-4 bg-white shadow-xl rounded-xl text-xs text-red-500">
                             <i class="fa fa-exclamation-triangle"></i> Lỗi tải danh mục. Vui lòng rebuild lại dự án.
                         </div>

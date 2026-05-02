@@ -12,17 +12,12 @@ namespace VuongBanDienTu.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class DanhMuc
+    public partial class sysdiagram
     {
-        public DanhMuc()
-        {
-            this.SanPhams = new HashSet<SanPham>();
-        }
-    
-        public int MaDanhMuc { get; set; }
-        public string TenDanhMuc { get; set; }
-        public string MoTa { get; set; }
-    
-        public virtual ICollection<SanPham> SanPhams { get; set; }
+        public string name { get; set; }
+        public int principal_id { get; set; }
+        public int diagram_id { get; set; }
+        public Nullable<int> version { get; set; }
+        public byte[] definition { get; set; }
     }
 }

@@ -1,0 +1,182 @@
+@model VuongBanDienTu.Models.DonHang
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.MaDonHang;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-slate-50 min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <a href="@Url.Action("LichSu", "DonHang")" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-2 mb-2">
+                    <i class="fa fa-arrow-left"></i> Quay lại lịch sử
+                </a>
+                <h1 class="text-3xl font-black text-slate-900 uppercase italic">Đơn hàng #ORD-@Model.MaDonHang</h1>
+                <p class="text-sm text-slate-500 font-medium mt-1">Đặt ngày @Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="flex flex-col items-end">
+                @if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý")
+                {
+                    <span class="px-6 py-2 rounded-full bg-amber-100 text-amber-600 text-xs font-black uppercase tracking-widest ring-4 ring-amber-50">Đang chờ xử lý</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Đã xác nhận")
+                {
+                    <span class="px-6 py-2 rounded-full bg-green-100 text-green-600 text-xs font-black uppercase tracking-widest ring-4 ring-green-50">Đã xác nhận</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Đã hủy")
+                {
+                    <span class="px-6 py-2 rounded-full bg-red-100 text-primary text-xs font-black uppercase tracking-widest ring-4 ring-red-50">Đã hủy bỏ</span>
+                }
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left: Order Progress & Items -->
+            <div class="lg:col-span-8 space-y-8">
+                <!-- Progress Stepper -->
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between relative">
+                        <div class="absolute left-0 top-5 w-full h-0.5 bg-slate-100 -z-0"></div>
+                        @if (Model.TrangThaiDonHang != "Đã hủy") {
+                            <div class="z-10 text-center">
+                                <div class="w-10 h-10 rounded-full @(Model.TrangThaiDonHang == "Chờ xử lý" || Model.TrangThaiDonHang == "Đã xác nhận" ? "bg-primary text-white" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all shadow-lg shadow-red-100">
+                                    <i class="fa fa-clock text-xs"></i>
+                                </div>
+                                <span class="text-[10px] font-black uppercase text-slate-800">Chờ xử lý</span>
+                            </div>
+                            <div class="z-10 text-center">
+                                <div class="w-10 h-10 rounded-full @(Model.TrangThaiDonHang == "Đã xác nhận" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all">
+                                    <i class="fa fa-check text-xs"></i>
+                                </div>
+                                <span class="text-[10px] font-black uppercase text-slate-400">Đã xác nhận</span>
+                            </div>
+                            <div class="z-10 text-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-2 transition-all">
+                                    <i class="fa fa-truck text-xs"></i>
+                                </div>
+                                <span class="text-[10px] font-black uppercase text-slate-400">Đang giao</span>
+                            </div>
+                            <div class="z-10 text-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-2 transition-all">
+                                    <i class="fa fa-box-open text-xs"></i>
+                                </div>
+                                <span class="text-[10px] font-black uppercase text-slate-400">Hoàn thành</span>
+                            </div>
+                        } else {
+                            <div class="z-10 text-center w-full">
+                                <div class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center mx-auto mb-2 shadow-xl shadow-red-100">
+                                    <i class="fa fa-times text-xl"></i>
+                                </div>
+                                <span class="text-xs font-black uppercase text-primary">Đơn hàng này đã bị hủy</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Product List -->
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Sản phẩm trong đơn</h3>
+                        <span class="text-xs font-bold text-slate-400">@Model.ChiTietDonHangs.Count() món</span>
+                    </div>
+                    <div class="divide-y divide-slate-50">
+                        @foreach (var item in Model.ChiTietDonHangs)
+                        {
+                            <div class="p-8 flex items-center gap-6 group hover:bg-slate-50/50 transition-all">
+                                <div class="w-20 h-20 bg-slate-100 rounded-2xl p-3 flex-shrink-0">
+                                    @{
+                                        var mainImg = item.SanPham.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
+                                        var imgUrl = mainImg != null ? mainImg.DuongDanAnh : "default.jpg";
+                                    }
+                                    <img src="~/Content/Images/Products/@imgUrl" alt="@item.SanPham.TenSanPham" class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-black text-slate-800 line-clamp-1 mb-1">@item.SanPham.TenSanPham</h4>
+                                    <p class="text-xs text-slate-400 font-medium italic">Số lượng: @item.SoLuong x @(item.GiaLuuTru.ToString("N0"))₫</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-black text-primary">@((item.SoLuong * item.GiaLuuTru).ToString("N0"))₫</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="bg-slate-50 p-8 space-y-4">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span>Tạm tính</span>
+                            <span>@Model.TongTien.Value.ToString("N0")₫</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-green-600">Miễn phí</span>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-black text-slate-900 uppercase tracking-widest">Tổng thanh toán</span>
+                            <span class="text-2xl font-black text-primary italic">@Model.TongTien.Value.ToString("N0")₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Info Details -->
+            <div class="lg:col-span-4 space-y-8">
+                <!-- Delivery Info -->
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Thông tin giao hàng</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <i class="fa fa-user text-[10px]"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Người nhận</p>
+                                <p class="text-sm font-bold text-slate-800">@(Model.NguoiDung != null ? Model.NguoiDung.HoTen : "Khách hàng")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <i class="fa fa-phone text-[10px]"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Số điện thoại</p>
+                                <p class="text-sm font-bold text-slate-800">@(Model.NguoiDung != null ? Model.NguoiDung.SoDienThoai : "---")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <i class="fa fa-map-marker-alt text-[10px]"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Địa chỉ nhận hàng</p>
+                                <p class="text-sm font-bold text-slate-800 leading-relaxed">@Model.DiaChiGiaoHang</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Info -->
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Thanh toán</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Phương thức</p>
+                            <p class="text-xs font-bold text-slate-800">@(Model.PhuongThucThanhToan == "COD" ? "Thanh toán khi nhận hàng (COD)" : Model.PhuongThucThanhToan)</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Trạng thái</p>
+                            @if (Model.TrangThaiThanhToan == "Đã thanh toán")
+                            {
+                                <span class="text-xs font-black text-green-600 uppercase">Đã thanh toán</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs font-black text-amber-500 uppercase">Chưa thanh toán</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

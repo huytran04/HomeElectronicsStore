@@ -1,10 +1,15 @@
 @model IEnumerable<VuongBanDienTu.Models.SanPham>
 @using VuongBanDienTu.Helpers
 
+<h2 class="flex items-center gap-2 text-base sm:text-lg font-black text-gray-800 mb-3 mt-8">
+    <span class="w-1 h-5 bg-primary rounded inline-block"></span>
+    Sản Phẩm Bán Chạy
+</h2>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
     @if (Model != null && Model.Any())
     {
-        foreach (var item in Model.Take(4))
+        foreach (var item in Model)
         {
             <div class="prod-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer relative group border border-slate-100 flex flex-col h-full" onclick="location.href='@Url.Action("ChiTiet", "SanPham", new { id = item.MaSanPham })'">
                 <div class="h-44 sm:h-52 flex items-center justify-center p-4 overflow-hidden relative">
@@ -28,18 +33,16 @@
                             <span class="text-[10px] text-slate-400 uppercase font-black">No Image</span>
                         </div>
                     }
+                    
+                    <div class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm z-10">
+                        BÁN CHẠY
+                    </div>
                 </div>
                 <div class="px-4 pb-4 flex-1 flex flex-col">
                     <h3 class="text-xs font-medium text-slate-700 line-clamp-2 h-9 mb-1 leading-tight group-hover:text-primary transition-colors">@(string.IsNullOrEmpty(item.TenSanPham) ? "Sản phẩm chưa có tên" : item.TenSanPham)</h3>
                     
                     <div class="flex flex-col gap-0.5 mb-3">
                         <div class="text-sm font-bold text-primary">@(item.GiaBan > 0 ? item.GiaBan.ToString("N0") + "₫" : "Liên hệ")</div>
-                        @if (item.GiaBan > 1000000) {
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-slate-400 line-through">@((item.GiaBan * 1.2m).ToString("N0"))₫</span>
-                                <span class="bg-primary text-white text-[9px] font-black px-1 py-0.2 rounded">-15%</span>
-                            </div>
-                        }
                     </div>
 
                     <div class="space-y-0.5 text-[10px] text-slate-400 font-medium h-12 overflow-hidden mb-2">
@@ -54,13 +57,19 @@
                         else
                         {
                             <div>Đang cập nhật thông số...</div>
-                            <div>Nhà sản xuất: @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "K-Shop")</div>
                         }
                     </div>
 
-                    <div class="mt-auto pt-3">
-                        <div class="flex items-center gap-1.5 text-[10px] text-blue-600 font-bold">
-                            <i class="fa fa-circle-plus"></i> Thêm vào so sánh
+                    <div class="mt-auto pt-3 border-t border-slate-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 text-[10px] text-slate-400">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>Đã bán @(item.ChiTietDonHangs != null ? item.ChiTietDonHangs.Sum(c => c.SoLuong) : 0)</span>
+                            </div>
+                            <div class="flex items-center gap-0.5 text-yellow-400 text-[10px]">
+                                <i class="fa fa-star"></i>
+                                <span class="text-slate-400 font-bold">4.8</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,8 +79,8 @@
     else
     {
         <div class="col-span-full py-16 text-center bg-white rounded-xl shadow-sm border-2 border-dashed border-slate-100">
-            <i class="fa fa-star text-slate-200 text-5xl mb-4 block"></i>
-            <p class="text-slate-400 font-medium text-sm">Đang cập nhật sản phẩm nổi bật...</p>
+            <i class="fa fa-fire text-slate-200 text-5xl mb-4 block"></i>
+            <p class="text-slate-400 font-medium text-sm">Đang cập nhật danh sách bán chạy...</p>
         </div>
     }
 </div>

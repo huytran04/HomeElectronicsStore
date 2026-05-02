@@ -28,7 +28,6 @@ namespace VuongBanDienTu.Models
         public Nullable<int> SoLuongTon { get; set; }
         public string MoTaTongQuan { get; set; }
         public string ThongSoKyThuat { get; set; }
-        public string AnhChinh { get; set; }
         public string TrangThai { get; set; }
         public Nullable<System.DateTime> NgayTao { get; set; }
     

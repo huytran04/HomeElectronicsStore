@@ -75,16 +75,28 @@
                                 }
                                 else if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Đã xác nhận")
                                 {
-                                    <span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-tight">Đã xác nhận</span>
+                                    <div class="flex flex-col gap-1">
+                                        <span class="w-fit px-2.5 py-1 rounded-lg bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-tight">Đã xác nhận</span>
+                                        @if (item.NguoiDung1 != null)
+                                        {
+                                            <p class="text-[9px] text-slate-400 font-bold uppercase">Bởi: @item.NguoiDung1.HoTen</p>
+                                        }
+                                    </div>
                                 }
                                 else if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Đã hủy")
                                 {
                                     <div class="flex flex-col gap-1">
                                         <span class="w-fit px-2.5 py-1 rounded-lg bg-red-50 text-primary text-[10px] font-black uppercase tracking-tight">Đã hủy</span>
-                                        @if (!string.IsNullOrEmpty(item.GhiChu))
-                                        {
-                                            <p class="text-[9px] text-slate-400 italic">Lý do: @item.GhiChu</p>
-                                        }
+                                        <div class="flex flex-col">
+                                            @if (!string.IsNullOrEmpty(item.GhiChu))
+                                            {
+                                                <p class="text-[9px] text-slate-400 italic">Lý do: @item.GhiChu</p>
+                                            }
+                                            @if (item.NguoiDung1 != null)
+                                            {
+                                                <p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Bởi: @item.NguoiDung1.HoTen</p>
+                                            }
+                                        </div>
                                     </div>
                                 }
                                 else if (item.TrangThaiDonHang != null)
@@ -137,19 +149,21 @@
     </div>
 </div>
 
-<!-- Modal Hủy Đơn -->
-<div id="cancelModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
-    <div class="bg-white rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="cancelContent">
-        <div class="p-8">
-            <h3 class="text-xl font-black text-slate-800 mb-2">Hủy đơn hàng</h3>
-            <p class="text-xs text-slate-400 font-medium mb-6">Vui lòng nhập lý do hủy đơn hàng này</p>
+<!-- Modal Xác nhận Duyệt Đơn -->
+<div id="confirmModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="confirmContent">
+        <div class="p-8 text-center">
+            <div class="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-check-double text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase">Duyệt đơn hàng?</h3>
+            <p class="text-xs text-slate-400 font-medium mb-8 leading-relaxed">Bạn có chắc chắn muốn duyệt đơn hàng này? <br>Hệ thống sẽ tự động **trừ sản phẩm trong kho**!</p>
             
-            <input type="hidden" id="cancelOrderId">
-            <textarea id="cancelReason" rows="4" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm resize-none mb-6" placeholder="Ví dụ: Khách gọi yêu cầu hủy, Hết hàng..."></textarea>
+            <input type="hidden" id="confirmOrderId">
             
-            <div class="flex gap-3">
-                <button onclick="closeCancelModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">Đóng</button>
-                <button onclick="submitCancelOrder()" class="flex-1 py-3 bg-primary text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-primary-dark transition-all shadow-lg shadow-red-100">Xác nhận hủy</button>
+            <div class="flex flex-col gap-3">
+                <button onclick="submitApproveOrder()" id="btnConfirmApprove" class="w-full py-4 bg-green-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-100">Xác nhận duyệt ngay</button>
+                <button onclick="closeConfirmModal()" class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-100 transition-all">Hủy bỏ</button>
             </div>
         </div>
     </div>
@@ -157,9 +171,35 @@
 
 @section scripts {
     <script>
-        async function approveOrder(id) {
-            if (!confirm('Bạn có chắc chắn muốn duyệt đơn hàng này? Hệ thống sẽ tự động trừ sản phẩm trong kho!')) return;
+        function approveOrder(id) {
+            document.getElementById('confirmOrderId').value = id;
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmContent');
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('invisible');
+            }, 300);
+        }
+
+        async function submitApproveOrder() {
+            const id = document.getElementById('confirmOrderId').value;
+            const btn = document.getElementById('btnConfirmApprove');
+            const originalText = btn.innerHTML;
             
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> ĐANG XỬ LÝ...';
+
             try {
                 const response = await fetch('@Url.Action("Duyet", "QuanLyDonHang")?id=' + id, {
                     method: 'POST',
@@ -167,12 +207,16 @@
                 });
                 const data = await response.json();
                 if (data.success) {
+                    showToast('Đã duyệt đơn hàng thành công!', 'success');
                     location.reload();
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
             } catch (err) {
                 showToast('Lỗi kết nối!', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
 

@@ -54,20 +54,20 @@
                         <p class="text-lg font-black text-slate-800">@(item.TongTien.HasValue ? item.TongTien.Value.ToString("N0") : "0")₫</p>
                         <div class="flex flex-col items-center sm:items-end gap-1 mt-0.5">
                             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">@item.TrangThaiThanhToan</p>
-                            @if (item.TrangThaiThanhToan == "Chưa thanh toán" && item.TrangThaiDonHang != "Đã hủy")
+                            @if (item.TrangThaiThanhToan == "Chưa thanh toán" && item.TrangThaiDonHang != "Đã hủy" && item.PhuongThucThanhToan != "COD")
                             {
-                                <button onclick="payNow(@item.MaDonHang)" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase rounded-lg hover:bg-primary-dark transition-all shadow-md shadow-red-50">
+                                <a href="@Url.Action("ThanhToanVnPay", "ThanhToan", new { orderId = item.MaDonHang })" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase rounded-lg hover:bg-primary-dark transition-all shadow-md shadow-red-50">
                                     Thanh toán ngay
-                                </button>
+                                </a>
                             }
                         </div>
                     </div>
                     <div class="sm:pl-6 sm:border-l border-slate-50 w-full sm:w-auto">
-                        <button onclick="window.location.href='@Url.Action("TimKiem", "DonHang", new { maDon = item.MaDonHang, sdt = (Session["TaiKhoan"] as VuongBanDienTu.Models.NguoiDung).SoDienThoai })'" 
+                        <a href="@Url.Action("ChiTiet", "DonHang", new { id = item.MaDonHang })" 
                             class="w-full sm:w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center group/btn">
                             <i class="fa fa-chevron-right text-xs group-hover/btn:translate-x-1 transition-transform"></i>
                             <span class="sm:hidden ml-2 font-black uppercase text-[10px] tracking-widest">Xem chi tiết</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             }

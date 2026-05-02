@@ -12,17 +12,17 @@ namespace VuongBanDienTu.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class DanhMuc
+    public partial class QuyenHan
     {
-        public DanhMuc()
+        public QuyenHan()
         {
-            this.SanPhams = new HashSet<SanPham>();
+            this.VaiTroes = new HashSet<VaiTro>();
         }
     
-        public int MaDanhMuc { get; set; }
-        public string TenDanhMuc { get; set; }
-        public string MoTa { get; set; }
+        public int MaQuyen { get; set; }
+        public string TenQuyen { get; set; }
+        public string Code { get; set; }
     
-        public virtual ICollection<SanPham> SanPhams { get; set; }
+        public virtual ICollection<VaiTro> VaiTroes { get; set; }
     }
 }

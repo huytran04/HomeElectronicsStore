@@ -71,7 +71,10 @@ namespace VuongBanDienTu.Controllers
         public ActionResult ChiTiet(int id)
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            var order = db.DonHangs.Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham")
+            var order = db.DonHangs
+                        .Include("ChiTietDonHangs")
+                        .Include("ChiTietDonHangs.SanPham")
+                        .Include("ChiTietDonHangs.SanPham.HinhAnhSanPhams")
                         .FirstOrDefault(o => o.MaDonHang == id);
 
             if (order == null) return HttpNotFound();
