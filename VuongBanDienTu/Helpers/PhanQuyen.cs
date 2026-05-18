@@ -40,6 +40,13 @@ namespace VuongBanDienTu.Helpers
         {
             var user = HttpContext.Current.Session["TaiKhoan"] as NguoiDung;
             if (user == null) return false;
+            
+            // Nếu là quyền truy cập trang quản trị cơ bản, cho phép Admin, Quản lý và Nhân viên vào luôn
+            if (permissionCode == "TRUY_CAP_QUAN_TRI")
+            {
+                return IsStaff(user.MaVaiTro);
+            }
+
             if (user.MaVaiTro == ADMIN) return true;
 
             // 1. Kiểm tra trong Cache (Session) trước để đạt hiệu năng tối đa

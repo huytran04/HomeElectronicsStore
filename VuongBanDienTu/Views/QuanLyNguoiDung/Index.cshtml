@@ -202,10 +202,14 @@
             // Filter Rows
             const rows = document.querySelectorAll('.user-row');
             rows.forEach(row => {
-                const maVaiTro = parseInt(row.getAttribute('data-vai-tro'));
+                const attr = row.getAttribute('data-vai-tro');
+                const maVaiTro = attr ? parseInt(attr) : 0;
+                
                 if (isStaff) {
-                    row.style.display = (maVaiTro === 1 || maVaiTro === 2 || maVaiTro === 3) ? '' : 'none';
+                    // Hiện tất cả những ai KHÔNG PHẢI là Khách hàng (ID 4) ở Tab Nhân sự
+                    row.style.display = (maVaiTro !== 4) ? '' : 'none';
                 } else {
+                    // Chỉ hiện Khách hàng (ID 4) ở Tab Khách hàng
                     row.style.display = (maVaiTro === 4) ? '' : 'none';
                 }
             });
@@ -247,7 +251,10 @@
                     body: `maND=${maND}&maVT=${maVT}`
                 });
                 const res = await response.json();
-                if (res.success) showToast('Cập nhật vai trò thành công', 'success');
+                if (res.success) {
+                    showToast('Cập nhật vai trò thành công', 'success');
+                    setTimeout(() => location.reload(), 1000); 
+                }
                 else showToast(res.message, 'error');
             } catch (err) {
                 showToast('Lỗi kết nối máy chủ', 'error');

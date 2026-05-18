@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using VuongBanDienTu.Models;
+using VuongBanDienTu.Helpers;
 
 namespace VuongBanDienTu.Controllers
 {
@@ -14,13 +15,26 @@ namespace VuongBanDienTu.Controllers
         private bool IsInternal()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2 || user.MaVaiTro == 3);
+            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+        }
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsInternal())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    filterContext.Result = Json(new { success = false, message = "Bạn không có quyền thực hiện hành động này!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                }
+            }
+            base.OnActionExecuting(filterContext);
         }
 
         public ActionResult Index()
         {
-            if (!IsInternal()) return RedirectToAction("DangNhap", "TaiKhoan");
-
             var orders = db.DonHangs
                 .Include("NguoiDung")
                 .Include("NguoiDung1")
@@ -32,8 +46,6 @@ namespace VuongBanDienTu.Controllers
 
         public ActionResult GetChiTiet(int id)
         {
-            if (!IsInternal()) return HttpNotFound();
-
             var order = db.DonHangs
                 .Include("ChiTietDonHangs")
                 .Include("ChiTietDonHangs.SanPham")
@@ -47,8 +59,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult Duyet(int id)
         {
-            if (!IsInternal()) return Json(new { success = false, message = "Bạn không có quyền này!" });
-
             var user = Session["TaiKhoan"] as NguoiDung;
             var order = db.DonHangs.Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham").FirstOrDefault(o => o.MaDonHang == id);
 
@@ -81,8 +91,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult Huy(int id, string lyDo)
         {
-            if (!IsInternal()) return Json(new { success = false, message = "Bạn không có quyền này!" });
-
             var user = Session["TaiKhoan"] as NguoiDung;
             var order = db.DonHangs.Find(id);
             if (order != null)

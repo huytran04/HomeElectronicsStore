@@ -72,15 +72,23 @@
                     <span class="text-sm font-medium">Danh mục</span>
                 </a>
 
-                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-6 mb-2">Hệ thống (Admin)</p>
-                <a href="/QuanLyNguoiDung/Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar group transition-colors">
-                    <i class="fa fa-users w-5 text-center group-hover:text-primary transition-colors"></i>
-                    <span class="text-sm font-medium">Người dùng</span>
-                </a>
-                <a href="@Url.Action("Index", "PhanQuyen")" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar group transition-colors">
-                    <i class="fa fa-shield-halved w-5 text-center group-hover:text-primary transition-colors"></i>
-                    <span class="text-sm font-medium">Phân quyền</span>
-                </a>
+                @if (user.MaVaiTro == 1 || user.MaVaiTro == 2)
+                {
+                    <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-6 mb-2">Hệ thống (Admin)</p>
+                    <a href="/QuanLyNguoiDung/Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar group transition-colors">
+                        <i class="fa fa-users w-5 text-center group-hover:text-primary transition-colors"></i>
+                        <span class="text-sm font-medium">Người dùng</span>
+                    </a>
+                }
+                
+                @if (user.MaVaiTro == 1)
+                {
+                    <a href="@Url.Action("Index", "PhanQuyen")" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar group transition-colors">
+                        <i class="fa fa-shield-halved w-5 text-center group-hover:text-primary transition-colors"></i>
+                        <span class="text-sm font-medium">Phân quyền</span>
+                    </a>
+                }
+                
                 <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
                     <i class="fa fa-file-invoice-dollar w-5 text-center"></i>
                     <span class="text-sm font-medium">Báo cáo doanh thu</span>
@@ -124,7 +132,11 @@
                     </button>
                     <div class="h-8 w-px bg-slate-200"></div>
                     <div class="flex items-center gap-2 cursor-pointer group">
-                        <span class="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">Vai trò: <span class="text-primary font-bold">Admin</span></span>
+                        <span class="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">
+                            Vai trò: <span class="text-primary font-bold">
+                                @(user?.MaVaiTro == 1 ? "Admin" : (user?.MaVaiTro == 2 ? "Quản lý" : "Nhân viên"))
+                            </span>
+                        </span>
                         <i class="fa fa-chevron-down text-[10px] text-slate-400 group-hover:text-slate-800"></i>
                     </div>
                 </div>

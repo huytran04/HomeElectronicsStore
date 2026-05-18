@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using VuongBanDienTu.Models;
+using VuongBanDienTu.Helpers;
 
 namespace VuongBanDienTu.Controllers
 {
@@ -14,13 +15,27 @@ namespace VuongBanDienTu.Controllers
         private bool IsInternal()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2 || user.MaVaiTro == 3);
+            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsInternal())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    filterContext.Result = Json(new { success = false, message = "Bạn không có quyền này!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                }
+            }
+            base.OnActionExecuting(filterContext);
         }
 
         public ActionResult Index()
         {
-            if (!IsInternal()) return RedirectToAction("DangNhap", "TaiKhoan");
-            
             var categories = db.DanhMucs.OrderByDescending(d => d.MaDanhMuc).ToList();
             return View(categories);
         }
@@ -28,7 +43,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult Luu(DanhMuc dm)
         {
-            if (!IsInternal()) return Json(new { success = false, message = "Bạn không có quyền này!" });
 
             try
             {
@@ -58,8 +72,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult Xoa(int id)
         {
-            if (!IsInternal()) return Json(new { success = false, message = "Bạn không có quyền này!" });
-
             var dm = db.DanhMucs.Find(id);
             if (dm != null)
             {

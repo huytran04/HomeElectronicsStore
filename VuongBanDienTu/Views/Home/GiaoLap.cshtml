@@ -1,0 +1,76 @@
+@{
+    ViewBag.Title = "Giao lắp & Bảo hành";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-screen-xl mx-auto px-4 py-12">
+    <div class="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-12 text-center text-white">
+            <h1 class="text-4xl font-black mb-4 italic tracking-tighter uppercase">Dịch Vụ Chuyên Nghiệp 5 Sao</h1>
+            <p class="text-lg opacity-90 font-medium">Giao hàng thần tốc - Lắp đặt tận tâm - Bảo hành dài hạn</p>
+        </div>
+        
+        <div class="p-8 md:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Giao hàng -->
+                <div class="p-8 border border-slate-100 rounded-[2rem] hover:shadow-lg transition-all text-center">
+                    <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fa fa-truck-fast"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 uppercase">Giao hàng 2h</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed italic">
+                        Áp dụng cho các quận nội thành. Nhận hàng ngay trong ngày, đúng hẹn, không chờ đợi.
+                    </p>
+                </div>
+
+                <!-- Lắp đặt -->
+                <div class="p-8 border border-slate-100 rounded-[2rem] hover:shadow-lg transition-all text-center">
+                    <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fa fa-tools"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 uppercase">Lắp đặt miễn phí</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed italic">
+                        Đội ngũ kỹ thuật tay nghề cao, lắp đặt đúng chuẩn kỹ thuật, hướng dẫn sử dụng chi tiết.
+                    </p>
+                </div>
+
+                <!-- Bảo hành -->
+                <div class="p-8 border border-slate-100 rounded-[2rem] hover:shadow-lg transition-all text-center">
+                    <div class="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl">
+                        <i class="fa fa-shield-heart"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 uppercase">Bảo hành tại nhà</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed italic">
+                        Sự cố được tiếp nhận và xử lý trong vòng 24h. Thay mới linh kiện chính hãng 100%.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-slate-900 rounded-[2.5rem] p-12 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px]"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-12">
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Cam kết từ Vương Bán Điện Tử</h2>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-emerald-400 mt-1"></i>
+                                <span>Hoàn tiền 200% nếu phát hiện hàng giả, hàng nhái.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-emerald-400 mt-1"></i>
+                                <span>Đổi trả linh hoạt trong vòng 30 ngày (nếu có lỗi NSX).</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-emerald-400 mt-1"></i>
+                                <span>Bảo trì định kỳ 6 tháng/lần cho các dòng máy lớn.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <img src="https://img.icons8.com/bubbles/200/000000/warranty.png" alt="Warranty" class="w-48 h-48 drop-shadow-2xl">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -18,9 +18,25 @@ namespace VuongBanDienTu.Controllers
             return user != null && PhanQuyen.IsAdmin(user.MaVaiTro);
         }
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsAdmin())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    filterContext.Result = Json(new { success = false, message = "Bạn không có quyền quản lý phân quyền!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    TempData["Error"] = "Chỉ Admin mới có quyền truy cập mục Phân quyền!";
+                    filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                }
+            }
+            base.OnActionExecuting(filterContext);
+        }
+
         public ActionResult Index()
         {
-            if (!IsAdmin()) return RedirectToAction("Index", "Home");
 
             ViewBag.Roles = db.VaiTroes.Include("QuyenHans").ToList();
             ViewBag.Permissions = db.QuyenHans.ToList();
@@ -31,7 +47,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult UpdatePermission(int maVaiTro, int maQuyen, bool hasPermission)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền!" });
 
             var role = db.VaiTroes.Include("QuyenHans").FirstOrDefault(r => r.MaVaiTro == maVaiTro);
             var permission = db.QuyenHans.Find(maQuyen);
@@ -63,7 +78,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult CreatePermission(string tenQuyen, string code)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền!" });
 
             if (db.QuyenHans.Any(q => q.Code == code))
             {
@@ -79,7 +93,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult DeletePermission(int id)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền!" });
 
             var perm = db.QuyenHans.Find(id);
             if (perm != null)

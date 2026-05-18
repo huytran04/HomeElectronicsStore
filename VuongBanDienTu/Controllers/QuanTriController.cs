@@ -21,7 +21,16 @@ namespace VuongBanDienTu.Controllers
         private bool IsInternal()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2 || user.MaVaiTro == 3);
+            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsInternal())
+            {
+                filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+            }
+            base.OnActionExecuting(filterContext);
         }
 
         public ActionResult TongQuan()

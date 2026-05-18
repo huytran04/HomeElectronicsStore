@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using VuongBanDienTu.Models;
 using VuongBanDienTu.Helpers;
+using System.Data.Entity;
+using System.Data;
 
 namespace VuongBanDienTu.Controllers
 {
@@ -12,16 +14,32 @@ namespace VuongBanDienTu.Controllers
     {
         private VuongDienTuEntities db = new VuongDienTuEntities();
 
-        private bool IsAdmin()
+        private bool IsAuthorized()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && PhanQuyen.IsAdmin(user.MaVaiTro);
+            return user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2);
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsAuthorized())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    filterContext.Result = Json(new { success = false, message = "Bạn không có quyền quản lý người dùng!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    // Nếu là nhân viên mà cố vào trang này, thông báo lỗi thay vì đá về Home
+                    TempData["Error"] = "Bạn không có quyền truy cập khu vực này!";
+                    filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                }
+            }
+            base.OnActionExecuting(filterContext);
         }
 
         public ActionResult Index()
         {
-            if (!IsAdmin()) return RedirectToAction("Index", "Home");
-            
             var users = db.NguoiDungs.Include("VaiTro").OrderByDescending(u => u.MaNguoiDung).ToList();
             ViewBag.Roles = db.VaiTroes.ToList();
             return View(users);
@@ -30,7 +48,6 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult TaoNhanVien(NguoiDung user)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Bạn không có quyền này!" });
 
             if (ModelState.IsValid)
             {
@@ -54,33 +71,50 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult DoiTrangThai(int id)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Bạn không có quyền này!" });
-
-            var user = db.NguoiDungs.Find(id);
-            if (user != null)
+            try
             {
-                user.TrangThai = !user.TrangThai;
-                db.Configuration.ValidateOnSaveEnabled = false;
-                db.SaveChanges();
-                return Json(new { success = true });
+                var user = db.NguoiDungs.Find(id);
+                if (user != null)
+                {
+                    user.TrangThai = !user.TrangThai;
+                    db.Entry(user).State = EntityState.Modified;
+                    db.Configuration.ValidateOnSaveEnabled = false;
+                    db.SaveChanges();
+                    return Json(new { success = true });
+                }
+                return Json(new { success = false, message = "Không tìm thấy người dùng!" });
             }
-            return Json(new { success = false });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
 
         [HttpPost]
         public ActionResult UpdateUserRole(int maND, int maVT)
         {
-            if (!IsAdmin()) return Json(new { success = false, message = "Không có quyền!" });
-
-            var user = db.NguoiDungs.Find(maND);
-            if (user != null)
+            try
             {
+                var user = db.NguoiDungs.Find(maND);
+                if (user == null) return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+
+                // Kiểm tra vai trò mới có tồn tại không
+                var roleExists = db.VaiTroes.Any(v => v.MaVaiTro == maVT);
+                if (!roleExists) return Json(new { success = false, message = "Vai trò không hợp lệ!" });
+
                 user.MaVaiTro = maVT;
+                
+                // Ép EF đánh dấu là đã thay đổi để lưu vào DB
+                db.Entry(user).State = EntityState.Modified;
                 db.Configuration.ValidateOnSaveEnabled = false;
                 db.SaveChanges();
+
                 return Json(new { success = true });
             }
-            return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
         }
     }
 }

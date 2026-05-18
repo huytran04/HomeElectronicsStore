@@ -29,5 +29,10 @@ namespace VuongBanDienTu.Controllers
             ViewBag.Message = "Your contact page.";
             return View();
         }
+
+        public ActionResult CamNang() => View();
+        public ActionResult GiaoLap() => View();
+        public ActionResult KhuyenMai() => View();
+        public ActionResult DoanhNghiep() => View();
     }
 }

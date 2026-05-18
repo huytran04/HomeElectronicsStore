@@ -6,12 +6,35 @@ using System.Web.Mvc;
 using VuongBanDienTu.Models;
 using System.IO;
 using System.Data.Entity;
+using VuongBanDienTu.Helpers;
 
 namespace VuongBanDienTu.Controllers
 {
     public class QuanLySanPhamController : Controller
     {
         private VuongDienTuEntities db = new VuongDienTuEntities();
+
+        private bool IsInternal()
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!IsInternal())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    filterContext.Result = Json(new { success = false, message = "Hết phiên đăng nhập hoặc không có quyền!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                }
+            }
+            base.OnActionExecuting(filterContext);
+        }
 
         public ActionResult Index()
         {
