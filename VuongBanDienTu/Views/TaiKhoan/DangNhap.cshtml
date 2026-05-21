@@ -36,13 +36,9 @@
         <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
             <div class="flex items-center gap-8">
                 <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về</a>
-                <div class="flex items-center gap-2 cursor-pointer opacity-90 hover:opacity-100">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Xem giá tại <span class="font-bold">Hà Nội</span></span>
-                </div>
             </div>
             <div class="text-xl font-black italic tracking-tighter uppercase">
-                <span class="text-yellow-400">VUONG</span>BANDIENTU
+                <span class="text-yellow-400">VUONG</span>DIENTU
             </div>
         </div>
     </header>
@@ -58,7 +54,7 @@
             </div>
 
             <!-- Login Form -->
-            <form action="@Url.Action("DangNhap", "TaiKhoan")" method="post" class="space-y-4">
+             <form action="@Url.Action("DangNhap", "TaiKhoan")" method="post" class="space-y-4">
                 @if (ViewBag.Error != null)
                 {
                     <div class="bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
@@ -67,8 +63,16 @@
                     </div>
                 }
 
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="bg-green-50 text-green-600 text-xs font-bold p-3.5 rounded-md border border-green-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-check text-sm text-green-500"></i>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
                 <div class="relative">
-                    <input type="text" name="TenDangNhap" required placeholder="Email/Số điện thoại" 
+                    <input type="text" name="TenDangNhap" required placeholder="Tên người dùng" 
                            class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
                 </div>
 
@@ -78,8 +82,8 @@
                 </div>
 
                 <div class="flex justify-between items-center px-1">
-                    <a href="#" class="text-xs text-blue-600 hover:underline">Quên mật khẩu?</a>
-                    <a href="#" class="text-xs text-blue-600 hover:underline">Đăng nhập với SMS</a>
+                    <a href="@Url.Action("QuenMatKhau", "TaiKhoan")" class="text-xs text-blue-600 hover:underline font-semibold">Quên mật khẩu?</a>
+                    <a href="#" class="text-xs text-blue-600 hover:underline"></a>
                 </div>
 
                 <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded shadow-sm hover:bg-primary-dark transition-all flex items-center justify-center gap-2 tracking-widest uppercase">
@@ -87,31 +91,13 @@
                 </button>
             </form>
 
-            <!-- Separator -->
-            <div class="flex items-center gap-4 my-8">
-                <div class="flex-1 h-px bg-gray-200"></div>
-                <span class="text-xs text-gray-400 font-medium">Hoặc</span>
-                <div class="flex-1 h-px bg-gray-200"></div>
-            </div>
-
-            <!-- Social Logins -->
-            <div class="space-y-3">
-                <button class="w-full bg-facebook text-white py-3 rounded flex items-center px-5 gap-4 hover:opacity-90 transition-opacity">
-                    <i class="fa-brands fa-facebook-f w-4 text-center"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider flex-1 text-center pr-4">ĐĂNG NHẬP BẰNG FACEBOOK</span>
-                </button>
-                <button class="w-full bg-google text-white py-3 rounded flex items-center px-5 gap-4 hover:opacity-90 transition-opacity">
-                    <i class="fa-brands fa-google w-4 text-center"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider flex-1 text-center pr-4">ĐĂNG NHẬP BẰNG GOOGLE</span>
-                </button>
-            </div>
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-50 border-t border-gray-200 py-4">
         <div class="max-w-screen-xl mx-auto px-4 text-center text-[11px] text-gray-600 font-medium">
-            Bạn gặp khó khăn khi đăng nhập, đăng ký? Gọi <span class="text-primary font-bold">1800 6800</span> để được hỗ trợ tốt nhất.
+            Bạn gặp khó khăn khi đăng nhập, đăng ký? Gọi <span class="text-primary font-bold">1800 6800</span> hoặc đến tại cửa hàng để được hỗ trợ tốt nhất.
         </div>
     </footer>
 

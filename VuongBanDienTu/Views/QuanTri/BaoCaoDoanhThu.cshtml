@@ -1,0 +1,248 @@
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Báo cáo doanh thu";
+
+    var dailyData = ViewBag.DailyData as List<VuongBanDienTu.Controllers.DoanhThuModel>;
+    var monthlyData = ViewBag.MonthlyData as List<VuongBanDienTu.Controllers.DoanhThuModel>;
+    var yearlyData = ViewBag.YearlyData as List<VuongBanDienTu.Controllers.DoanhThuModel>;
+
+    // Calculate total summary stats for display cards
+    int totalDailyOrders = dailyData?.Sum(x => (int)x.OrderCount) ?? 0;
+    decimal totalDailyRevenue = dailyData?.Sum(x => (decimal)x.Revenue) ?? 0;
+
+    string tuNgayVal = ViewBag.TuNgay != null ? ((DateTime)ViewBag.TuNgay).ToString("yyyy-MM-dd") : "";
+    string denNgayVal = ViewBag.DenNgay != null ? ((DateTime)ViewBag.DenNgay).ToString("yyyy-MM-dd") : "";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Báo cáo & Thống kê doanh thu</h2>
+            <p class="text-xs text-slate-400 font-medium mt-1">Theo dõi, phân tích và xuất dữ liệu doanh thu của cửa hàng</p>
+        </div>
+    </div>
+
+    <!-- Date Filter Card -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        <form method="get" action="@Url.Action("BaoCaoDoanhThu", "QuanTri")" class="flex flex-col md:flex-row items-end gap-4">
+            <div class="flex-1 w-full space-y-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Từ ngày</label>
+                <div class="relative">
+                    <i class="fa fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="date" name="tuNgay" value="@tuNgayVal" class="w-full pl-11 pr-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" />
+                </div>
+            </div>
+            
+            <div class="flex-1 w-full space-y-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Đến ngày</label>
+                <div class="relative">
+                    <i class="fa fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="date" name="denNgay" value="@denNgayVal" class="w-full pl-11 pr-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" />
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full md:w-auto">
+                <button type="submit" class="flex-1 md:flex-initial px-6 py-3.5 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                    <i class="fa fa-filter text-sm"></i> Lọc dữ liệu
+                </button>
+                @if (ViewBag.TuNgay != null || ViewBag.DenNgay != null)
+                {
+                    <a href="@Url.Action("BaoCaoDoanhThu", "QuanTri")" class="px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-times text-sm"></i> Xóa lọc
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Revenue Card -->
+        <div class="bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent p-6 rounded-3xl border border-primary/10 shadow-sm flex items-center justify-between">
+            <div class="space-y-2">
+                <span class="text-[10px] font-black text-primary/70 uppercase tracking-widest block">Tổng doanh thu thực tế</span>
+                <h3 class="text-3xl font-black text-slate-800 tracking-tight">@totalDailyRevenue.ToString("N0")<span class="text-lg font-bold text-slate-400 ml-1">₫</span></h3>
+                <p class="text-xs text-slate-400 font-medium">Chỉ tính các đơn hàng đã xác nhận giao thành công</p>
+            </div>
+            <div class="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl shadow-inner">
+                <i class="fa fa-hand-holding-dollar"></i>
+            </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div class="space-y-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Số đơn hàng thành công</span>
+                <h3 class="text-3xl font-black text-slate-800 tracking-tight">@totalDailyOrders <span class="text-base font-bold text-slate-400">Đơn hàng</span></h3>
+                <p class="text-xs text-slate-400 font-medium">Số giao dịch đã hoàn thành hoàn tất</p>
+            </div>
+            <div class="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center text-2xl">
+                <i class="fa fa-circle-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Report Tabs -->
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <!-- Tabs Nav -->
+        <div class="flex border-b border-slate-100 p-2 gap-2 bg-slate-50/50">
+            <button onclick="switchReportTab('ngay')" id="tabBtn-ngay" class="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all bg-white text-primary shadow-sm border border-slate-100/50">
+                <i class="fa fa-calendar-day mr-2"></i> Báo cáo theo ngày
+            </button>
+            <button onclick="switchReportTab('thang')" id="tabBtn-thang" class="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
+                <i class="fa fa-calendar-alt mr-2"></i> Báo cáo theo tháng
+            </button>
+            <button onclick="switchReportTab('nam')" id="tabBtn-nam" class="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
+                <i class="fa fa-calendar-minus mr-2"></i> Báo cáo theo năm
+            </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="p-6">
+            <!-- TAB DOANH THU THEO NGÀY -->
+            <div id="reportSection-ngay" class="space-y-4">
+                <div class="flex items-center justify-between gap-4">
+                    <h4 class="text-sm font-black text-slate-700 uppercase tracking-wider">Doanh thu chi tiết theo ngày</h4>
+                    <a href="@Url.Action("XuatExcelDoanhThu", "QuanTri", new { type = "ngay", tuNgay = tuNgayVal, denNgay = denNgayVal })" class="px-4 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs uppercase tracking-wider border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center gap-2">
+                        <i class="fa fa-file-excel text-sm"></i> Xuất Excel ngày
+                    </a>
+                </div>
+                
+                <div class="overflow-x-auto border border-slate-100 rounded-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50">
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ngày</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Đơn hàng thành công</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Doanh thu thực tế</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @if (dailyData == null || !dailyData.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="px-6 py-8 text-center text-sm font-bold text-slate-400">Không có dữ liệu doanh thu trong khoảng thời gian này!</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in dailyData)
+                                {
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-700">@item.TimeLabel</td>
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-600">@item.OrderCount</td>
+                                        <td class="px-6 py-4 text-sm font-black text-slate-800 text-right">@(((decimal)item.Revenue).ToString("N0")) ₫</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB DOANH THU THEO THÁNG -->
+            <div id="reportSection-thang" class="space-y-4 hidden">
+                <div class="flex items-center justify-between gap-4">
+                    <h4 class="text-sm font-black text-slate-700 uppercase tracking-wider">Doanh thu chi tiết theo tháng</h4>
+                    <a href="@Url.Action("XuatExcelDoanhThu", "QuanTri", new { type = "thang", tuNgay = tuNgayVal, denNgay = denNgayVal })" class="px-4 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs uppercase tracking-wider border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center gap-2">
+                        <i class="fa fa-file-excel text-sm"></i> Xuất Excel tháng
+                    </a>
+                </div>
+                
+                <div class="overflow-x-auto border border-slate-100 rounded-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50">
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tháng / Năm</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Đơn hàng thành công</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Doanh thu thực tế</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @if (monthlyData == null || !monthlyData.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="px-6 py-8 text-center text-sm font-bold text-slate-400">Không có dữ liệu doanh thu tháng!</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in monthlyData)
+                                {
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-700">@item.TimeLabel</td>
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-600">@item.OrderCount</td>
+                                        <td class="px-6 py-4 text-sm font-black text-slate-800 text-right">@(((decimal)item.Revenue).ToString("N0")) ₫</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB DOANH THU THEO NĂM -->
+            <div id="reportSection-nam" class="space-y-4 hidden">
+                <div class="flex items-center justify-between gap-4">
+                    <h4 class="text-sm font-black text-slate-700 uppercase tracking-wider">Doanh thu chi tiết theo năm</h4>
+                    <a href="@Url.Action("XuatExcelDoanhThu", "QuanTri", new { type = "nam", tuNgay = tuNgayVal, denNgay = denNgayVal })" class="px-4 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs uppercase tracking-wider border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center gap-2">
+                        <i class="fa fa-file-excel text-sm"></i> Xuất Excel năm
+                    </a>
+                </div>
+                
+                <div class="overflow-x-auto border border-slate-100 rounded-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50">
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Năm</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Đơn hàng thành công</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Doanh thu thực tế</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @if (yearlyData == null || !yearlyData.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="px-6 py-8 text-center text-sm font-bold text-slate-400">Không có dữ liệu doanh thu năm!</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in yearlyData)
+                                {
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-700">@item.TimeLabel</td>
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-600">@item.OrderCount</td>
+                                        <td class="px-6 py-4 text-sm font-black text-slate-800 text-right">@(((decimal)item.Revenue).ToString("N0")) ₫</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function switchReportTab(type) {
+            const types = ['ngay', 'thang', 'nam'];
+            
+            types.forEach(t => {
+                const btn = document.getElementById('tabBtn-' + t);
+                const section = document.getElementById('reportSection-' + t);
+                
+                if (t === type) {
+                    btn.className = "px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all bg-white text-primary shadow-sm border border-slate-100/50";
+                    section.classList.remove('hidden');
+                } else {
+                    btn.className = "px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
+                    section.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+}

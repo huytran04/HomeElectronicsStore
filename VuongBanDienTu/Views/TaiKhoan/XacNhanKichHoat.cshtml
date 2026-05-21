@@ -1,0 +1,101 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác nhận kích hoạt tài khoản - VươngBánĐiệnTử</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e8192c',
+                        'primary-dark': '#c0001a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-primary text-white h-12 flex items-center shadow-md">
+        <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
+            <div class="flex items-center gap-8">
+                <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về trang chủ</a>
+            </div>
+            <div class="text-xl font-black italic tracking-tighter uppercase">
+                <span class="text-yellow-400">VUONG</span>DIENTU
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-[480px] bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-primary rounded-full mb-3">
+                    <i class="fa fa-envelope-open-text text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-gray-800 uppercase tracking-tight">KÍCH HOẠT TÀI KHOẢN</h2>
+                <p class="text-gray-500 text-sm mt-1">Đăng ký thành công! Vui lòng nhập mã kích hoạt gồm 6 chữ số gửi tới hòm thư Email của bạn.</p>
+            </div>
+
+            <form action="@Url.Action("XacNhanKichHoat", "TaiKhoan")" method="post" class="space-y-4">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-exclamation"></i>
+                        @ViewBag.Error
+                    </div>
+                }
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="bg-green-50 text-green-600 text-xs font-bold p-3.5 rounded-md border border-green-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-check text-sm text-green-500"></i>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Tên đăng nhập</label>
+                    <input type="text" name="TenDangNhap" required placeholder="Nhập tên đăng nhập" value="@ViewBag.Username"
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400 font-semibold bg-gray-50">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Mã kích hoạt (OTP 6 số)</label>
+                    <input type="text" name="MaKichHoat" required maxlength="6" placeholder="Nhập mã OTP 6 chữ số" value="@ViewBag.Code"
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-center tracking-widest text-lg font-bold outline-none focus:border-primary transition-all placeholder:text-gray-400 placeholder:tracking-normal">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded text-sm transition-all shadow-sm hover:shadow-md uppercase tracking-wider mt-4">
+                    Kích Hoạt Ngay
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-xs text-gray-500">
+                <span>Quay lại trang </span>
+                <a href="@Url.Action("DangNhap", "TaiKhoan")" class="text-primary hover:underline font-bold">Đăng nhập</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400">
+        &copy; @DateTime.Now.Year Vương Bán Điện Tử. All rights reserved.
+    </footer>
+</body>
+</html>

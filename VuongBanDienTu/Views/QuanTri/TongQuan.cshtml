@@ -10,9 +10,9 @@
             <i class="fa fa-users"></i>
         </div>
         <div>
-            <p class="text-xs font-medium text-slate-500">Người dùng mới</p>
-            <p class="text-2xl font-black text-slate-800">1,248</p>
-            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +12%</p>
+            <p class="text-xs font-medium text-slate-500">Khách hàng</p>
+            <p class="text-2xl font-black text-slate-800">@((ViewBag.TotalCustomers != null ? (int)ViewBag.TotalCustomers : 0).ToString("N0"))</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> Thành viên</p>
         </div>
     </div>
     
@@ -21,9 +21,9 @@
             <i class="fa fa-dollar-sign"></i>
         </div>
         <div>
-            <p class="text-xs font-medium text-slate-500">Doanh thu tháng</p>
-            <p class="text-2xl font-black text-slate-800">2.4 tỷ</p>
-            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +8.4%</p>
+            <p class="text-xs font-medium text-slate-500">Tổng doanh thu</p>
+            <p class="text-xl font-black text-slate-800">@((ViewBag.TotalRevenue != null ? (decimal)ViewBag.TotalRevenue : 0).ToString("N0"))₫</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> Đã duyệt</p>
         </div>
     </div>
 
@@ -32,9 +32,9 @@
             <i class="fa fa-shopping-cart"></i>
         </div>
         <div>
-            <p class="text-xs font-medium text-slate-500">Đơn hàng mới</p>
-            <p class="text-2xl font-black text-slate-800">56</p>
-            <p class="text-[10px] text-primary font-bold"><i class="fa fa-arrow-down"></i> -3%</p>
+            <p class="text-xs font-medium text-slate-500">Tổng đơn hàng</p>
+            <p class="text-2xl font-black text-slate-800">@((ViewBag.TotalOrders != null ? (int)ViewBag.TotalOrders : 0).ToString("N0"))</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> Mua sắm</p>
         </div>
     </div>
 
@@ -44,8 +44,8 @@
         </div>
         <div>
             <p class="text-xs font-medium text-slate-500">Lượt truy cập</p>
-            <p class="text-2xl font-black text-slate-800">45.2K</p>
-            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> +24%</p>
+            <p class="text-2xl font-black text-slate-800">@((ViewBag.TotalVisits != null ? (int)ViewBag.TotalVisits : 0).ToString("N0"))</p>
+            <p class="text-[10px] text-green-500 font-bold"><i class="fa fa-arrow-up"></i> Tương tác</p>
         </div>
     </div>
 </div>
@@ -55,7 +55,7 @@
     <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-bold text-slate-800">Hoạt động gần đây</h3>
-            <button class="text-xs text-primary font-bold hover:underline">Xem tất cả</button>
+            <a href="@Url.Action("Index", "QuanLyDonHang")" class="text-xs text-primary font-bold hover:underline">Xem tất cả</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -68,66 +68,248 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                    <tr>
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">NV</div>
-                            <div>
-                                <p class="font-bold text-slate-800 leading-none">Nguyễn Văn A</p>
-                                <p class="text-[10px] text-slate-400 mt-1">Nhân viên Bán hàng</p>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-600">Cập nhật đơn hàng #DH1234</td>
-                        <td class="px-6 py-4 text-slate-500 text-xs">2 phút trước</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Thành công</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">QL</div>
-                            <div>
-                                <p class="font-bold text-slate-800 leading-none">Trần Thị B</p>
-                                <p class="text-[10px] text-slate-400 mt-1">Quản lý Kho</p>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-600">Thêm sản phẩm mới: iPhone 16</td>
-                        <td class="px-6 py-4 text-slate-500 text-xs">15 phút trước</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Thành công</span>
-                        </td>
-                    </tr>
+                    @if (ViewBag.RecentOrders != null && (ViewBag.RecentOrders as List<VuongBanDienTu.Models.DonHang>).Count > 0)
+                    {
+                        foreach (var order in ViewBag.RecentOrders as List<VuongBanDienTu.Models.DonHang>)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">
+                                        @((order.NguoiDung != null && !string.IsNullOrEmpty(order.NguoiDung.HoTen)) ? order.NguoiDung.HoTen.Substring(0, 1).ToUpper() : "K")
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-800 leading-none">@(order.NguoiDung != null ? order.NguoiDung.HoTen : "Khách ẩn danh")</p>
+                                        <p class="text-[10px] text-slate-400 mt-1">Khách hàng</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600">
+                                    @if (order.TrangThaiDonHang?.Trim() == "Chờ xử lý")
+                                    {
+                                        <span>Đặt đơn hàng mới <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
+                                    }
+                                    else if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
+                                    {
+                                        <span>Duyệt & xác nhận đơn <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
+                                        if (order.NguoiDung1 != null)
+                                        {
+                                            <span class="text-[9px] text-slate-400 block uppercase">Bởi: @order.NguoiDung1.HoTen</span>
+                                        }
+                                    }
+                                    else if (order.TrangThaiDonHang?.Trim() == "Đã hủy")
+                                    {
+                                        <span>Hủy đơn hàng <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
+                                        if (!string.IsNullOrEmpty(order.GhiChu))
+                                        {
+                                            <span class="text-[9px] text-slate-400 block italic">Lý do: @order.GhiChu</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>Cập nhật trạng thái đơn <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-slate-500 text-xs">
+                                    @VuongBanDienTu.Helpers.PhanQuyen.GetTimeAgo(order.NgayDat)
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    @if (order.TrangThaiDonHang?.Trim() == "Chờ xử lý")
+                                    {
+                                        <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Chờ xử lý</span>
+                                    }
+                                    else if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
+                                    {
+                                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Đã xác nhận</span>
+                                    }
+                                    else if (order.TrangThaiDonHang?.Trim() == "Đã hủy")
+                                    {
+                                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Đã hủy</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">@order.TrangThaiDonHang</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">Không có hoạt động nào gần đây</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Tình trạng hệ thống -->
-    <div class="flex flex-col gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 class="font-bold text-slate-800 mb-4">Hệ thống</h3>
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-slate-500">Cơ sở dữ liệu</span>
-                    <span class="text-xs font-bold text-green-500">Ổn định</span>
+    <!-- Biểu đồ thống kê hiệu năng -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">Thống kê hiệu năng</h3>
+                <p class="text-[11px] text-slate-400 font-medium mt-0.5">Xu hướng tăng trưởng và tương tác theo tháng</p>
+            </div>
+            <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full text-[10px] font-black uppercase">
+                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Live
+            </div>
+        </div>
+        
+        <div class="relative flex-1 min-h-[300px]">
+            <canvas id="metricsChart"></canvas>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-50">
+            <div class="space-y-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tương tác</p>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="text-base font-black text-slate-700">@((ViewBag.TotalVisits != null ? (int)ViewBag.TotalVisits : 0).ToString("N0"))</span>
+                    <span class="text-[9px] font-bold text-green-500"><i class="fa fa-arrow-up-right"></i> +12%</span>
                 </div>
-                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-green-500 h-full w-[95%]"></div>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-slate-500">Dung lượng ổ đĩa</span>
-                    <span class="text-xs font-bold text-amber-500">75%</span>
-                </div>
-                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-amber-500 h-full w-[75%]"></div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Doanh thu TB / Đơn</p>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="text-base font-black text-slate-700">
+                        @{
+                            var totalRev = ViewBag.TotalRevenue != null ? (decimal)ViewBag.TotalRevenue : 0;
+                            var totalOrd = ViewBag.TotalOrders != null ? (int)ViewBag.TotalOrders : 0;
+                            var avg = totalOrd > 0 ? (totalRev / totalOrd) : 0;
+                            @avg.ToString("N0")
+                        }₫
+                    </span>
                 </div>
             </div>
         </div>
-
-        <div class="bg-primary p-6 rounded-2xl shadow-lg shadow-red-200 text-white relative overflow-hidden">
-            <i class="fa fa-shield-halved absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
-            <h3 class="font-bold text-lg mb-2">Bảo mật</h3>
-            <p class="text-xs opacity-80 mb-4 lh-relaxed">Hệ thống đang được bảo vệ. Có 0 cảnh báo mới từ tường lửa.</p>
-            <button class="bg-white text-primary text-[10px] font-black px-4 py-2 rounded-lg uppercase">Kiểm tra ngay</button>
-        </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+        
+        // Load authentic monthly arrays directly from C# server-side calculations
+        const visitsData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlyVisits ?? new int[12]));
+        const ordersData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlyOrders ?? new int[12]));
+        const revenueData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlyRevenue ?? new decimal[12]));
+
+        // Create gradients
+        const revenueGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        revenueGradient.addColorStop(0, 'rgba(232, 25, 44, 0.3)');
+        revenueGradient.addColorStop(1, 'rgba(232, 25, 44, 0.0)');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'],
+                datasets: [
+                    {
+                        label: 'Lượt truy cập',
+                        type: 'bar',
+                        data: visitsData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                        borderColor: '#6366f1',
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Đơn hàng',
+                        type: 'bar',
+                        data: ordersData,
+                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Doanh thu tháng (đ)',
+                        type: 'line',
+                        data: revenueData,
+                        fill: true,
+                        backgroundColor: revenueGradient,
+                        borderColor: '#e8192c',
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        pointBackgroundColor: '#e8192c',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'yRevenue'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { size: 10, weight: 'bold' },
+                            color: '#64748b',
+                            boxWidth: 12
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 12,
+                        callbacks: {
+                            label: function (context) {
+                                let val = context.raw;
+                                if (context.dataset.yAxisID === 'yRevenue') {
+                                    return context.dataset.label + ': ' + val.toLocaleString('vi-VN') + ' ₫';
+                                }
+                                return context.dataset.label + ': ' + val.toLocaleString('vi-VN');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10, weight: 'bold' }, color: '#64748b' }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { size: 9 }, color: '#64748b' },
+                        title: {
+                            display: true,
+                            text: 'Lượt / Đơn',
+                            font: { size: 10, weight: 'bold' },
+                            color: '#64748b'
+                        }
+                    },
+                    yRevenue: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: {
+                            font: { size: 9 },
+                            color: '#e8192c',
+                            callback: function(value) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Doanh thu (₫)',
+                            font: { size: 10, weight: 'bold' },
+                            color: '#e8192c'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>

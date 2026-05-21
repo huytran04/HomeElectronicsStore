@@ -26,7 +26,7 @@
 
             <div>
                 <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Trạng thái</label>
-                @Html.DropDownListFor(m => m.TrangThai, new SelectList(new[] { "Đang bán", "Ngừng kinh doanh", "Hết hàng" }), new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer" })
+                @Html.DropDownListFor(m => m.TrangThai, new SelectList(new[] { "Đang bán", "Ngừng kinh doanh", "Hết hàng" }), new { @class = "w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer", onchange = "onStatusChange(this, 'add')" })
             </div>
 
             <div>

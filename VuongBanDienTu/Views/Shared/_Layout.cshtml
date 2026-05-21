@@ -1,3 +1,6 @@
+@{
+    var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -78,26 +81,22 @@
             <!-- Logo -->
             <a href="/" class="flex-shrink-0">
                 <span class="text-xl sm:text-2xl font-black italic text-white tracking-tight">
-                    <span class="text-gold">VUONG</span>BANDIENTU
+                    <span class="text-gold">VUONG</span>DIENTU
                 </span>
             </a>
 
-            <!-- Location -->
-            <div class="hidden sm:flex flex-col flex-shrink-0 cursor-pointer text-white leading-tight">
-                <span class="text-[9px] opacity-80">Xem giá tại</span>
-                <span class="text-xs font-bold border-b border-dashed border-white/50">
-                    <i class="fa fa-map-marker-alt mr-1"></i>Hà Nội <i class="fa fa-caret-down"></i>
-                </span>
-            </div>
-
             <!-- Search - Visible on Desktop, Hidden on Mobile (will show in second row) -->
-            <form class="hidden lg:flex flex-1 h-9 rounded overflow-hidden shadow-md" action="#" method="get">
-                <input
-                    type="text" name="q"
-                    placeholder="Bạn cần tìm gì hôm nay?"
-                    class="flex-1 px-3 text-sm outline-none text-gray-700"
-                />
-                <button type="submit" class="bg-red-900 hover:bg-red-800 text-white px-4 transition-colors">
+            <form class="hidden lg:flex flex-1 h-9 rounded-[0.75rem] overflow-visible shadow-md bg-white border border-slate-200" action="@Url.Action("Index", "SanPham")" method="get">
+                <div class="relative flex-1">
+                    <input
+                        type="text" name="q" autocomplete="off"
+                        placeholder="Bạn cần tìm gì hôm nay?"
+                        class="w-full h-full px-4 text-sm outline-none text-gray-700 search-input rounded-l-[0.75rem]"
+                    />
+                    <!-- Autocomplete Suggestions Dropdown -->
+                    <div class="search-suggestions absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 py-3 hidden z-[99] max-h-[380px] overflow-y-auto"></div>
+                </div>
+                <button type="submit" class="bg-red-900 hover:bg-red-800 text-white px-5 transition-colors rounded-r-[0.75rem] flex-shrink-0 flex items-center justify-center">
                     <i class="fa fa-search"></i>
                 </button>
             </form>
@@ -160,7 +159,7 @@
                 }
                 <div class="hidden sm:flex flex-col items-center text-white flex-shrink-0">
                     <i class="fa fa-phone text-base"></i>
-                    <span class="text-sm font-bold">1800.6800</span>
+                    <span class="text-sm font-bold">@config.StoreHotline</span>
                     <span class="text-[9px] opacity-80">Miễn phí</span>
                 </div>
             </div>
@@ -168,13 +167,17 @@
 
         <!-- Mobile Search - Visible on Small Screens only -->
         <div class="lg:hidden px-3 pb-2 pt-1 border-t border-white/10">
-            <form class="flex h-9 rounded overflow-hidden shadow-md bg-white" action="#" method="get">
-                <input
-                    type="text" name="q"
-                    placeholder="Bạn cần tìm gì hôm nay?"
-                    class="flex-1 px-3 text-sm outline-none text-gray-700"
-                />
-                <button type="submit" class="bg-red-900 text-white px-4">
+            <form class="flex h-9 rounded-[0.75rem] overflow-visible shadow-md bg-white border border-slate-200" action="@Url.Action("Index", "SanPham")" method="get">
+                <div class="relative flex-1">
+                    <input
+                        type="text" name="q" autocomplete="off"
+                        placeholder="Bạn cần tìm gì hôm nay?"
+                        class="w-full h-full px-3 text-sm outline-none text-gray-700 search-input rounded-l-[0.75rem]"
+                    />
+                    <!-- Autocomplete Suggestions Dropdown -->
+                    <div class="search-suggestions absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 py-3 hidden z-[99] max-h-[300px] overflow-y-auto"></div>
+                </div>
+                <button type="submit" class="bg-red-900 text-white px-4 rounded-r-[0.75rem] flex-shrink-0 flex items-center justify-center">
                     <i class="fa fa-search"></i>
                 </button>
             </form>
@@ -230,7 +233,7 @@
         <div class="max-w-screen-xl mx-auto px-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
                 <div class="text-2xl font-black italic text-white mb-3">
-                    <span class="text-gold">VUONG</span>BANDIENTU
+                    <span class="text-gold">VUONG</span>DIENTU
                 </div>
                 <p class="text-xs leading-relaxed">Chuyên cung cấp sản phẩm điện tử, điện máy chính hãng với giá tốt nhất thị trường. Cam kết uy tín, dịch vụ tận tâm.</p>
             </div>
@@ -256,21 +259,21 @@
             <div>
                 <h4 class="text-white text-xs font-bold uppercase mb-3">Liên hệ</h4>
                 <ul class="space-y-2 text-xs">
-                    <li><a href="#" class="hover:text-white transition-colors"><i class="fa fa-phone w-4 mr-1"></i>1800.6800 (Miễn phí)</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors"><i class="fa fa-envelope w-4 mr-1"></i>support@vuongbdt.vn</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors"><i class="fa fa-map-marker-alt w-4 mr-1"></i>Hà Nội, Việt Nam</a></li>
+                    <li><a href="tel:@config.StoreHotline" class="hover:text-white transition-colors"><i class="fa fa-phone w-4 mr-1"></i>@config.StoreHotline (Miễn phí)</a></li>
+                    <li><a href="mailto:@config.StoreEmail" class="hover:text-white transition-colors"><i class="fa fa-envelope w-4 mr-1"></i>@config.StoreEmail</a></li>
+                    <li><a href="@config.StoreMapUrl" target="_blank" class="hover:text-white transition-colors"><i class="fa fa-map-marker-alt w-4 mr-1"></i>@config.StoreAddress</a></li>
                 </ul>
             </div>
         </div>
         <div class="max-w-screen-xl mx-auto px-3 mt-6 pt-4 border-t border-gray-700 text-center text-xs text-gray-600">
-            &copy; @DateTime.Now.Year VuongBanDienTu. All rights reserved.
+            &copy; @DateTime.Now.Year VuongDienTu. All rights reserved.
         </div>
     </footer>
 
     <!-- Floating CTA -->
-    <button class="cta-pulse fixed bottom-6 right-6 z-50 bg-primary text-white font-bold text-sm px-5 py-3 rounded-full flex items-center gap-2 border-none cursor-pointer">
-        <i class="fa fa-phone"></i> Mua ngay 1800.6800
-    </button>
+    <a href="tel:@config.StoreHotline" class="cta-pulse fixed bottom-6 right-6 z-50 bg-primary text-white font-bold text-sm px-5 py-3 rounded-full flex items-center gap-2 shadow-lg hover:bg-primary-dark transition-all duration-200">
+        <i class="fa fa-phone"></i> Mua ngay @config.StoreHotline
+    </a>
 
     <!-- Cart Notification Modal -->
     <div id="cartModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 opacity-0 invisible transition-[opacity,visibility] duration-300">
@@ -322,7 +325,15 @@
                     </div>
                     <div class="relative group">
                         <i class="fa fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
-                        <input type="password" name="MatKhau" required placeholder="Mật khẩu" class="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold">
+                        <input type="password" id="loginModalMatKhau" name="MatKhau" required placeholder="Mật khẩu" class="w-full pl-12 pr-12 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold">
+                        <span onclick="togglePasswordVisibility('loginModalMatKhau', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 cursor-pointer transition-colors">
+                            <i class="fa fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="flex justify-end px-1">
+                        <a href="@Url.Action("QuenMatKhau", "TaiKhoan")" class="text-xs text-blue-500 hover:text-blue-700 hover:underline font-semibold transition-colors">
+                            Quên mật khẩu?
+                        </a>
                     </div>
                     <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 transition-all">
                         Đăng nhập
@@ -337,7 +348,10 @@
                     </div>
                     <div class="relative group">
                         <i class="fa fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
-                        <input type="password" name="MatKhau" required placeholder="Mật khẩu" class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                        <input type="password" id="registerModalMatKhau" name="MatKhau" required placeholder="Mật khẩu" class="w-full pl-12 pr-12 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                        <span onclick="togglePasswordVisibility('registerModalMatKhau', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 cursor-pointer transition-colors">
+                            <i class="fa fa-eye"></i>
+                        </span>
                     </div>
                     <div class="relative group">
                         <i class="fa fa-id-card absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
@@ -434,11 +448,21 @@
                     if (type === 'login') {
                         window.location.href = data.redirect || '/';
                     } else {
-                        showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-                        switchAuthTab('login');
-                        form.reset();
+                        // Đăng ký thành công → chuyển thẳng sang trang nhập mã OTP
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else {
+                            showToast('Đăng ký thành công! Vui lòng kiểm tra Email để nhận mã kích hoạt.', 'success');
+                            switchAuthTab('login');
+                            form.reset();
+                        }
                     }
                 } else {
+                    // Nếu login bị chặn vì chưa kích hoạt → redirect sang trang nhập OTP
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
                     document.getElementById('auth-error').classList.remove('hidden');
                     document.getElementById('auth-error-msg').innerText = data.message;
                 }
@@ -566,6 +590,95 @@
                 catDropdown.classList.remove('opacity-100', 'translate-y-0');
             }
         }
+
+        function togglePasswordVisibility(inputId, toggleEl) {
+            const input = document.getElementById(inputId);
+            const icon = toggleEl.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+
+        // Product Search Autocomplete Suggestions Logic
+        const searchInputs = document.querySelectorAll('.search-input');
+        
+        searchInputs.forEach(input => {
+            const dropdown = input.nextElementSibling; // the .search-suggestions div
+            let debounceTimer = null;
+            
+            input.addEventListener('input', function() {
+                const query = this.value.trim();
+                clearTimeout(debounceTimer);
+                
+                if (query.length < 2) {
+                    dropdown.innerHTML = '';
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+                
+                // Debounce to prevent database spamming (250ms)
+                debounceTimer = setTimeout(() => {
+                    fetch(`/SanPham/GoiYSanPham?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data || data.length === 0) {
+                                dropdown.innerHTML = `
+                                    <div class="px-4 py-3 text-center text-xs text-slate-400 font-bold uppercase tracking-wider">
+                                        Không tìm thấy sản phẩm
+                                    </div>`;
+                                dropdown.classList.remove('hidden');
+                                return;
+                            }
+                            
+                            let html = '';
+                            data.forEach(item => {
+                                html += `
+                                    <a href="/SanPham/ChiTiet/${item.MaSanPham}" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0">
+                                        <img src="${item.HinhAnh}" alt="${item.TenSanPham}" class="w-10 h-10 object-contain bg-slate-50 rounded-lg p-1 border border-slate-100/50 flex-shrink-0" />
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-xs font-bold text-slate-700 truncate">${item.TenSanPham}</h4>
+                                            <div class="text-[11px] font-black text-primary mt-0.5">${item.GiaBan}</div>
+                                        </div>
+                                    </a>`;
+                            });
+                            
+                            dropdown.innerHTML = html;
+                            dropdown.classList.remove('hidden');
+                        })
+                        .catch(err => {
+                            console.error('Error fetching suggestions:', err);
+                        });
+                }, 250);
+            });
+            
+            // Show suggestions dropdown if it has content on click/focus
+            input.addEventListener('focus', function() {
+                if (this.value.trim().length >= 2 && dropdown.innerHTML !== '') {
+                    dropdown.classList.remove('hidden');
+                }
+            });
+            
+            // Close dropdown when pressing Escape
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            searchInputs.forEach(input => {
+                const dropdown = input.nextElementSibling;
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
     </script>
     @Scripts.Render("~/bundles/jquery")
     @RenderSection("scripts", required: false)

@@ -29,7 +29,15 @@ namespace VuongBanDienTu.Controllers
                 else
                 {
                     TempData["Error"] = "Chỉ Admin mới có quyền truy cập mục Phân quyền!";
-                    filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                    var user = Session["TaiKhoan"] as NguoiDung;
+                    if (user != null && user.MaVaiTro == PhanQuyen.QUAN_LY)
+                    {
+                        filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                    }
+                    else
+                    {
+                        filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
+                    }
                 }
             }
             base.OnActionExecuting(filterContext);

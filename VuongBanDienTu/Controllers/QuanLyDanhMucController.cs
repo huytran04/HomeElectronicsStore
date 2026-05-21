@@ -15,7 +15,8 @@ namespace VuongBanDienTu.Controllers
         private bool IsInternal()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+            if (user == null || user.MaVaiTro == null) return false;
+            return user.MaVaiTro == PhanQuyen.ADMIN || user.MaVaiTro == PhanQuyen.QUAN_LY;
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -28,7 +29,16 @@ namespace VuongBanDienTu.Controllers
                 }
                 else
                 {
-                    filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                    var user = Session["TaiKhoan"] as NguoiDung;
+                    if (user != null && PhanQuyen.IsStaff(user.MaVaiTro))
+                    {
+                        TempData["Error"] = "Bạn không có quyền truy cập quản lý danh mục!";
+                        filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
+                    }
+                    else
+                    {
+                        filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                    }
                 }
             }
             base.OnActionExecuting(filterContext);

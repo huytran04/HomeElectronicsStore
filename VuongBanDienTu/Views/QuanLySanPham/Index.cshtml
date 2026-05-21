@@ -62,13 +62,21 @@
                             @item.GiaBan.ToString("N0")đ
                         </td>
                         <td class="px-6 py-4 text-center">
-                            @if (item.SoLuongTon <= 5)
+                            @if (item.TrangThai == "Ngừng kinh doanh")
                             {
-                                <span class="bg-red-50 text-red-600 font-bold px-2 py-1 rounded text-xs">@item.SoLuongTon</span>
+                                <span class="bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-lg text-xs uppercase tracking-wider">Ngừng kinh doanh</span>
+                            }
+                            else if (item.TrangThai == "Hết hàng" || item.SoLuongTon <= 0)
+                            {
+                                <span class="bg-red-50 text-primary font-bold px-2.5 py-1 rounded-lg text-xs uppercase tracking-wider">Hết hàng</span>
+                            }
+                            else if (item.SoLuongTon <= 5)
+                            {
+                                <span class="bg-amber-50 text-amber-600 font-bold px-2.5 py-1 rounded-lg text-xs">@item.SoLuongTon (Sắp hết)</span>
                             }
                             else
                             {
-                                <span class="text-slate-600">@item.SoLuongTon</span>
+                                <span class="text-slate-600 font-bold">@item.SoLuongTon</span>
                             }
                         </td>
                         <td class="px-6 py-4 text-right">
@@ -179,7 +187,7 @@
                     const row = document.getElementById('row-' + currentDeleteId);
                     if (row) row.remove();
                     closeDeleteModal();
-                    showToast('Xóa sản phẩm thành công!', 'success');
+                    showToast(data.message || 'Xóa sản phẩm thành công!', 'success');
                 } else {
                     showToast(data.message || 'Không thể xóa sản phẩm.', 'error');
                 }
@@ -335,6 +343,17 @@
                     showToast(data.message || 'Lỗi khi xóa ảnh.', 'error');
                 }
             });
+        }
+
+        function onStatusChange(selectEl, mode) {
+            const status = selectEl.value;
+            const qtyInput = mode === 'edit' 
+                ? document.querySelector('#editForm #SoLuongTon') 
+                : document.querySelector('#addForm #SoLuongTon');
+            
+            if (status === 'Hết hàng' && qtyInput) {
+                qtyInput.value = 0;
+            }
         }
     </script>
 }

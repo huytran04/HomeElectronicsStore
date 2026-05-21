@@ -27,7 +27,12 @@ namespace VuongBanDienTu.Services
             vnpay.AddRequestData("vnp_Amount", ((long)(amount * 100)).ToString()); 
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", "VND");
-            vnpay.AddRequestData("vnp_IpAddr", ipAddress);
+            string safeIp = ipAddress;
+            if (string.IsNullOrEmpty(safeIp) || safeIp.Contains(":") || safeIp == "::1")
+            {
+                safeIp = "127.0.0.1";
+            }
+            vnpay.AddRequestData("vnp_IpAddr", safeIp);
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang: " + orderId);
             vnpay.AddRequestData("vnp_OrderType", "other"); 

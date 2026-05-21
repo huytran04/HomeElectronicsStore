@@ -1,0 +1,211 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt lại mật khẩu - VươngBánĐiệnTử</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e8192c',
+                        'primary-dark': '#c0001a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-primary text-white h-12 flex items-center shadow-md">
+        <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
+            <div class="flex items-center gap-8">
+                <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về trang chủ</a>
+            </div>
+            <div class="text-xl font-black italic tracking-tighter uppercase">
+                <span class="text-yellow-400">VUONG</span>DIENTU
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-[480px] bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-primary rounded-full mb-3">
+                    <i class="fa fa-key text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-gray-800 uppercase tracking-tight">ĐẶT LẠI MẬT KHẨU</h2>
+                <p class="text-gray-500 text-sm mt-1">Vui lòng nhập mã xác nhận OTP 6 chữ số gửi đến Email của bạn và nhập mật khẩu mới.</p>
+            </div>
+
+            <form action="@Url.Action("XacNhanResetMatKhau", "TaiKhoan")" method="post" class="space-y-4">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-exclamation"></i>
+                        @ViewBag.Error
+                    </div>
+                }
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="bg-green-50 text-green-600 text-xs font-bold p-3.5 rounded-md border border-green-100 flex items-center gap-2 mb-4">
+                        <i class="fa fa-circle-check text-sm text-green-500"></i>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Tên đăng nhập</label>
+                    <input type="text" name="TenDangNhap" required placeholder="Nhập tên đăng nhập" value="@ViewBag.Username"
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400 font-semibold bg-gray-50">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Mã xác nhận (OTP 6 số)</label>
+                    <input type="text" name="MaQuenMatKhau" required maxlength="6" placeholder="Nhập mã OTP 6 chữ số" value="@ViewBag.Code"
+                           class="w-full border border-gray-200 rounded px-4 py-3 text-center tracking-widest text-lg font-bold outline-none focus:border-primary transition-all placeholder:text-gray-400 placeholder:tracking-normal">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Mật khẩu mới</label>
+                    <div class="relative">
+                        <input type="password" name="MatKhauMoi" id="matKhauMoi" required placeholder="Nhập mật khẩu mới"
+                               oninput="checkStrength()"
+                               class="w-full border border-gray-200 rounded px-4 py-3 pr-11 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                        <span onclick="toggleVis('matKhauMoi', this)" class="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye"></i>
+                        </span>
+                    </div>
+                    <!-- Strength checklist -->
+                    <ul class="mt-2 space-y-1 text-[11px] font-semibold" id="strengthList">
+                        <li id="chk-len"   class="flex items-center gap-1.5 text-gray-400"><i class="fa fa-circle text-[6px]"></i> Tối thiểu 8 ký tự</li>
+                        <li id="chk-upper" class="flex items-center gap-1.5 text-gray-400"><i class="fa fa-circle text-[6px]"></i> Ít nhất 1 chữ HOA</li>
+                        <li id="chk-lower" class="flex items-center gap-1.5 text-gray-400"><i class="fa fa-circle text-[6px]"></i> Ít nhất 1 chữ thường</li>
+                        <li id="chk-num"   class="flex items-center gap-1.5 text-gray-400"><i class="fa fa-circle text-[6px]"></i> Ít nhất 1 chữ số</li>
+                        <li id="chk-spec"  class="flex items-center gap-1.5 text-gray-400"><i class="fa fa-circle text-[6px]"></i> Ít nhất 1 ký tự đặc biệt (!@@#$...)</li>
+                    </ul>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Xác nhận mật khẩu mới</label>
+                    <div class="relative">
+                        <input type="password" name="NhapLaiMatKhauMoi" id="nhapLaiMK" required placeholder="Nhập lại mật khẩu mới"
+                               oninput="checkMatch()"
+                               class="w-full border border-gray-200 rounded px-4 py-3 pr-11 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                        <span onclick="toggleVis('nhapLaiMK', this)" class="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye"></i>
+                        </span>
+                    </div>
+                    <p id="matchMsg" class="text-[11px] font-semibold hidden"></p>
+                </div>
+
+                <div id="clientError" class="hidden bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2">
+                    <i class="fa fa-circle-exclamation"></i>
+                    <span id="clientErrorMsg"></span>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded text-sm transition-all shadow-sm hover:shadow-md uppercase tracking-wider mt-4">
+                    Xác Nhận Đổi Mật Khẩu
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-xs text-gray-500">
+                <span>Quay lại trang </span>
+                <a href="@Url.Action("DangNhap", "TaiKhoan")" class="text-primary hover:underline font-bold">Đăng nhập</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400">
+        &copy; @DateTime.Now.Year Vương Bán Điện Tử. All rights reserved.
+    </footer>
+
+    <script>
+        const rules = {
+            'chk-len':   v => v.length >= 8,
+            'chk-upper': v => /[A-Z]/.test(v),
+            'chk-lower': v => /[a-z]/.test(v),
+            'chk-num':   v => /[0-9]/.test(v),
+            'chk-spec':  v => /[^a-zA-Z0-9]/.test(v),
+        };
+
+        function checkStrength() {
+            const val = document.getElementById('matKhauMoi').value;
+            Object.entries(rules).forEach(([id, fn]) => {
+                const li = document.getElementById(id);
+                const icon = li.querySelector('i');
+                if (fn(val)) {
+                    li.classList.remove('text-gray-400');
+                    li.classList.add('text-green-600');
+                    icon.className = 'fa fa-circle-check text-[11px]';
+                } else {
+                    li.classList.remove('text-green-600');
+                    li.classList.add('text-gray-400');
+                    icon.className = 'fa fa-circle text-[6px]';
+                }
+            });
+            checkMatch();
+        }
+
+        function checkMatch() {
+            const pw  = document.getElementById('matKhauMoi').value;
+            const pw2 = document.getElementById('nhapLaiMK').value;
+            const msg = document.getElementById('matchMsg');
+            if (!pw2) { msg.classList.add('hidden'); return; }
+            msg.classList.remove('hidden');
+            if (pw === pw2) {
+                msg.textContent = '✓ Mật khẩu khớp';
+                msg.className = 'text-[11px] font-semibold text-green-600';
+            } else {
+                msg.textContent = '✗ Mật khẩu không khớp';
+                msg.className = 'text-[11px] font-semibold text-red-500';
+            }
+        }
+
+        function toggleVis(id, btn) {
+            const inp = document.getElementById(id);
+            const ic  = btn.querySelector('i');
+            if (inp.type === 'password') { inp.type = 'text';     ic.className = 'fa fa-eye-slash'; }
+            else                         { inp.type = 'password'; ic.className = 'fa fa-eye'; }
+        }
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pw  = document.getElementById('matKhauMoi').value;
+            const pw2 = document.getElementById('nhapLaiMK').value;
+            const errBox = document.getElementById('clientError');
+            const errMsg = document.getElementById('clientErrorMsg');
+
+            const failed = Object.values(rules).some(fn => !fn(pw));
+            if (failed) {
+                e.preventDefault();
+                errMsg.textContent = 'Mật khẩu chưa đủ điều kiện! Vui lòng kiểm tra các yêu cầu bên dưới.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+            if (pw !== pw2) {
+                e.preventDefault();
+                errMsg.textContent = 'Mật khẩu nhập lại không khớp!';
+                errBox.classList.remove('hidden');
+                return;
+            }
+            errBox.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

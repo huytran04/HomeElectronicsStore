@@ -1,6 +1,11 @@
 @model IEnumerable<VuongBanDienTu.Models.SanPham>
+@using VuongBanDienTu.Helpers
 @{
     ViewBag.Title = "Trang chủ";
+    var newest = ViewBag.NewestProduct as VuongBanDienTu.Models.SanPham;
+    var bestSeller = ViewBag.BestSellerProduct as VuongBanDienTu.Models.SanPham;
+    var featured = ViewBag.FeaturedProduct as VuongBanDienTu.Models.SanPham;
+    var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
 }
 
 <div class="max-w-screen-xl mx-auto px-3 pt-1.5 pb-3">
@@ -15,19 +20,19 @@
     <section class="flex gap-2 mb-1.5 items-stretch">
 
         <!-- LEFT: Category Sidebar — hidden on mobile, shown md+ -->
-        <aside class="hidden md:flex flex-col bg-white rounded-lg overflow-hidden shadow-sm flex-shrink-0 w-40 xl:w-52">
+        <aside class="hidden md:flex flex-col bg-white rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 w-64 xl:w-72 border border-slate-100/50">
             <ul class="flex-1">
                 @if (ViewBag.Categories != null)
                 {
                     foreach (var cat in (IEnumerable<VuongBanDienTu.Models.DanhMuc>)ViewBag.Categories)
                     {
-                        <li class="cat-item border-b border-gray-100 transition-colors hover:bg-red-50 hover:text-primary">
-                            <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-3 py-1.5 text-xs cursor-pointer">
-                                <span class="flex items-center gap-1.5 min-w-0">
-                                    <i class="fa fa-chevron-right text-primary w-3 flex-shrink-0 text-[8px]"></i>
+                        <li class="cat-item border-b border-slate-50 transition-all hover:bg-slate-50/80 hover:translate-x-1">
+                            <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-5 py-3.5 text-sm font-bold text-slate-700 cursor-pointer">
+                                <span class="flex items-center gap-2 min-w-0">
+                                    <i class="fa fa-chevron-right text-primary w-3 flex-shrink-0 text-[10px]"></i>
                                     <span class="truncate">@cat.TenDanhMuc</span>
                                 </span>
-                                <i class="fa fa-chevron-right text-gray-400 text-[9px] flex-shrink-0 ml-1"></i>
+                                <i class="fa fa-chevron-right text-slate-300 text-[10px] flex-shrink-0 ml-1"></i>
                             </a>
                         </li>
                     }
@@ -42,80 +47,202 @@
         <!-- CENTER: Hero Carousel — always visible -->
         <div class="relative rounded-[2rem] overflow-hidden shadow-2xl flex-1 min-w-0 self-stretch min-h-[400px] group" id="hero-carousel">
             
-            <!-- Slide 1: Modern Kitchen -->
-            <div class="hero-slide active absolute inset-0 flex items-center justify-center text-white overflow-hidden transition-all duration-700"
-                 style="background: radial-gradient(circle at top right, #ff9a9e, #fecfef); ">
-                <!-- Decorative elements -->
-                <div class="absolute top-[-10%] right-[-10%] w-80 h-80 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
-                <div class="absolute bottom-[-20%] left-[-10%] w-96 h-96 bg-orange-500/20 rounded-full blur-3xl"></div>
+            <!-- Slide 1: Newest Product -->
+            @if (newest != null)
+            {
+                var mainImg = newest.HinhAnhSanPhams?.FirstOrDefault(h => h.AnhChinh);
+                var imgUrl = mainImg != null ? HinhAnh.GetImageUrl(mainImg.DuongDanAnh, true) : "/Content/Images/no-image.png";
                 
-                <div class="relative z-10 text-center px-8 w-full max-w-2xl scale-95 group-hover:scale-100 transition-transform duration-1000">
-                    <span class="inline-block bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-black px-5 py-1.5 rounded-full mb-6 uppercase tracking-[0.3em] shadow-xl text-orange-900">Gia dụng cao cấp</span>
-                    <h2 class="text-4xl sm:text-6xl font-black leading-none mb-4 drop-shadow-lg tracking-tighter italic text-orange-800">BẾP XINH <span class="text-red-600">SANG</span><br/>NẤU ĂN <span class="text-red-600">NGON</span></h2>
-                    <p class="text-sm font-medium text-orange-900 opacity-80 mb-8 uppercase tracking-widest">Ưu đãi đến 40% cho Combo thiết bị bếp</p>
+                <div class="hero-slide active absolute inset-0 flex items-center justify-between text-white overflow-hidden transition-all duration-700 cursor-pointer"
+                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);"
+                     onclick="location.href='@Url.Action("ChiTiet", "SanPham", new { id = newest.MaSanPham })'">
                     
-                    <div class="flex gap-4 justify-center">
-                        <div class="bg-white/40 backdrop-blur-xl border border-white/40 p-4 rounded-3xl w-40 text-left shadow-2xl transform -rotate-2 hover:rotate-0 transition-all duration-500">
-                            <div class="text-[9px] font-black text-red-600 uppercase mb-1">Top Selling</div>
-                            <div class="text-xs font-bold leading-tight line-clamp-2 mb-2 text-slate-800">Nồi cơm điện cao tần Toshiba</div>
-                            <div class="text-xl font-black text-red-600">2.490K</div>
-                        </div>
-                        <div class="bg-white/40 backdrop-blur-xl border border-white/40 p-4 rounded-3xl w-40 text-left shadow-2xl transform rotate-2 hover:rotate-0 transition-all duration-500 hidden sm:block">
-                            <div class="text-[9px] font-black text-red-600 uppercase mb-1">New Arrival</div>
-                            <div class="text-xs font-bold leading-tight line-clamp-2 mb-2 text-slate-800">Bếp từ đôi hồng ngoại Sunhouse</div>
-                            <div class="text-xl font-black text-red-600">5.890K</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slide 2: Cooling System -->
-            <div class="hero-slide absolute inset-0 flex items-center justify-center text-white overflow-hidden transition-all duration-700"
-                 style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);">
-                <!-- Water bubble effects -->
-                <div class="absolute top-20 left-20 w-32 h-32 bg-white/40 rounded-full blur-2xl animate-bounce" style="animation-duration: 3s"></div>
-                <div class="absolute bottom-10 right-40 w-48 h-48 bg-white/30 rounded-full blur-2xl animate-bounce" style="animation-duration: 5s"></div>
-                
-                <div class="relative z-10 text-center px-8 w-full max-w-2xl">
-                    <div class="inline-flex items-center gap-2 bg-blue-600/10 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 border border-blue-200">
-                        <i class="fa fa-snowflake text-blue-500 animate-spin" style="animation-duration: 5s"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-blue-700">Mùa hè mát lạnh 2026</span>
-                    </div>
-                    <h2 class="text-4xl sm:text-6xl font-black leading-none mb-4 drop-shadow-xl italic tracking-tighter text-blue-900">MÁY LẠNH <span class="text-blue-600">INVERTER</span><br/><span class="text-blue-500">GIẢM 2 TRIỆU</span></h2>
-                    <p class="text-sm font-medium text-blue-800 opacity-90 mb-10 uppercase tracking-widest">Miễn phí lắp đặt & Tặng ống đồng 5m</p>
+                    <!-- Decorative effects -->
+                    <div class="absolute top-[-20%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div class="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
                     
-                    <a href="@Url.Action("Index", "SanPham")" class="px-10 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-2xl hover:bg-blue-700 active:scale-95 transition-all">Săn ngay Deal giải nhiệt</a>
-                </div>
-            </div>
-
-            <!-- Slide 3: Washing & Care -->
-            <div class="hero-slide absolute inset-0 flex items-center justify-center text-white overflow-hidden transition-all duration-700"
-                 style="background: linear-gradient(to bottom right, #134e5e, #71b280);">
-                <!-- Abstract leaf/nature elements -->
-                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 0.5px, transparent 0.5px); background-size: 25px 25px;"></div>
-                <div class="absolute top-[-20%] left-[-10%] w-full h-full bg-emerald-500/10 rounded-full blur-[100px]"></div>
-                
-                <div class="relative z-10 text-center px-8 w-full max-w-2xl">
-                    <h2 class="text-5xl sm:text-7xl font-black leading-none mb-6 drop-shadow-2xl italic">
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300">CLEAN</span><br/><span class="text-white">LIVING</span>
-                    </h2>
-                    <div class="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-[2.5rem] relative overflow-hidden group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <p class="text-sm font-bold text-emerald-200 uppercase tracking-[0.4em] mb-4">Sạch thơm tinh tươm - Tiết kiệm điện nước</p>
-                        <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <div class="text-center">
-                                <div class="text-[10px] text-emerald-300 font-black uppercase">Máy giặt sấy</div>
-                                <div class="text-2xl font-black">GIẢM 30%</div>
+                    <div class="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-between px-8 md:px-16 py-6 gap-6">
+                        <!-- Left text -->
+                        <div class="flex-1 text-left space-y-4 max-w-xl">
+                            <span class="inline-block bg-gradient-to-r from-red-500 to-orange-500 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg animate-bounce">
+                                ✨ SIÊU PHẨM MỚI NHẤT
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-md line-clamp-2">
+                                @newest.TenSanPham
+                            </h2>
+                            <p class="text-xs sm:text-sm text-blue-100 opacity-90 uppercase tracking-widest font-medium">
+                                Thương hiệu cao cấp | Vừa lên kệ hôm nay
+                            </p>
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="bg-white/15 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-2xl">
+                                    <div class="text-[9px] font-bold text-blue-200 uppercase tracking-widest">Giá mở bán</div>
+                                    <div class="text-2xl font-black text-white">@(newest.GiaBan > 0 ? newest.GiaBan.ToString("N0") + "₫" : "Liên hệ")</div>
+                                </div>
+                                @if (newest.GiaBan > 1000000)
+                                {
+                                    <div class="text-left">
+                                        <div class="text-[10px] text-blue-200 line-through">@((newest.GiaBan * 1.2m).ToString("N0"))₫</div>
+                                        <div class="text-xs font-black text-amber-300">TIẾT KIỆM 20%</div>
+                                    </div>
+                                }
                             </div>
-                            <div class="w-px h-10 bg-white/10 hidden sm:block"></div>
-                            <div class="text-center">
-                                <div class="text-[10px] text-cyan-300 font-black uppercase">Tủ lạnh Multi-door</div>
-                                <div class="text-2xl font-black">TRẢ GÓP 0%</div>
+                            
+                            <div class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-900 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-slate-100 transition-all">
+                                Xem chi tiết & đặt mua <i class="fa fa-arrow-right"></i>
                             </div>
                         </div>
+                        
+                        <!-- Right image -->
+                        <div class="flex-shrink-0 w-48 h-48 sm:w-80 sm:h-80 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2.5rem] shadow-2xl relative group-hover:scale-105 transition-transform duration-700">
+                            <img src="@imgUrl" alt="@newest.TenSanPham" class="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.3)]" />
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+
+            <!-- Slide 2: Best Seller (Ultra configuration specs) -->
+            @if (bestSeller != null)
+            {
+                var mainImg = bestSeller.HinhAnhSanPhams?.FirstOrDefault(h => h.AnhChinh);
+                var imgUrl = mainImg != null ? HinhAnh.GetImageUrl(mainImg.DuongDanAnh, true) : "/Content/Images/no-image.png";
+                
+                <div class="hero-slide absolute inset-0 flex items-center justify-between text-white overflow-hidden transition-all duration-700 cursor-pointer"
+                     style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);"
+                     onclick="location.href='@Url.Action("ChiTiet", "SanPham", new { id = bestSeller.MaSanPham })'">
+                    
+                    <!-- Tech grid elements -->
+                    <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(#fff 0.5px, transparent 0.5px); background-size: 20px 20px;"></div>
+                    <div class="absolute top-10 right-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-[-10%] left-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+                    
+                    <div class="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-between px-8 md:px-16 py-6 gap-6">
+                        <!-- Left text -->
+                        <div class="flex-1 text-left space-y-4 max-w-xl">
+                            <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg">
+                                <i class="fa fa-fire text-amber-300"></i> BÁN CHẠY NHẤT HỆ THỐNG
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-md line-clamp-2">
+                                @bestSeller.TenSanPham
+                            </h2>
+                            
+                            <!-- Dynamic specifications block -->
+                            <div class="grid grid-cols-2 gap-2 max-w-md bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
+                                @if (!string.IsNullOrEmpty(bestSeller.ThongSoKyThuat))
+                                {
+                                    var specs = bestSeller.ThongSoKyThuat.Split(new[] { '\n', '\r', ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                                    int count = 0;
+                                    foreach (var spec in specs.Take(4))
+                                    {
+                                        count++;
+                                        string icon = "fa-circle-check";
+                                        if (spec.ToLower().Contains("ram") || spec.ToLower().Contains("gb")) { icon = "fa-microchip"; }
+                                        else if (spec.ToLower().Contains("ssd") || spec.ToLower().Contains("tb") || spec.ToLower().Contains("ổ cứng")) { icon = "fa-hard-drive"; }
+                                        else if (spec.ToLower().Contains("rtx") || spec.ToLower().Contains("card") || spec.ToLower().Contains("đồ họa")) { icon = "fa-gamepad"; }
+                                        else if (spec.ToLower().Contains("màn hình") || spec.ToLower().Contains("inch") || spec.ToLower().Contains("hz")) { icon = "fa-desktop"; }
+                                        
+                                        <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                                            <i class="fa @icon text-emerald-400 flex-shrink-0 text-[10px]"></i>
+                                            <span class="truncate">@spec.Trim()</span>
+                                        </div>
+                                    }
+                                    if (count < 4)
+                                    {
+                                        for (int i = count; i < 4; i++)
+                                        {
+                                            <div class="flex items-center gap-2 text-xs font-bold text-slate-300">
+                                                <i class="fa fa-shield-halved text-cyan-400 flex-shrink-0 text-[10px]"></i>
+                                                <span class="truncate">Chính hãng 100%</span>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                                        <i class="fa fa-microchip text-emerald-400 flex-shrink-0"></i>
+                                        <span>Cấu hình đỉnh cao</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                                        <i class="fa fa-gamepad text-cyan-400 flex-shrink-0"></i>
+                                        <span>Đồ họa siêu mượt</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                                        <i class="fa fa-hard-drive text-amber-400 flex-shrink-0"></i>
+                                        <span>Tốc độ phản hồi cực nhanh</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                                        <i class="fa fa-shield text-red-400 flex-shrink-0"></i>
+                                        <span>Bảo hành 24 tháng</span>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="text-2xl font-black text-emerald-400">@(bestSeller.GiaBan > 0 ? bestSeller.GiaBan.ToString("N0") + "₫" : "Liên hệ")</div>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                    HIỆU NĂNG KHỦNG
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Right image -->
+                        <div class="flex-shrink-0 w-48 h-48 sm:w-80 sm:h-80 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2.5rem] shadow-2xl relative">
+                            <img src="@imgUrl" alt="@bestSeller.TenSanPham" class="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)]" />
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Slide 3: Featured Product (Luxury Highlight) -->
+            @if (featured != null)
+            {
+                var mainImg = featured.HinhAnhSanPhams?.FirstOrDefault(h => h.AnhChinh);
+                var imgUrl = mainImg != null ? HinhAnh.GetImageUrl(mainImg.DuongDanAnh, true) : "/Content/Images/no-image.png";
+                
+                <div class="hero-slide absolute inset-0 flex items-center justify-between text-white overflow-hidden transition-all duration-700 cursor-pointer"
+                     style="background: radial-gradient(circle at top right, #f857a6 0%, #ff5858 100%);"
+                     onclick="location.href='@Url.Action("ChiTiet", "SanPham", new { id = featured.MaSanPham })'">
+                    
+                    <!-- Sparkle / Fire decorative elements -->
+                    <div class="absolute top-[-30%] left-[-10%] w-full h-full bg-yellow-500/10 rounded-full blur-[120px]"></div>
+                    <div class="absolute bottom-0 right-10 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
+                    
+                    <div class="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-between px-8 md:px-16 py-6 gap-6">
+                        <!-- Left text -->
+                        <div class="flex-1 text-left space-y-4 max-w-xl">
+                            <span class="inline-block bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg">
+                                💎 SIÊU KHUYẾN MÃI - BÁN CHẠY
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-md line-clamp-2">
+                                @featured.TenSanPham
+                            </h2>
+                            <p class="text-xs sm:text-sm text-yellow-100 font-medium uppercase tracking-widest">
+                                Cam kết giá rẻ nhất thị trường | Hoàn tiền 200% nếu phát hiện giả mạo
+                            </p>
+                            
+                            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2rem] relative overflow-hidden max-w-md">
+                                <div class="flex items-center justify-between gap-6">
+                                    <div>
+                                        <div class="text-[9px] text-yellow-200 font-black uppercase tracking-widest">Giá ưu đãi đặc biệt</div>
+                                        <div class="text-3xl font-black text-white">@(featured.GiaBan > 0 ? featured.GiaBan.ToString("N0") + "₫" : "Liên hệ")</div>
+                                    </div>
+                                    <div class="w-px h-10 bg-white/20"></div>
+                                    <div>
+                                        <div class="text-[9px] text-yellow-200 font-black uppercase tracking-widest">Bảo hành vàng</div>
+                                        <div class="text-lg font-black text-white">1 ĐỔI 1 TRONG 30 NGÀY</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right image -->
+                        <div class="flex-shrink-0 w-48 h-48 sm:w-80 sm:h-80 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[2.5rem] shadow-2xl relative">
+                            <img src="@imgUrl" alt="@featured.TenSanPham" class="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.4)]" />
+                        </div>
+                    </div>
+                </div>
+            }
 
             <!-- Carousel Controls -->
             <button id="carousel-prev" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-slate-900 transition-all z-20 shadow-xl opacity-0 group-hover:opacity-100">
@@ -132,81 +259,41 @@
                 <div class="dot w-3 h-1.5 rounded-full bg-white/30 cursor-pointer transition-all duration-500" data-index="2"></div>
             </div>
         </div>
-
-        <!-- RIGHT: Promo Cards — only xl (1280px+) -->
-        <div class="hidden xl:flex flex-col gap-2 w-52 flex-shrink-0">
-
-            <a href="#" class="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <i class="fa fa-snowflake text-2xl text-blue-500 mb-1"></i>
-                <div class="text-[11px] font-black text-primary leading-tight uppercase">MÁY LẠNH ƯU ĐÃI ĐỘC QUYỀN</div>
-                <div class="text-[10px] text-gray-500 my-1">HIC09TMU</div>
-                <div class="text-base font-black text-navy">Funiki</div>
-                <span class="mt-1 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Xem ngay</span>
-            </a>
-
-            <a href="#" class="flex-1 bg-gradient-to-br from-red-50 to-orange-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <i class="fa fa-percent text-2xl text-primary mb-1"></i>
-                <div class="text-xl font-black text-primary uppercase">GIẢM 5%</div>
-                <div class="text-[10px] text-gray-500 mt-1 leading-snug">Khi mua từ 2 sản phẩm gia dụng<br/>Tới 500K giặt sấy</div>
-                <span class="mt-1.5 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Áp dụng ngay</span>
-            </a>
-
-            <a href="#" class="flex-1 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <i class="fa fa-gift text-2xl text-yellow-500 mb-1"></i>
-                <div class="text-[11px] font-black text-primary uppercase">Đón Vượng Khí</div>
-                <div class="text-[10px] text-gray-500">Quà tặng lên đến</div>
-                <div class="text-3xl font-black text-primary leading-none">3<span class="text-lg">M</span></div>
-                <span class="mt-1 bg-primary text-white text-[10px] font-bold px-3 py-0.5 rounded-full">Nhận ngay</span>
-            </a>
-
-        </div>
     </section>
 
-    <!-- Promo cards strip — shown on md and lg (when right sidebar is hidden) -->
-    <div class="flex gap-2 mb-1.5 xl:hidden overflow-x-auto scrollbar-hide min-w-0">
-        <a href="#" class="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
-            <i class="fa fa-snowflake text-xl text-blue-500"></i>
-            <div>
-                <div class="text-xs font-black text-primary">MÁY LẠNH ƯU ĐÃI</div>
-                <div class="text-[10px] text-gray-500">Funiki HIC09TMU</div>
+    <!-- ===================== CAM KẾT CHẤT LƯỢNG BAR ===================== -->
+    <div class="bg-gradient-to-r from-red-600 to-rose-500 rounded-[1.25rem] px-6 flex items-center justify-between gap-4 mb-4 h-12 shadow-lg shadow-red-500/10 overflow-hidden text-white">
+        <div class="flex items-center gap-2 font-black text-sm uppercase tracking-wider">
+            <i class="fa fa-shield-halved text-amber-300 text-lg"></i>
+            <span>DỊCH VỤ VÀNG TẠI VUONGDIENTU</span>
+        </div>
+        
+        <div class="hidden lg:flex items-center gap-6 text-[11px] font-bold tracking-wide">
+            <div class="flex items-center gap-1.5 text-rose-100">
+                <i class="fa fa-circle-check text-amber-300"></i>
+                <span>100% CHÍNH HÃNG</span>
             </div>
-        </a>
-        <a href="#" class="flex-1 bg-gradient-to-br from-red-50 to-orange-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
-            <i class="fa fa-percent text-xl text-primary"></i>
-            <div>
-                <div class="text-xs font-black text-primary uppercase">GIẢM 5%</div>
-                <div class="text-[10px] text-gray-500">Mua từ 2 sản phẩm</div>
+            <span class="text-white/20">|</span>
+            <div class="flex items-center gap-1.5 text-rose-100">
+                <i class="fa fa-truck-fast text-amber-300"></i>
+                <span>GIAO HÀNG HỎA TỐC</span>
             </div>
-        </a>
-        <a href="#" class="flex-1 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-2.5 flex items-center gap-2 hover:shadow-md transition-all">
-            <i class="fa fa-gift text-xl text-yellow-500"></i>
-            <div>
-                <div class="text-xs font-black text-primary">QUÀ TẶNG 3 TRIỆU</div>
-                <div class="text-[10px] text-gray-500 uppercase">Đón Vượng Khí</div>
+            <span class="text-white/20">|</span>
+            <div class="flex items-center gap-1.5 text-rose-100">
+                <i class="fa fa-screwdriver-wrench text-amber-300"></i>
+                <span>BẢO HÀNH ĐỘC QUYỀN 2 NĂM</span>
             </div>
+            <span class="text-white/20">|</span>
+            <div class="flex items-center gap-1.5 text-rose-100">
+                <i class="fa fa-rotate text-amber-300"></i>
+                <span>1 ĐỔI 1 TRONG 30 NGÀY</span>
+            </div>
+        </div>
+        
+        <a href="javascript:void(0)" id="btn-showroom-map" class="bg-white/20 hover:bg-white hover:text-red-600 border border-white/30 text-white font-black text-[11px] tracking-wider uppercase whitespace-nowrap px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md transition-all active:scale-95">
+            <i class="fa fa-map-marker-alt text-[13px]"></i> Mua trực tiếp tại cửa hàng
         </a>
     </div>
-
-    <!-- ===================== FLASH SALE BAR ===================== -->
-    <div class="bg-primary rounded-xl px-4 flex items-center gap-3 mb-2 h-12 shadow-md shadow-red-300/40 overflow-hidden">
-        <div class="flex items-center gap-2 text-white font-black text-base sm:text-lg uppercase whitespace-nowrap">
-            <i class="fa fa-bolt text-gold text-lg"></i>
-            <span>FLASH SALE</span>
-        </div>
-        <span class="text-white/40 text-lg hidden sm:block">|</span>
-        <span class="text-white/90 text-xs font-semibold whitespace-nowrap hidden sm:block">GIÁ CỰC SỐC</span>
-        <div class="flex items-center gap-1 ml-2">
-            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-h">09</div>
-            <span class="text-white font-black">:</span>
-            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-m">59</div>
-            <span class="text-white font-black">:</span>
-            <div class="bg-white text-primary font-black text-sm w-8 h-7 rounded flex items-center justify-center" id="t-s">59</div>
-        </div>
-        <a href="@Url.Action("Index", "SanPham", new { id = "" })" class="ml-auto text-white/90 hover:text-white text-xs font-semibold whitespace-nowrap flex items-center gap-1">
-            Xem thêm <i class="fa fa-chevron-right text-[9px]"></i>
-        </a>
-    </div>
-
 
     <!-- ===================== SAN PHAM NOI BAT ===================== -->
     <h2 class="flex items-center gap-2 text-base sm:text-lg font-black text-gray-800 mb-3">
@@ -220,6 +307,66 @@
     @Html.Action("SanPhamBanChay", "SanPham")
 </div>
 
+<!-- Showroom Map Modal -->
+<div id="showroom-map-modal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden border border-slate-100 relative">
+        <!-- Modal Header -->
+        <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 bg-red-50 text-red-600 rounded-full text-[9px] font-black uppercase tracking-wider">Showroom</span>
+                <h3 class="text-lg font-black text-slate-800 uppercase italic">Bản đồ cửa hàng</h3>
+            </div>
+            <button type="button" id="btn-close-map-modal" class="w-8 h-8 rounded-full bg-slate-200/60 text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-colors flex items-center justify-center">
+                <i class="fa fa-times text-sm"></i>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-5 space-y-4">
+                    <h4 class="text-xl font-black text-slate-800 italic uppercase">Ghé Thăm Cửa Hàng</h4>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed italic">Trải nghiệm trực tiếp và nhận thêm hàng loạt ưu đãi hấp dẫn chỉ có tại cửa hàng.</p>
+                    <div class="space-y-3 pt-2 text-xs">
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-map-marker-alt text-red-600 w-4 text-center mt-0.5 animate-bounce"></i>
+                            <div>
+                                <p class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Địa chỉ</p>
+                                <p class="font-black text-slate-800">@config.StoreAddress</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-phone text-red-600 w-4 text-center mt-0.5"></i>
+                            <div>
+                                <p class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Hotline</p>
+                                <p class="font-black text-slate-800">@config.StoreHotline (Miễn phí)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-clock text-red-600 w-4 text-center mt-0.5"></i>
+                            <div>
+                                <p class="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Giờ mở cửa</p>
+                                <p class="font-black text-slate-800">@config.StoreWorkingHours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-7 h-[300px] rounded-2xl overflow-hidden border border-slate-100 shadow-inner relative">
+                    <iframe 
+                        src="@VuongBanDienTu.Helpers.CauHinhHelper.LayLinkMapEmbed(config.StoreMapEmbed)" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="w-full h-full">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts {
 <script>
 (function () {
@@ -229,10 +376,19 @@
 
     function goTo(idx) {
         slides[current].classList.remove('active');
-        dots[current].classList.replace('bg-white', 'bg-white/40');
         current = (idx + slides.length) % slides.length;
         slides[current].classList.add('active');
-        dots[current].classList.replace('bg-white/40', 'bg-white');
+        
+        // Dynamically toggle width and opacity classes for dots to animate active state
+        dots.forEach(function (dot, i) {
+            if (i === current) {
+                dot.classList.add('w-8', 'bg-white');
+                dot.classList.remove('w-3', 'bg-white/30');
+            } else {
+                dot.classList.add('w-3', 'bg-white/30');
+                dot.classList.remove('w-8', 'bg-white');
+            }
+        });
     }
 
     function startAuto() { timer = setInterval(function(){ goTo(current + 1); }, 4000); }
@@ -243,19 +399,34 @@
         dot.addEventListener('click', function () { clearInterval(timer); goTo(+this.dataset.index); startAuto(); });
     });
     startAuto();
-})();
+    
+    // Showroom map modal toggles
+    var mapModal = document.getElementById('showroom-map-modal');
+    var btnShowMap = document.getElementById('btn-showroom-map');
+    var btnCloseMap = document.getElementById('btn-close-map-modal');
 
-(function () {
-    var end = new Date(Date.now() + 9*3600000 + 59*60000 + 59000);
-    function pad(n){ return (n<10?'0':'')+n; }
-    function tick(){
-        var d = Math.max(0, Math.floor((end - Date.now()) / 1000));
-        document.getElementById('t-h').textContent = pad(Math.floor(d/3600));
-        document.getElementById('t-m').textContent = pad(Math.floor((d%3600)/60));
-        document.getElementById('t-s').textContent = pad(d%60);
-        if(d>0) setTimeout(tick, 1000);
+    if (btnShowMap && mapModal) {
+        btnShowMap.addEventListener('click', function(e) {
+            e.preventDefault();
+            mapModal.classList.remove('hidden');
+            mapModal.classList.add('flex');
+        });
     }
-    tick();
-})();
-</script>
+
+    if (btnCloseMap && mapModal) {
+        btnCloseMap.addEventListener('click', function() {
+            mapModal.classList.add('hidden');
+            mapModal.classList.remove('flex');
+        });
+    }
+
+    if (mapModal) {
+        mapModal.addEventListener('click', function(e) {
+            if (e.target === mapModal) {
+                mapModal.classList.add('hidden');
+                mapModal.classList.remove('flex');
+            }
+        });
+    }
+})();</script>
 }

@@ -1,6 +1,7 @@
 @{
     ViewBag.Title = "Bán hàng doanh nghiệp";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
 }
 
 <div class="max-w-screen-xl mx-auto px-4 py-12">
@@ -12,8 +13,7 @@
             </h1>
             <p class="text-lg text-slate-300 font-medium mb-10 leading-relaxed italic">Vương Bán Điện Tử tự hào là đối tác cung cấp thiết bị gia dụng, điện lạnh cho hơn 500+ dự án chung cư, văn phòng và nhà hàng trên toàn quốc.</p>
             <div class="flex flex-wrap justify-center gap-4">
-                <a href="#contact" class="px-10 py-4 bg-emerald-500 text-slate-900 rounded-full font-black uppercase text-sm shadow-xl hover:bg-emerald-400 transition-all">Nhận báo giá dự án</a>
-                <a href="tel:18006800" class="px-10 py-4 border-2 border-white/20 rounded-full font-black uppercase text-sm hover:bg-white/10 transition-all">Hotline B2B: 1800.6800</a>
+                <a href="tel:@config.StoreHotline" class="px-10 py-4 border-2 border-white/20 rounded-full font-black uppercase text-sm hover:bg-white/10 transition-all">Hotline B2B: @config.StoreHotline</a>
             </div>
         </div>
     </div>

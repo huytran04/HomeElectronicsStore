@@ -39,16 +39,20 @@
     <div class="flex-1 min-w-0">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">@(currentCat != null ? currentCat.TenDanhMuc : "Tất cả sản phẩm")</h1>
-                <p class="text-sm text-slate-500 mt-1">@(currentCat != null ? "Danh sách sản phẩm thuộc nhóm " + currentCat.TenDanhMuc : "Khám phá hàng ngàn ưu đãi hấp dẫn tại VuongBanDienTu")</p>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">
+                    @(ViewBag.SearchQuery != null ? "KẾT QUẢ TÌM KIẾM: \"" + ViewBag.SearchQuery + "\"" : (currentCat != null ? currentCat.TenDanhMuc : "Tất cả sản phẩm"))
+                </h1>
+                <p class="text-sm text-slate-500 mt-1">
+                    @(ViewBag.SearchQuery != null ? "Tìm thấy " + (Model != null ? Model.Count() : 0) + " sản phẩm phù hợp" : (currentCat != null ? "Danh sách sản phẩm thuộc nhóm " + currentCat.TenDanhMuc : "Khám phá hàng ngàn ưu đãi hấp dẫn tại VuongBanDienTu"))
+                </p>
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-xs font-bold text-slate-400 uppercase">Sắp xếp:</span>
-                <select class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-primary transition-colors cursor-pointer">
-                    <option>Mới nhất</option>
-                    <option>Giá thấp đến cao</option>
-                    <option>Giá cao đến thấp</option>
-                    <option>Bán chạy nhất</option>
+                <select id="sortSelect" onchange="changeSort(this.value)" class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-primary transition-colors cursor-pointer">
+                    <option value="newest" @(ViewBag.CurrentSort == "newest" || string.IsNullOrEmpty(ViewBag.CurrentSort) ? "selected" : "")>Mới nhất</option>
+                    <option value="price_asc" @(ViewBag.CurrentSort == "price_asc" ? "selected" : "")>Giá thấp đến cao</option>
+                    <option value="price_desc" @(ViewBag.CurrentSort == "price_desc" ? "selected" : "")>Giá cao đến thấp</option>
+                    <option value="best_seller" @(ViewBag.CurrentSort == "best_seller" ? "selected" : "")>Bán chạy nhất</option>
                 </select>
             </div>
         </div>
@@ -113,12 +117,6 @@
                                 }
                             </div>
                         </div>
-                        
-                        <div class="mt-auto border-t border-slate-50 pt-3">
-                            <div class="flex items-center gap-2 text-[11px] text-blue-600 font-bold hover:text-blue-800 transition-colors">
-                                <i class="fa fa-circle-plus"></i> Thêm vào so sánh
-                            </div>
-                        </div>
                     </div>
                 </div>
             }
@@ -137,3 +135,11 @@
     </div>
 </div>
 </div>
+
+<script>
+    function changeSort(sortVal) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('sort', sortVal);
+        window.location.search = urlParams.toString();
+    }
+</script>

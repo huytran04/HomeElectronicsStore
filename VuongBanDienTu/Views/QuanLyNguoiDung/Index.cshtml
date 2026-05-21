@@ -69,10 +69,10 @@
                                 </div>
                                 <p class="text-[10px] text-slate-400 mt-0.5">SĐT: @item.SoDienThoai</p>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 col-vai-tro">
                                 <select onchange="updateUserRole(@item.MaNguoiDung, this.value)" 
                                         class="bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-600 focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
-                                    @foreach (var role in ViewBag.Roles as List<VuongBanDienTu.Models.VaiTro>)
+                                    @foreach (var role in (ViewBag.Roles as List<VuongBanDienTu.Models.VaiTro>).Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
                                     {
                                         <option value="@role.MaVaiTro" @(item.MaVaiTro == role.MaVaiTro ? "selected" : "")>
                                             @role.TenVaiTro
@@ -91,12 +91,21 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
-                                    <button class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center">
-                                        <i class="fa fa-edit text-xs"></i>
+                                    <button onclick="showUserDetails(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center" title="Xem chi tiết">
+                                        <i class="fa fa-eye text-xs"></i>
                                     </button>
-                                    <button class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-primary transition-all flex items-center justify-center">
-                                        <i class="fa fa-trash text-xs"></i>
-                                    </button>
+                                    @if (item.MaVaiTro != PhanQuyen.KHACH_HANG)
+                                    {
+                                        <button onclick="openEditStaffModal(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center" title="Sửa nhân sự">
+                                            <i class="fa fa-edit text-xs"></i>
+                                        </button>
+                                    }
+                                    @if (item.MaVaiTro != PhanQuyen.KHACH_HANG)
+                                    {
+                                        <button onclick="deleteUser(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-primary transition-all flex items-center justify-center">
+                                            <i class="fa fa-trash text-xs"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -129,7 +138,12 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mật khẩu</label>
-                        <input type="password" name="MatKhau" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                        <div class="relative">
+                            <input type="password" name="MatKhau" id="staffMatKhauInput" required class="w-full pl-5 pr-12 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                            <span onclick="togglePasswordVisibility('staffMatKhauInput', this)" class="absolute right-4 top-4 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -166,6 +180,124 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Staff Modal -->
+<div id="editStaffModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-lg w-full overflow-hidden transform scale-95 transition-all duration-300" id="editStaffContent">
+        <div class="p-8 sm:p-10">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-800">Chỉnh sửa nhân sự</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-1">Cập nhật thông tin tài khoản quản trị</p>
+                </div>
+                <button onclick="closeEditStaffModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-primary hover:bg-red-50 transition-all">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <form id="editStaffForm" onsubmit="handleEditStaffForm(event)" class="space-y-4">
+                <input type="hidden" name="MaNguoiDung" id="editStaffId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tên đăng nhập</label>
+                        <input type="text" id="editStaffTenDangNhap" readonly class="w-full px-5 py-3.5 bg-slate-100 border-2 border-transparent rounded-2xl outline-none font-bold text-sm text-slate-500 cursor-not-allowed">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mật khẩu mới</label>
+                        <div class="relative">
+                            <input type="password" name="MatKhauMoi" id="editStaffMatKhauMoiInput" placeholder="Để trống nếu giữ nguyên" class="w-full pl-5 pr-12 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                            <span onclick="togglePasswordVisibility('editStaffMatKhauMoiInput', this)" class="absolute right-4 top-4 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Họ và tên</label>
+                    <input type="text" name="HoTen" id="editStaffHoTen" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                        <input type="email" name="Email" id="editStaffEmail" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Số điện thoại</label>
+                        <input type="tel" name="SoDienThoai" id="editStaffSoDienThoai" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cấp quyền (Vai trò)</label>
+                    <select name="MaVaiTro" id="editStaffMaVaiTro" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm appearance-none">
+                        @foreach (var role in roles.Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
+                        {
+                            <option value="@role.MaVaiTro">@role.TenVaiTro</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-primary-dark hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                        Lưu thông tin thay đổi
+                        <i class="fa fa-save text-xs"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div id="userDetailsModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-lg w-full overflow-hidden transform scale-95 transition-all duration-300" id="userDetailsContent">
+        <div class="p-8 sm:p-10">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-800">Chi tiết tài khoản</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-1">Thông tin chi tiết và thống kê hoạt động</p>
+                </div>
+                <button onclick="closeUserDetailsModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-primary hover:bg-red-50 transition-all">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="userDetailsBody" class="space-y-6">
+                <div class="flex justify-center py-12">
+                    <i class="fa fa-circle-notch fa-spin text-3xl text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="confirmModalContent">
+        <div class="p-8 sm:p-10 text-center">
+            <!-- Icon -->
+            <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                <i class="fa fa-exclamation-triangle"></i>
+            </div>
+            
+            <h3 class="text-2xl font-black text-slate-800 mb-2" id="confirmModalTitle">Xác nhận</h3>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed mb-8" id="confirmModalMessage">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+
+            <div class="flex gap-4">
+                <button onclick="closeConfirmModal()" class="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">
+                    Hủy bỏ
+                </button>
+                <button id="confirmModalBtn" class="flex-1 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-red-100">
+                    Đồng ý
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -218,6 +350,13 @@
         // Initialize view
         document.addEventListener('DOMContentLoaded', () => {
             switchTab('staff');
+            
+            document.getElementById('confirmModalBtn').addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+                closeConfirmModal();
+            });
         });
 
         function openAddStaffModal() {
@@ -261,7 +400,7 @@
             }
         }
 
-        async function createNhanVien(e) {
+        async function handleAddStaffForm(e) {
             e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
@@ -294,25 +433,308 @@
             }
         }
 
-        async function toggleUserStatus(id) {
-            if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái tài khoản này?')) return;
+        async function openEditStaffModal(id) {
+            try {
+                const response = await fetch('@Url.Action("ChiTietNguoiDung", "QuanLyNguoiDung")?id=' + id);
+                const data = await response.json();
+
+                if (!data.success) {
+                    showToast(data.message || 'Không thể lấy thông tin nhân viên', 'error');
+                    return;
+                }
+
+                document.getElementById('editStaffId').value = data.MaNguoiDung;
+                document.getElementById('editStaffTenDangNhap').value = data.TenDangNhap;
+                document.getElementById('editStaffHoTen').value = data.HoTen || '';
+                document.getElementById('editStaffEmail').value = data.Email || '';
+                document.getElementById('editStaffSoDienThoai').value = data.SoDienThoai || '';
+                document.getElementById('editStaffMaVaiTro').value = data.MaVaiTro;
+
+                const modal = document.getElementById('editStaffModal');
+                const content = document.getElementById('editStaffContent');
+                modal.classList.remove('invisible', 'opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                console.error(err);
+                showToast('Có lỗi kết nối, vui lòng thử lại.', 'error');
+            }
+        }
+
+        function closeEditStaffModal() {
+            const modal = document.getElementById('editStaffModal');
+            const content = document.getElementById('editStaffContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.classList.add('invisible');
+                document.getElementById('editStaffForm').reset();
+            }, 300);
+        }
+
+        async function handleEditStaffForm(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Đang lưu...';
 
             try {
-                const response = await fetch('@Url.Action("DoiTrangThai", "QuanLyNguoiDung")?id=' + id, {
+                const response = await fetch('@Url.Action("SuaNhanVien", "QuanLyNguoiDung")', {
                     method: 'POST',
+                    body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const data = await response.json();
+
                 if (data.success) {
-                    showToast('Thao tác thành công!', 'success');
+                    showToast('Cập nhật nhân viên thành công!', 'success');
                     location.reload();
                 } else {
-                    showToast(data.message || 'Lỗi xử lý!', 'error');
+                    showToast(data.message || 'Có lỗi xảy ra!', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                showToast('Lỗi kết nối!', 'error');
+                showToast('Có lỗi kết nối, vui lòng thử lại.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
+        }
+
+        let confirmCallback = null;
+
+        function showConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalMessage').innerText = message;
+            confirmCallback = onConfirm;
+
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmModalContent');
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.classList.add('invisible');
+                confirmCallback = null;
+            }, 300);
+        }
+
+        async function toggleUserStatus(id) {
+            showConfirmModal(
+                'Thay đổi trạng thái',
+                'Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của tài khoản này?',
+                async () => {
+                    try {
+                        const response = await fetch('@Url.Action("DoiTrangThai", "QuanLyNguoiDung")?id=' + id, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showToast('Thao tác thành công!', 'success');
+                            location.reload();
+                        } else {
+                            showToast(data.message || 'Lỗi xử lý!', 'error');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Lỗi kết nối!', 'error');
+                    }
+                }
+            );
+        }
+
+        async function deleteUser(id) {
+            showConfirmModal(
+                'Xóa / Khóa tài khoản',
+                'Bạn có chắc chắn muốn thực hiện thao tác xóa hoặc khóa vĩnh viễn tài khoản nhân sự này?',
+                async () => {
+                    try {
+                        const response = await fetch('@Url.Action("XoaNguoiDung", "QuanLyNguoiDung")?id=' + id, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showToast(data.message || 'Thao tác thành công!', 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast(data.message || 'Lỗi khi thực hiện thao tác!', 'error');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Lỗi kết nối máy chủ!', 'error');
+                    }
+                }
+            );
+        }
+
+        function togglePasswordVisibility(inputId, toggleEl) {
+            const input = document.getElementById(inputId);
+            const icon = toggleEl.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+
+        async function showUserDetails(id) {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsContent');
+            const body = document.getElementById('userDetailsBody');
+
+            // Open Modal with Spinner first
+            body.innerHTML = `
+                <div class="flex justify-center py-12">
+                    <i class="fa fa-circle-notch fa-spin text-3xl text-primary"></i>
+                </div>
+            `;
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const response = await fetch('@Url.Action("ChiTietNguoiDung", "QuanLyNguoiDung")?id=' + id);
+                const data = await response.json();
+
+                if (!data.success) {
+                    body.innerHTML = `
+                        <div class="p-6 bg-red-50 border border-red-100 text-primary rounded-2xl flex items-center gap-3">
+                            <i class="fa fa-exclamation-circle text-lg"></i>
+                            <span class="font-bold text-sm">${data.message}</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render dynamic, gorgeous, interactive details card
+                const safeHoTen = data.HoTen || "Chưa cập nhật";
+                const firstChar = (safeHoTen !== "Chưa cập nhật" ? safeHoTen.charAt(0) : "K").toUpperCase();
+                const safeEmail = data.Email || "Chưa cập nhật";
+                const safePhone = data.SoDienThoai || "Chưa cập nhật";
+
+                body.innerHTML = `
+                    <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-3xl border border-slate-100">
+                        <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-2xl uppercase shadow-inner">
+                            ${firstChar}
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-800">${safeHoTen}</h4>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="px-3 py-1 text-[10px] font-black uppercase rounded-full ${data.IsLocked ? 'bg-red-50 text-primary border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}">
+                                    ${data.TrangThaiStr}
+                                </span>
+                                <span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                                    ${data.TenVaiTro}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Tên đăng nhập</span>
+                            <span class="text-sm font-bold text-slate-700 mt-1 block">@@${data.TenDangNhap}</span>
+                        </div>
+                        <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Ngày tạo tài khoản</span>
+                            <span class="text-sm font-bold text-slate-700 mt-1 block">${data.NgayTaoStr}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Email</span>
+                                <span class="text-sm font-bold text-slate-700 block">${safeEmail}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center">
+                                <i class="fa fa-phone"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Số điện thoại</span>
+                                <span class="text-sm font-bold text-slate-700 block">${safePhone}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center">
+                                <i class="fa fa-map-marker-alt"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Địa chỉ giao hàng</span>
+                                <span class="text-sm font-bold text-slate-700 block">${data.DiaChi}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${data.TenVaiTro === 'Khách hàng' ? `
+                    <div class="p-5 bg-gradient-to-br from-primary/5 to-primary/0 border border-primary/10 rounded-3xl flex items-center justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-primary/60 uppercase tracking-wider block">Thống kê mua sắm</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-black text-slate-800">${data.OrderCount}</span>
+                                <span class="text-xs font-bold text-slate-400">Đơn hàng thành công</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Tổng chi tiêu</span>
+                            <span class="text-xl font-black text-primary block mt-0.5">${data.TotalSpentStr}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+            } catch (err) {
+                console.error(err);
+                body.innerHTML = `
+                    <div class="p-6 bg-red-50 border border-red-100 text-primary rounded-2xl flex items-center gap-3">
+                        <i class="fa fa-exclamation-circle text-lg"></i>
+                        <span class="font-bold text-sm">Lỗi kết nối máy chủ!</span>
+                    </div>
+                `;
+            }
+        }
+
+        function closeUserDetailsModal() {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.classList.add('invisible');
+            }, 300);
         }
     </script>
 }

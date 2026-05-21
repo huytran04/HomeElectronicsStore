@@ -36,13 +36,9 @@
         <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
             <div class="flex items-center gap-8">
                 <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về</a>
-                <div class="flex items-center gap-2 cursor-pointer opacity-90 hover:opacity-100">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Xem giá tại <span class="font-bold">Hà Nội</span></span>
-                </div>
             </div>
             <div class="text-xl font-black italic tracking-tighter uppercase">
-                <span class="text-yellow-400">VUONG</span>BANDIENTU
+                <span class="text-yellow-400">VUONG</span>DIENTU
             </div>
         </div>
     </header>
@@ -72,9 +68,17 @@
                            class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
                 </div>
 
-                <div class="relative">
-                    <input type="password" name="MatKhau" required placeholder="Nhập mật khẩu" 
-                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                <div class="relative flex flex-col">
+                    <div class="relative">
+                        <input type="password" name="MatKhau" required placeholder="Nhập mật khẩu" id="matKhauInput"
+                               class="w-full border border-gray-200 rounded px-4 py-3 pr-10 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
+                        <span onclick="togglePasswordVisibility('matKhauInput', this)" class="absolute right-3 top-3.5 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fa fa-eye"></i>
+                        </span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 font-medium leading-relaxed">
+                        <i class="fa fa-info-circle mr-1"></i> Mật khẩu phải tối thiểu 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt.
+                    </p>
                 </div>
 
                 <div class="relative">
@@ -125,5 +129,76 @@
         </div>
     </footer>
 
+    <script>
+        const form = document.querySelector('form');
+        const matKhauInput = document.getElementById('matKhauInput');
+        const hoTenInput = document.querySelector('input[name="HoTen"]');
+        const sdtInput = document.querySelector('input[name="SoDienThoai"]');
+        
+        form.addEventListener('submit', function (e) {
+            const matKhau = matKhauInput.value;
+            const hoTen = hoTenInput.value.trim();
+            const sdt = sdtInput.value.trim();
+            
+            // Name validation (Vietnamese letters and spaces only, no numbers or special characters)
+            const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỶỷỸỹỴỵ\s]+$/;
+            
+            // Phone validation (Vietnamese standard format, 10 digits starting with 03, 05, 07, 08, 09)
+            const phoneRegex = /^0[35789]\d{8}$/;
+            
+            let errMsg = "";
+            
+            if (!nameRegex.test(hoTen)) {
+                errMsg = "Họ và tên chỉ được nhập chữ, không được chứa số hay ký tự đặc biệt!";
+                hoTenInput.focus();
+            } else if (!phoneRegex.test(sdt)) {
+                errMsg = "Số điện thoại không đúng định dạng! Vui lòng nhập 10 chữ số bắt đầu bằng 03, 05, 07, 08 hoặc 09.";
+                sdtInput.focus();
+            } else if (matKhau.length < 8) {
+                errMsg = "Mật khẩu phải tối thiểu 8 ký tự!";
+                matKhauInput.focus();
+            } else {
+                const hasUpperCase = /[A-Z]/.test(matKhau);
+                const hasLowerCase = /[a-z]/.test(matKhau);
+                const hasSpecialChar = /[^a-zA-Z0-9]/.test(matKhau);
+                if (!hasUpperCase || !hasLowerCase || !hasSpecialChar) {
+                    errMsg = "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt!";
+                    matKhauInput.focus();
+                }
+            }
+            
+            if (errMsg) {
+                e.preventDefault();
+                
+                // Show error message box dynamically
+                let errBox = document.getElementById('dynamicErrorBox');
+                if (!errBox) {
+                    errBox = document.createElement('div');
+                    errBox.id = 'dynamicErrorBox';
+                    errBox.className = 'bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4';
+                    form.insertBefore(errBox, form.firstChild);
+                }
+                errBox.innerHTML = `<i class="fa fa-circle-exclamation"></i> <span>${errMsg}</span>`;
+                
+                // Remove old MVC errors if any
+                const mvcError = form.querySelector('.bg-red-50:not(#dynamicErrorBox)');
+                if (mvcError) mvcError.remove();
+                
+                return false;
+            }
+        });
+
+        function togglePasswordVisibility(inputId, toggleEl) {
+            const input = document.getElementById(inputId);
+            const icon = toggleEl.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+    </script>
 </body>
 </html>

@@ -15,7 +15,8 @@ namespace VuongBanDienTu.Controllers
         private bool IsInternal()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
+            if (user == null || user.MaVaiTro == null) return false;
+            return user.MaVaiTro == PhanQuyen.ADMIN || user.MaVaiTro == PhanQuyen.QUAN_LY || user.MaVaiTro == PhanQuyen.NHAN_VIEN;
         }
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -27,7 +28,16 @@ namespace VuongBanDienTu.Controllers
                 }
                 else
                 {
-                    filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                    var user = Session["TaiKhoan"] as NguoiDung;
+                    if (user != null && PhanQuyen.IsStaff(user.MaVaiTro))
+                    {
+                        TempData["Error"] = "Bạn không có quyền truy cập quản lý đơn hàng!";
+                        filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
+                    }
+                    else
+                    {
+                        filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                    }
                 }
             }
             base.OnActionExecuting(filterContext);
@@ -40,6 +50,7 @@ namespace VuongBanDienTu.Controllers
                 .Include("NguoiDung1")
                 .Include("ChiTietDonHangs")
                 .Include("ChiTietDonHangs.SanPham")
+                .Where(o => o.TrangThaiDonHang != "Chờ thanh toán")
                 .OrderByDescending(o => o.NgayDat).ToList();
             return View(orders);
         }
@@ -91,17 +102,88 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult Huy(int id, string lyDo)
         {
+            if (string.IsNullOrWhiteSpace(lyDo))
+            {
+                return Json(new { success = false, message = "Vui lòng nhập lý do hủy đơn để thông báo đến khách hàng!" });
+            }
+
             var user = Session["TaiKhoan"] as NguoiDung;
             var order = db.DonHangs.Find(id);
             if (order != null)
             {
                 order.TrangThaiDonHang = "Đã hủy";
-                order.GhiChu = lyDo;
+                order.GhiChu = lyDo.Trim();
                 order.MaNhanVienXuLy = user.MaNguoiDung;
                 db.SaveChanges();
-                return Json(new { success = true });
+
+                var orderId = order.MaDonHang;
+                var cancellationReason = order.GhiChu;
+
+                // Gửi email thông báo hủy đơn kèm lý do đến khách hàng
+                System.Threading.Tasks.Task.Run(() => {
+                    try
+                    {
+                        using (var context = new VuongDienTuEntities())
+                        {
+                            var orderToSend = context.DonHangs
+                                .Include("NguoiDung")
+                                .Include("ChiTietDonHangs")
+                                .Include("ChiTietDonHangs.SanPham")
+                                .FirstOrDefault(o => o.MaDonHang == orderId);
+                            if (orderToSend != null)
+                            {
+                                VuongBanDienTu.Services.EmailService.SendOrderEmail(orderToSend, "HuyHang", cancellationReason);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Admin Huy Email Error: " + ex.Message);
+                    }
+                });
+
+                return Json(new { success = true, message = "Đã hủy đơn hàng và gửi email thông báo đến khách hàng!" });
             }
-            return Json(new { success = false });
+            return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+        }
+
+        [HttpPost]
+        public ActionResult DuyetHoanTien(int id)
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            var order = db.DonHangs.Find(id);
+            if (order == null) return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+
+            if (order.TrangThaiDonHang?.Trim() != "Chờ hoàn tiền")
+                return Json(new { success = false, message = "Đơn hàng này không ở trạng thái chờ hoàn tiền!" });
+
+            order.TrangThaiDonHang = "Đã hủy";
+            order.TrangThaiThanhToan = "Chờ hoàn tiền";
+            order.MaNhanVienXuLy = user.MaNguoiDung;
+            db.SaveChanges();
+
+            var orderId = order.MaDonHang;
+            System.Threading.Tasks.Task.Run(() => {
+                try
+                {
+                    using (var context = new VuongDienTuEntities())
+                    {
+                        var orderToSend = context.DonHangs
+                            .Include("NguoiDung")
+                            .Include("ChiTietDonHangs")
+                            .Include("ChiTietDonHangs.SanPham")
+                            .FirstOrDefault(o => o.MaDonHang == orderId);
+                        if (orderToSend != null)
+                            VuongBanDienTu.Services.EmailService.SendRefundApprovedEmail(orderToSend);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("DuyetHoanTien Email Error: " + ex.Message);
+                }
+            });
+
+            return Json(new { success = true, message = "Đã duyệt hoàn tiền và gửi email xác nhận đến khách hàng!" });
         }
     }
 }

@@ -13,11 +13,12 @@ namespace VuongBanDienTu.Helpers
         public const int QUAN_LY = 2;
         public const int NHAN_VIEN = 3;
         public const int KHACH_HANG = 4;
+        public const int THU_VIEC = 5;
 
         public static bool IsStaff(int? maVaiTro)
         {
             if (!maVaiTro.HasValue) return false;
-            return maVaiTro == ADMIN || maVaiTro == QUAN_LY || maVaiTro == NHAN_VIEN;
+            return maVaiTro == ADMIN || maVaiTro == QUAN_LY || maVaiTro == NHAN_VIEN || maVaiTro == THU_VIEC;
         }
 
         public static bool IsAdmin(int? maVaiTro)
@@ -88,6 +89,18 @@ namespace VuongBanDienTu.Helpers
         public static void RefreshPermissions()
         {
             HttpContext.Current.Session["UserPermissions"] = null;
+        }
+
+        public static string GetTimeAgo(DateTime? dt)
+        {
+            if (!dt.HasValue) return "---";
+            var span = DateTime.Now - dt.Value;
+            if (span.TotalSeconds < 10) return "Vừa xong";
+            if (span.TotalMinutes < 1) return $"{(int)span.TotalSeconds} giây trước";
+            if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} phút trước";
+            if (span.TotalHours < 24) return $"{(int)span.TotalHours} giờ trước";
+            if (span.TotalDays < 7) return $"{(int)span.TotalDays} ngày trước";
+            return dt.Value.ToString("dd/MM/yyyy HH:mm");
         }
     }
 }
