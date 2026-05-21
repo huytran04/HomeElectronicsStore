@@ -138,11 +138,13 @@
     <Compile Include="Controllers\SanPhamController.cs" />
     <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Helpers\HinhAnh.cs" />
+    <Compile Include="Helpers\CauHinhHelper.cs" />
     <Compile Include="Helpers\MaHoa.cs" />
     <Compile Include="Helpers\PhanQuyen.cs" />
     <Compile Include="Controllers\GioHangController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Services\VnPayService.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -282,6 +284,9 @@
     <Content Include="Views\SanPham\SanPhamNoiBat\Index.cshtml" />
     <Content Include="Views\TaiKhoan\DangNhap.cshtml" />
     <Content Include="Views\TaiKhoan\DangKy.cshtml" />
+    <Content Include="Views\TaiKhoan\QuenMatKhau.cshtml" />
+    <Content Include="Views\TaiKhoan\XacNhanKichHoat.cshtml" />
+    <Content Include="Views\TaiKhoan\XacNhanResetMatKhau.cshtml" />
     <Content Include="Views\QuanLySanPham\Index.cshtml" />
     <Content Include="Views\QuanLySanPham\SuaSanPham.cshtml" />
     <Content Include="Views\QuanLySanPham\ThemSanPham.cshtml" />

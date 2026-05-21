@@ -119,15 +119,20 @@
                     <p class="text-3xl font-black text-primary">@Model.GiaBan.ToString("N0") <span class="text-lg">₫</span></p>
                 </div>
                 <div class="hidden sm:block text-right">
-                    @if (Model.SoLuongTon > 0)
+                    @if (Model.TrangThai == "Ngừng kinh doanh")
                     {
-                        <p class="text-[10px] text-green-600 font-black px-3 py-1 bg-green-50 rounded-full inline-block mb-1">CÒN HÀNG</p>
-                        <p class="text-[11px] text-slate-400 font-medium">Kho còn: <span class="font-black text-slate-600">@Model.SoLuongTon</span> sản phẩm</p>
+                        <p class="text-[10px] text-slate-500 font-black px-3 py-1 bg-slate-100 rounded-full inline-block mb-1 uppercase tracking-wider">NGỪNG KINH DOANH</p>
+                        <p class="text-[11px] text-slate-400 font-medium">Sản phẩm ngừng kinh doanh</p>
+                    }
+                    else if (Model.TrangThai == "Hết hàng" || Model.SoLuongTon <= 0)
+                    {
+                        <p class="text-[10px] text-primary font-black px-3 py-1 bg-red-50 rounded-full inline-block mb-1 text-red-600 bg-red-50 uppercase tracking-wider">HẾT HÀNG</p>
+                        <p class="text-[11px] text-slate-400 font-medium">Liên hệ để đặt trước</p>
                     }
                     else
                     {
-                        <p class="text-[10px] text-primary font-black px-3 py-1 bg-red-50 rounded-full inline-block mb-1 text-red-600 bg-red-50">HẾT HÀNG</p>
-                        <p class="text-[11px] text-slate-400 font-medium">Liên hệ để đặt trước</p>
+                        <p class="text-[10px] text-green-600 font-black px-3 py-1 bg-green-50 rounded-full inline-block mb-1">CÒN HÀNG</p>
+                        <p class="text-[11px] text-slate-400 font-medium">Kho còn: <span class="font-black text-slate-600">@Model.SoLuongTon</span> sản phẩm</p>
                     }
                 </div>
             </div>
@@ -140,10 +145,52 @@
                 </div>
             </div>
 
+            <!-- Specifications -->
+            @if (!string.IsNullOrEmpty(Model.ThongSoKyThuat))
+            {
+                <div class="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest border-l-4 border-primary pl-3">Thông số kỹ thuật</h3>
+                    <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <tbody class="divide-y divide-slate-100">
+                                @{
+                                    var specs = Model.ThongSoKyThuat.Split(new[] { " | " }, StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (var spec in specs)
+                                    {
+                                        var parts = spec.Split(new[] { ": " }, 2, StringSplitOptions.None);
+                                        if (parts.Length == 2)
+                                        {
+                                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                                <td class="px-6 py-3.5 font-bold text-slate-400 w-1/3 border-r border-slate-100 bg-slate-50/30">@parts[0]</td>
+                                                <td class="px-6 py-3.5 font-extrabold text-slate-700">@parts[1]</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
             <!-- Action Buttons -->
             <div class="pt-6 space-y-4">
                 <div class="flex flex-col sm:flex-row gap-4">
-                    @if (Model.SoLuongTon > 0)
+                    @if (Model.TrangThai == "Ngừng kinh doanh")
+                    {
+                        <button disabled class="flex-1 bg-slate-100 text-slate-400 h-14 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-3">
+                            <i class="fa fa-ban"></i>
+                            Sản phẩm ngừng kinh doanh
+                        </button>
+                    }
+                    else if (Model.TrangThai == "Hết hàng" || Model.SoLuongTon <= 0)
+                    {
+                        <button disabled class="flex-1 bg-slate-200 text-slate-400 h-14 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-3">
+                            <i class="fa fa-box-open"></i>
+                            Sản phẩm tạm hết hàng
+                        </button>
+                    }
+                    else
                     {
                         <div class="flex items-center bg-slate-100 rounded-2xl p-1 w-fit">
                             <button class="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-primary transition-colors" onclick="changeQty(-1)"><i class="fa fa-minus"></i></button>
@@ -161,15 +208,8 @@
                             Mua ngay
                         </button>
                     }
-                    else
-                    {
-                        <button disabled class="flex-1 bg-slate-200 text-slate-400 h-14 rounded-2xl font-black uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-3">
-                            <i class="fa fa-box-open"></i>
-                            Sản phẩm tạm hết hàng
-                        </button>
-                    }
                 </div>
-                @if (Model.SoLuongTon > 0 && Model.SoLuongTon < 10)
+                @if (Model.TrangThai != "Ngừng kinh doanh" && Model.TrangThai != "Hết hàng" && Model.SoLuongTon > 0 && Model.SoLuongTon < 10)
                 {
                     <p class="text-xs text-primary font-black animate-pulse uppercase tracking-widest">
                         <i class="fa fa-fire mr-1"></i> Chỉ còn @Model.SoLuongTon sản phẩm trong kho!

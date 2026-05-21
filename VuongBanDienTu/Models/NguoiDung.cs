@@ -31,6 +31,9 @@ namespace VuongBanDienTu.Models
         public Nullable<int> MaVaiTro { get; set; }
         public Nullable<System.DateTime> NgayTao { get; set; }
         public Nullable<bool> TrangThai { get; set; }
+        public string MaKichHoat { get; set; }
+        public string MaQuenMatKhau { get; set; }
+        public Nullable<bool> KichHoat { get; set; }
     
         public virtual ICollection<DonHang> DonHangs { get; set; }
         public virtual ICollection<DonHang> DonHangs1 { get; set; }

@@ -13,11 +13,12 @@
         </div>
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-slate-400">Bộ lọc:</span>
-            <select class="bg-slate-50 border-none rounded-lg text-xs font-bold px-3 py-2 outline-none">
-                <option>Tất cả đơn hàng</option>
-                <option>Chờ xử lý</option>
-                <option>Đã xác nhận</option>
-                <option>Đã hủy</option>
+            <select id="statusFilter" onchange="filterOrders(this.value)" class="bg-slate-50 border-none rounded-lg text-xs font-bold px-3 py-2 outline-none cursor-pointer">
+                <option value="Tất cả">Tất cả đơn hàng</option>
+                <option value="Chờ xử lý">Chờ xử lý</option>
+                <option value="Đã xác nhận">Đã xác nhận</option>
+                <option value="Chờ hoàn tiền">Chờ hoàn tiền</option>
+                <option value="Đã hủy">Đã hủy</option>
             </select>
         </div>
     </div>
@@ -38,7 +39,7 @@
                 <tbody class="divide-y divide-slate-50">
                     @foreach (var item in Model)
                     {
-                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <tr class="order-row hover:bg-slate-50/50 transition-colors group" data-status="@(item.TrangThaiDonHang != null ? item.TrangThaiDonHang.Trim() : "")">
                             <td class="px-6 py-4">
                                 <span class="text-xs font-black text-slate-800 uppercase">#ORD-@item.MaDonHang</span>
                             </td>
@@ -83,6 +84,16 @@
                                         }
                                     </div>
                                 }
+                                else if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ hoàn tiền")
+                                {
+                                    <div class="flex flex-col gap-1">
+                                        <span class="w-fit px-2.5 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-tight">Chờ hoàn tiền</span>
+                                        @if (!string.IsNullOrEmpty(item.GhiChu))
+                                        {
+                                            <p class="text-[9px] text-slate-400 italic">Lý do: @item.GhiChu</p>
+                                        }
+                                    </div>
+                                }
                                 else if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Đã hủy")
                                 {
                                     <div class="flex flex-col gap-1">
@@ -106,7 +117,13 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    @if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ xử lý")
+                                    @if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ hoàn tiền")
+                                    {
+                                        <button onclick="openRefundModal(@item.MaDonHang)" class="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-[10px] font-black uppercase hover:bg-orange-600 transition-all shadow-lg shadow-orange-100">
+                                            Duyệt hoàn tiền
+                                        </button>
+                                    }
+                                    else if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ xử lý")
                                     {
                                         <button onclick="approveOrder(@item.MaDonHang)" 
                                             class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all 
@@ -164,6 +181,45 @@
             <div class="flex flex-col gap-3">
                 <button onclick="submitApproveOrder()" id="btnConfirmApprove" class="w-full py-4 bg-green-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-100">Xác nhận duyệt ngay</button>
                 <button onclick="closeConfirmModal()" class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-100 transition-all">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác nhận Hủy Đơn -->
+<div id="cancelModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="cancelContent">
+        <div class="p-8 text-center">
+            <div class="w-20 h-20 bg-red-50 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-exclamation-triangle text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase">Hủy đơn hàng?</h3>
+            <p class="text-xs text-slate-400 font-medium mb-6 leading-relaxed">Bạn có chắc chắn muốn hủy đơn hàng này? <br>Vui lòng nhập lý do hủy dưới đây:</p>
+            
+            <input type="hidden" id="cancelOrderId">
+            <textarea id="cancelReason" rows="3" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-xs text-slate-700 resize-none mb-6" placeholder="Nhập lý do hủy..."></textarea>
+            
+            <div class="flex flex-col gap-3">
+                <button onclick="submitCancelOrder()" id="btnConfirmCancel" class="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-red-800 transition-all shadow-xl shadow-red-100">Xác nhận hủy đơn</button>
+                <button onclick="closeCancelModal()" class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-100 transition-all">Quay lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Duyệt Hoàn Tiền -->
+<div id="refundModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="refundContent">
+        <div class="p-8 text-center">
+            <div class="w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-rotate-left text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase">Duyệt hoàn tiền?</h3>
+            <p class="text-xs text-slate-400 font-medium mb-8 leading-relaxed">Xác nhận duyệt hoàn tiền cho đơn hàng này.<br>Email xác nhận sẽ được gửi tự động đến khách hàng.</p>
+            <input type="hidden" id="refundOrderId">
+            <div class="flex flex-col gap-3">
+                <button onclick="submitRefundApproval()" id="btnConfirmRefund" class="w-full py-4 bg-orange-500 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-orange-100">Xác nhận duyệt hoàn tiền</button>
+                <button onclick="closeRefundModal()" class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-100 transition-all">Hủy bỏ</button>
             </div>
         </div>
     </div>
@@ -281,6 +337,12 @@
                 return;
             }
 
+            const btn = document.getElementById('btnConfirmCancel');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> ĐANG XỬ LÝ...';
+
             try {
                 const response = await fetch('@Url.Action("Huy", "QuanLyDonHang")', {
                     method: 'POST',
@@ -292,7 +354,7 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    showToast('Thao tác thành công!', 'success');
+                    showToast('Đã hủy đơn hàng thành công!', 'success');
                     location.reload();
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
@@ -300,7 +362,68 @@
             } catch (err) {
                 console.error(err);
                 showToast('Lỗi kết nối!', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
+        }
+
+        function openRefundModal(id) {
+            document.getElementById('refundOrderId').value = id;
+            const modal = document.getElementById('refundModal');
+            const content = document.getElementById('refundContent');
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        function closeRefundModal() {
+            const modal = document.getElementById('refundModal');
+            const content = document.getElementById('refundContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('invisible'), 300);
+        }
+
+        async function submitRefundApproval() {
+            const id = document.getElementById('refundOrderId').value;
+            const btn = document.getElementById('btnConfirmRefund');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> ĐANG XỬ LÝ...';
+            try {
+                const response = await fetch('@Url.Action("DuyetHoanTien", "QuanLyDonHang")?id=' + id, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message || 'Đã duyệt hoàn tiền!', 'success');
+                    closeRefundModal();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.message || 'Lỗi xử lý!', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối!', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function filterOrders(status) {
+            const rows = document.querySelectorAll('.order-row');
+            rows.forEach(row => {
+                const orderStatus = row.getAttribute('data-status');
+                if (status === 'Tất cả' || orderStatus === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
     </script>
 }

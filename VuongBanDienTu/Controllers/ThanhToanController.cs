@@ -58,6 +58,7 @@ namespace VuongBanDienTu.Controllers
                         if (dh != null)
                         {
                             dh.TrangThaiThanhToan = "Đã thanh toán";
+                            dh.TrangThaiDonHang = "Chờ xử lý";
                             
                             var thanhToan = new ThanhToan
                             {
@@ -127,6 +128,7 @@ namespace VuongBanDienTu.Controllers
                                 if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
                                 {
                                     dh.TrangThaiThanhToan = "Đã thanh toán";
+                                    dh.TrangThaiDonHang = "Chờ xử lý";
                                 }
                                 else
                                 {

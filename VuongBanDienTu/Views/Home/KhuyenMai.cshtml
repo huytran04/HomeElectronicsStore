@@ -1,13 +1,14 @@
 @{
     ViewBag.Title = "Tổng hợp khuyến mại";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
 }
 
 <div class="max-w-screen-xl mx-auto px-4 py-12">
     <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div>
-            <h1 class="text-4xl font-black italic text-slate-800 uppercase tracking-tighter">Đại Tiệc <span class="text-red-600">Ưu Đãi</span></h1>
-            <p class="text-slate-500 font-medium">Đừng bỏ lỡ cơ hội sở hữu đồ gia dụng giá hời nhất</p>
+            <h1 class="text-4xl font-black italic text-slate-800 uppercase tracking-tighter">Đại Tiệc <span class="text-red-600">Ưu Đãi Tại Cửa Hàng</span></h1>
+            <p class="text-slate-500 font-medium">Các chương trình khuyến mãi chỉ áp dụng khi mua trực tiếp tại cửa hàng</p>
         </div>
         <div class="flex gap-2">
             <span class="px-4 py-2 bg-red-600 text-white rounded-full text-xs font-bold animate-pulse">LIVE NOW</span>
@@ -22,11 +23,10 @@
                 -40%
             </div>
             <div class="relative z-10">
-                <h3 class="text-2xl font-black text-slate-800 mb-4 italic uppercase">Mùa Hè Rực Rỡ</h3>
-                <p class="text-slate-600 mb-6 line-clamp-2 italic">Giảm sốc toàn bộ các dòng Máy lạnh, Quạt điều hòa, Máy lọc nước chính hãng.</p>
+                <h3 class="text-2xl font-black text-slate-800 mb-4 italic uppercase">Mùa Hè Rực Rỡ <span class="text-xs text-red-600 block mt-1 font-bold normal-case tracking-normal">*(Chỉ áp dụng tại cửa hàng)</span></h3>
+                <p class="text-slate-600 mb-6 line-clamp-2 italic">Giảm sốc toàn bộ các dòng Máy lạnh, Quạt điều hòa, Máy lọc nước chính hãng khi quý khách mua trực tiếp tại showroom.</p>
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest italic">Hết hạn: 31/05/2026</span>
-                    <button class="px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-bold hover:bg-red-600 transition-colors uppercase">Xem chi tiết</button>
                 </div>
             </div>
         </div>
@@ -37,11 +37,10 @@
                 FREE
             </div>
             <div class="relative z-10">
-                <h3 class="text-2xl font-black text-slate-800 mb-4 italic uppercase">Tân Gia Như Ý</h3>
-                <p class="text-slate-600 mb-6 line-clamp-2 italic">Mua Combo Bếp + Hút mùi, tặng ngay Nồi chiên không dầu Lock&Lock 5.2L.</p>
+                <h3 class="text-2xl font-black text-slate-800 mb-4 italic uppercase">Tân Gia Như Ý <span class="text-xs text-red-600 block mt-1 font-bold normal-case tracking-normal">*(Chỉ áp dụng tại cửa hàng)</span></h3>
+                <p class="text-slate-600 mb-6 line-clamp-2 italic">Mua Combo Bếp + Hút mùi trực tiếp tại cửa hàng, tặng ngay Nồi chiên không dầu Lock&Lock 5.2L.</p>
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest italic">Hết hạn: 15/06/2026</span>
-                    <button class="px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-bold hover:bg-gold hover:text-slate-900 transition-colors uppercase">Xem chi tiết</button>
                 </div>
             </div>
         </div>
@@ -50,17 +49,68 @@
         <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-8 relative overflow-hidden group md:col-span-2">
             <div class="flex flex-col md:flex-row items-center gap-8">
                 <div class="flex-1">
-                    <h3 class="text-3xl font-black text-slate-800 mb-4 italic uppercase tracking-tighter">Ngày Vàng Thành Viên</h3>
-                    <p class="text-slate-600 mb-6 italic">Giảm thêm 2-5% cho khách hàng thân thiết. Nhân 2 điểm tích lũy vào mỗi thứ 7 và Chủ Nhật hàng tuần.</p>
-                    <div class="flex items-center gap-4">
-                        <button class="px-8 py-3 bg-red-600 text-white rounded-full font-black text-xs uppercase shadow-xl">Đăng ký thành viên ngay</button>
-                    </div>
+                    <h3 class="text-3xl font-black text-slate-800 mb-4 italic uppercase tracking-tighter">Ngày Vàng Thành Viên <span class="text-sm text-red-600 ml-2 font-bold normal-case tracking-normal">*(Chỉ áp dụng tại cửa hàng)</span></h3>
+                    <p class="text-slate-600 mb-6 italic">Giảm thêm 2-5% cho khách hàng thân thiết. Nhân 2 điểm tích lũy vào mỗi thứ 7 và Chủ Nhật hàng tuần khi phát sinh giao dịch trực tiếp tại cửa hàng.</p>
                 </div>
                 <div class="hidden md:block">
                     <div class="w-40 h-40 rounded-full bg-slate-50 border-4 border-white shadow-inner flex items-center justify-center">
                         <i class="fa fa-crown text-6xl text-gold animate-bounce"></i>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bản đồ và Địa chỉ Cửa hàng -->
+    <div class="mt-16 bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-8 lg:p-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-5 space-y-6">
+                <span class="px-4 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-black uppercase tracking-wider">Hệ thống showroom</span>
+                <h2 class="text-3xl font-black text-slate-800 italic uppercase tracking-tight">Ghé Thăm Cửa Hàng</h2>
+                <p class="text-slate-500 font-medium leading-relaxed">Đến trực tiếp cửa hàng để trải nghiệm sản phẩm thực tế và nhận hàng loạt ưu đãi, quà tặng trực tiếp chỉ dành riêng cho khách mua tại quầy.</p>
+                
+                <div class="space-y-4 pt-4 border-t border-slate-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Địa chỉ</p>
+                            <p class="text-sm font-black text-slate-800">@config.StoreAddress</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Hotline hỗ trợ</p>
+                            <p class="text-sm font-black text-slate-800">@config.StoreHotline (Miễn phí)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fa fa-clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Giờ mở cửa</p>
+                            <p class="text-sm font-black text-slate-800">@config.StoreWorkingHours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-7 h-[350px] rounded-3xl overflow-hidden shadow-inner border border-slate-100 relative">
+                <iframe 
+                    src="@VuongBanDienTu.Helpers.CauHinhHelper.LayLinkMapEmbed(config.StoreMapEmbed)" 
+                    width="100%" 
+                    height="100%" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    class="w-full h-full transition-all duration-500">
+                </iframe>
             </div>
         </div>
     </div>

@@ -7,6 +7,7 @@ using VuongBanDienTu.Models;
 using System.IO;
 using System.Data.Entity;
 using VuongBanDienTu.Helpers;
+using System.Data;
 
 namespace VuongBanDienTu.Controllers
 {
@@ -56,6 +57,10 @@ namespace VuongBanDienTu.Controllers
         [ValidateInput(false)]
         public ActionResult ThemSanPham(SanPham sp, HttpPostedFileBase AnhChinhFile, IEnumerable<HttpPostedFileBase> AnhPhuFiles)
         {
+            if (sp.TrangThai == "Hết hàng")
+            {
+                sp.SoLuongTon = 0;
+            }
             if (ModelState.IsValid)
             {
                 string folderPath = Server.MapPath("~/Content/Images/Products/");
@@ -151,7 +156,7 @@ namespace VuongBanDienTu.Controllers
                 existingProduct.TenSanPham = sp.TenSanPham;
                 existingProduct.MaDanhMuc = sp.MaDanhMuc;
                 existingProduct.GiaBan = sp.GiaBan;
-                existingProduct.SoLuongTon = sp.SoLuongTon;
+                existingProduct.SoLuongTon = sp.TrangThai == "Hết hàng" ? 0 : sp.SoLuongTon;
                 existingProduct.MoTaTongQuan = sp.MoTaTongQuan;
                 existingProduct.ThongSoKyThuat = sp.ThongSoKyThuat;
                 existingProduct.TrangThai = sp.TrangThai;
@@ -249,15 +254,32 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult XoaSanPham(int id)
         {
-            var sp = db.SanPhams.Find(id);
+            var sp = db.SanPhams.Include(p => p.HinhAnhSanPhams).FirstOrDefault(p => p.MaSanPham == id);
             if (sp != null)
             {
+                var hasOrders = db.ChiTietDonHangs.Any(ct => ct.MaSanPham == id);
+                if (hasOrders)
+                {
+                    if (Request.IsAjaxRequest())
+                        return Json(new { success = false, message = "Sản phẩm đang có đơn đặt hàng, không thể xóa!" });
+                    
+                    TempData["Error"] = "Sản phẩm đang có đơn đặt hàng, không thể xóa!";
+                    return RedirectToAction("Index");
+                }
+                var images = sp.HinhAnhSanPhams.ToList();
+                foreach (var img in images)
+                {
+                    db.HinhAnhSanPhams.Remove(img);
+                }
                 db.SanPhams.Remove(sp);
                 db.SaveChanges();
+                
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = true, message = "Đã xóa sản phẩm thành công!" });
             }
 
             if (Request.IsAjaxRequest())
-                return Json(new { success = true });
+                return Json(new { success = false, message = "Không tìm thấy sản phẩm!" });
 
             return RedirectToAction("Index");
         }

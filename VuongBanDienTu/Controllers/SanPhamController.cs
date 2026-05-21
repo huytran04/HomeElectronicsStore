@@ -12,10 +12,10 @@ namespace VuongBanDienTu.Controllers
     {
         private VuongDienTuEntities db = new VuongDienTuEntities();
 
-        public ActionResult Index(int? id)
+        public ActionResult Index(int? id, string q, string sort)
         {
             ViewBag.Categories = db.DanhMucs.ToList();
-            var products = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).AsQueryable();
+            var products = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng bán").AsQueryable();
 
             if (id.HasValue)
             {
@@ -23,12 +23,69 @@ namespace VuongBanDienTu.Controllers
                 ViewBag.CurrentCategory = db.DanhMucs.Find(id);
             }
 
-            return View(products.OrderByDescending(p => p.NgayTao).Take(4).ToList());
+            if (!string.IsNullOrEmpty(q))
+            {
+                string term = q.ToLower().Trim();
+                products = products.Where(p => p.TenSanPham.ToLower().Contains(term));
+                ViewBag.SearchQuery = q;
+            }
+
+            ViewBag.CurrentSort = sort;
+
+            switch (sort)
+            {
+                case "price_asc":
+                    products = products.OrderBy(p => p.GiaBan);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(p => p.GiaBan);
+                    break;
+                case "best_seller":
+                    products = from p in products
+                               let totalSold = db.ChiTietDonHangs.Where(ct => ct.MaSanPham == p.MaSanPham).Sum(ct => (int?)ct.SoLuong) ?? 0
+                               orderby totalSold descending
+                               select p;
+                    break;
+                default:
+                    products = products.OrderByDescending(p => p.NgayTao);
+                    break;
+            }
+
+            return View(products.ToList());
+        }
+
+        [HttpGet]
+        public ActionResult GoiYSanPham(string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+            {
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
+
+            string term = q.ToLower().Trim();
+            var products = db.SanPhams
+                .Include(p => p.HinhAnhSanPhams)
+                .Where(p => p.TrangThai != "Ngừng bán" && p.TenSanPham.ToLower().Contains(term))
+                .Take(8)
+                .ToList();
+
+            var result = products.Select(p => {
+                var mainImg = p.HinhAnhSanPhams?.FirstOrDefault(h => h.AnhChinh);
+                var imgUrl = mainImg != null ? VuongBanDienTu.Helpers.HinhAnh.GetImageUrl(mainImg.DuongDanAnh, true) : "/Content/Images/no-image.png";
+                return new {
+                    MaSanPham = p.MaSanPham,
+                    TenSanPham = p.TenSanPham,
+                    GiaBan = p.GiaBan > 0 ? p.GiaBan.ToString("N0") + "₫" : "Liên hệ",
+                    HinhAnh = imgUrl
+                };
+            }).ToList();
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult SanPhamNoiBat()
         {
-            var products = db.SanPhams.Include(p => p.HinhAnhSanPhams).OrderByDescending(p => p.NgayTao).Take(4).ToList();
+            var products = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng bán").OrderByDescending(p => p.NgayTao).Take(4).ToList();
             return PartialView("SanPhamNoiBat/Index", products);
         }
 
@@ -44,7 +101,7 @@ namespace VuongBanDienTu.Controllers
 
             var products = db.SanPhams
                 .Include(p => p.HinhAnhSanPhams)
-                .Where(p => bestSellerIds.Contains(p.MaSanPham))
+                .Where(p => bestSellerIds.Contains(p.MaSanPham) && p.TrangThai != "Ngừng bán")
                 .ToList()
                 .OrderBy(p => bestSellerIds.IndexOf(p.MaSanPham)) 
                 .ToList();

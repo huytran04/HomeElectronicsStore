@@ -17,7 +17,7 @@ namespace VuongBanDienTu.Controllers
         private bool IsAuthorized()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2);
+            return user != null && user.MaVaiTro == PhanQuyen.ADMIN;
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -30,9 +30,23 @@ namespace VuongBanDienTu.Controllers
                 }
                 else
                 {
-                    // Nếu là nhân viên mà cố vào trang này, thông báo lỗi thay vì đá về Home
-                    TempData["Error"] = "Bạn không có quyền truy cập khu vực này!";
-                    filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                    var user = Session["TaiKhoan"] as NguoiDung;
+                    if (user != null && PhanQuyen.IsStaff(user.MaVaiTro))
+                    {
+                        TempData["Error"] = "Bạn không có quyền truy cập quản lý người dùng!";
+                        if (user.MaVaiTro == PhanQuyen.QUAN_LY)
+                        {
+                            filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
+                        }
+                        else
+                        {
+                            filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
+                        }
+                    }
+                    else
+                    {
+                        filterContext.Result = RedirectToAction("DangNhap", "TaiKhoan");
+                    }
                 }
             }
             base.OnActionExecuting(filterContext);
@@ -98,13 +112,11 @@ namespace VuongBanDienTu.Controllers
                 var user = db.NguoiDungs.Find(maND);
                 if (user == null) return Json(new { success = false, message = "Không tìm thấy người dùng!" });
 
-                // Kiểm tra vai trò mới có tồn tại không
                 var roleExists = db.VaiTroes.Any(v => v.MaVaiTro == maVT);
                 if (!roleExists) return Json(new { success = false, message = "Vai trò không hợp lệ!" });
 
                 user.MaVaiTro = maVT;
                 
-                // Ép EF đánh dấu là đã thay đổi để lưu vào DB
                 db.Entry(user).State = EntityState.Modified;
                 db.Configuration.ValidateOnSaveEnabled = false;
                 db.SaveChanges();
@@ -114,6 +126,178 @@ namespace VuongBanDienTu.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult XoaNguoiDung(int id)
+        {
+            try
+            {
+                var currentUser = Session["TaiKhoan"] as NguoiDung;
+                if (currentUser != null && currentUser.MaNguoiDung == id)
+                {
+                    return Json(new { success = false, message = "Bạn không thể tự xử lý tài khoản của chính mình!" });
+                }
+
+                var user = db.NguoiDungs.Find(id);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+                }
+
+                if (user.MaVaiTro == 4)
+                {
+                    user.TrangThai = false;
+                    db.Entry(user).State = EntityState.Modified;
+                    db.Configuration.ValidateOnSaveEnabled = false;
+                    db.SaveChanges();
+                    return Json(new { success = true, message = "Đã khóa hoạt động tài khoản khách hàng thành công!" });
+                }
+                else
+                {
+                    bool hasProcessedOrders = db.DonHangs.Any(o => o.MaNhanVienXuLy == id);
+                    if (hasProcessedOrders)
+                    {
+                        user.TrangThai = false;
+                        db.Entry(user).State = EntityState.Modified;
+                        db.Configuration.ValidateOnSaveEnabled = false;
+                        db.SaveChanges();
+                        return Json(new { success = true, message = "Nhân sự này đã có lịch sử xử lý đơn hàng. Để bảo toàn lịch sử hóa đơn, tài khoản đã được chuyển sang trạng thái 'Bị khóa' thay vì xóa cứng!" });
+                    }
+
+                    var carts = db.GioHangs.Where(g => g.MaNguoiDung == id).ToList();
+                    foreach (var cart in carts)
+                    {
+                        db.GioHangs.Remove(cart);
+                    }
+
+                    db.NguoiDungs.Remove(user);
+                    db.SaveChanges();
+                    return Json(new { success = true, message = "Đã xóa vĩnh viễn tài khoản nhân sự khỏi hệ thống!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi xử lý xóa người dùng: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ChiTietNguoiDung(int id)
+        {
+            try
+            {
+                var user = db.NguoiDungs.Include("VaiTro").FirstOrDefault(u => u.MaNguoiDung == id);
+                if (user == null) return Json(new { success = false, message = "Không tìm thấy người dùng!" }, JsonRequestBehavior.AllowGet);
+
+                int orderCount = db.DonHangs.Count(o => o.MaKhachHang == id && o.TrangThaiDonHang != "Chờ thanh toán");
+                decimal totalSpent = db.DonHangs.Where(o => o.MaKhachHang == id && o.TrangThaiDonHang == "Đã xác nhận").Sum(o => (decimal?)o.TongTien) ?? 0;
+
+                var result = new
+                {
+                    success = true,
+                    MaNguoiDung = user.MaNguoiDung,
+                    TenDangNhap = user.TenDangNhap,
+                    HoTen = user.HoTen,
+                    Email = user.Email,
+                    SoDienThoai = user.SoDienThoai,
+                    DiaChi = user.DiaChi ?? "Chưa cập nhật",
+                    MaVaiTro = user.MaVaiTro,
+                    TenVaiTro = user.VaiTro?.TenVaiTro ?? "Chưa xác định",
+                    NgayTaoStr = user.NgayTao.HasValue ? user.NgayTao.Value.ToString("dd/MM/yyyy HH:mm") : "---",
+                    TrangThaiStr = user.TrangThai == true ? "Hoạt động" : "Bị khóa",
+                    IsLocked = user.TrangThai != true,
+                    OrderCount = orderCount,
+                    TotalSpentStr = totalSpent.ToString("N0") + "₫"
+                };
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SuaNhanVien(NguoiDung user)
+        {
+            try
+            {
+                if (user == null || user.MaNguoiDung <= 0)
+                {
+                    return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
+                }
+
+                var existingUser = db.NguoiDungs.Find(user.MaNguoiDung);
+                if (existingUser == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+                }
+
+                var nameRegex = new System.Text.RegularExpressions.Regex(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỶỷỸỹỴỵ\s]+$");
+                var phoneRegex = new System.Text.RegularExpressions.Regex(@"^0[35789]\d{8}$");
+
+                if (string.IsNullOrEmpty(user.HoTen) || !nameRegex.IsMatch(user.HoTen))
+                {
+                    return Json(new { success = false, message = "Họ và tên chỉ được nhập chữ, không được chứa số hay ký tự đặc biệt!" });
+                }
+
+                if (string.IsNullOrEmpty(user.SoDienThoai) || !phoneRegex.IsMatch(user.SoDienThoai))
+                {
+                    return Json(new { success = false, message = "Số điện thoại không đúng định dạng! Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số." });
+                }
+
+                if (!string.IsNullOrEmpty(user.Email))
+                {
+                    var checkEmail = db.NguoiDungs.FirstOrDefault(s => s.Email == user.Email && s.MaNguoiDung != user.MaNguoiDung);
+                    if (checkEmail != null)
+                    {
+                        return Json(new { success = false, message = "Email này đã được đăng ký bởi tài khoản khác!" });
+                    }
+                }
+
+                string matKhauMoi = Request.Form["MatKhauMoi"];
+                if (!string.IsNullOrEmpty(matKhauMoi))
+                {
+                    if (matKhauMoi.Length < 8)
+                    {
+                        return Json(new { success = false, message = "Mật khẩu mới phải tối thiểu 8 ký tự!" });
+                    }
+
+                    var hasUpperCase = new System.Text.RegularExpressions.Regex(@"[A-Z]");
+                    var hasLowerCase = new System.Text.RegularExpressions.Regex(@"[a-z]");
+                    var hasSpecialChar = new System.Text.RegularExpressions.Regex(@"[^a-zA-Z0-9]");
+
+                    if (!hasUpperCase.IsMatch(matKhauMoi) || !hasLowerCase.IsMatch(matKhauMoi) || !hasSpecialChar.IsMatch(matKhauMoi))
+                    {
+                        return Json(new { success = false, message = "Mật khẩu mới phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt!" });
+                    }
+
+                    existingUser.MatKhau = MaHoa.ToSHA256(matKhauMoi);
+                }
+
+                var roleExists = db.VaiTroes.Any(v => v.MaVaiTro == user.MaVaiTro && v.MaVaiTro != PhanQuyen.KHACH_HANG);
+                if (!roleExists)
+                {
+                    return Json(new { success = false, message = "Vai trò không hợp lệ!" });
+                }
+
+                existingUser.HoTen = user.HoTen;
+                existingUser.Email = user.Email;
+                existingUser.SoDienThoai = user.SoDienThoai;
+                existingUser.MaVaiTro = user.MaVaiTro;
+
+                db.Entry(existingUser).State = EntityState.Modified;
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi cập nhật thông tin nhân viên: " + ex.Message });
             }
         }
     }

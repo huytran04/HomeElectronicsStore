@@ -148,39 +148,69 @@ namespace VuongBanDienTu.Controllers
             NguoiDung user = (NguoiDung)Session["TaiKhoan"];
             List<GioHang> lstGioHang = LayGioHang();
 
+            var freshProducts = new Dictionary<int, SanPham>();
+            decimal tongTien = 0;
+
             foreach (var item in lstGioHang)
             {
                 var sp = db.SanPhams.Find(item.MaSanPham);
                 if (sp == null || sp.SoLuongTon < item.SoLuong)
                 {
-                    TempData["Error"] = $"Sản phẩm '{item.SanPham.TenSanPham}' đã hết hàng hoặc không đủ số lượng!";
+                    TempData["Error"] = $"Sản phẩm '{(sp != null ? sp.TenSanPham : "Không xác định")}' đã hết hàng hoặc không đủ số lượng!";
                     return RedirectToAction("Index");
                 }
+                freshProducts[sp.MaSanPham] = sp;
+                tongTien += (item.SoLuong ?? 0) * sp.GiaBan;
             }
+
+            string phuongThuc = f["PhuongThucThanhToan"] ?? "COD";
 
             DonHang dh = new DonHang();
             dh.MaKhachHang = user.MaNguoiDung;
             dh.NgayDat = DateTime.Now;
-            dh.TongTien = (decimal)lstGioHang.Sum(n => n.SoLuong * n.SanPham.GiaBan);
+            dh.TongTien = tongTien;
             dh.DiaChiGiaoHang = f["DiaChi"] ?? user.DiaChi;
-            dh.TrangThaiDonHang = "Chờ xử lý";
+            dh.TrangThaiDonHang = (phuongThuc == "VNPAY") ? "Chờ thanh toán" : "Chờ xử lý";
             dh.TrangThaiThanhToan = "Chưa thanh toán";
-            dh.PhuongThucThanhToan = f["PhuongThucThanhToan"] ?? "COD";
+            dh.PhuongThucThanhToan = phuongThuc;
             
             db.DonHangs.Add(dh);
             db.SaveChanges();
 
             foreach (var item in lstGioHang)
             {
+                var sp = freshProducts[item.MaSanPham.Value];
                 ChiTietDonHang ctdh = new ChiTietDonHang();
                 ctdh.MaDonHang = dh.MaDonHang;
                 ctdh.MaSanPham = item.MaSanPham;
                 ctdh.SoLuong = (int)item.SoLuong;
-                ctdh.GiaLuuTru = (decimal)item.SanPham.GiaBan;
+                ctdh.GiaLuuTru = sp.GiaBan;
                 db.ChiTietDonHangs.Add(ctdh);
-
             }
             db.SaveChanges();
+
+            var orderId = dh.MaDonHang;
+            System.Threading.Tasks.Task.Run(() => {
+                try
+                {
+                    using (var context = new VuongDienTuEntities())
+                    {
+                        var orderToSend = context.DonHangs
+                            .Include("NguoiDung")
+                            .Include("ChiTietDonHangs")
+                            .Include("ChiTietDonHangs.SanPham")
+                            .FirstOrDefault(o => o.MaDonHang == orderId);
+                        if (orderToSend != null)
+                        {
+                            VuongBanDienTu.Services.EmailService.SendOrderEmail(orderToSend, "DatHang");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("DatHang Email Error: " + ex.Message);
+                }
+            });
 
             Session["GioHang"] = null;
 

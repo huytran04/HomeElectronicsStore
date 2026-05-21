@@ -1,0 +1,111 @@
+@model VuongBanDienTu.Helpers.CauHinhModel
+@{
+    Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
+    ViewBag.Title = "Cấu hình hệ thống";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-100/80 shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Cấu hình & Thiết lập website</h2>
+            <p class="text-xs text-slate-400 font-medium mt-1">Cập nhật thông tin cửa hàng, thông tin liên hệ và các thiết lập vận hành toàn hệ thống</p>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("CaiDat", "QuanTri", FormMethod.Post, new { id = "settingsForm", @class = "space-y-6" }))
+    {
+        @Html.AntiForgeryToken()
+        
+        if (!ViewData.ModelState.IsValid)
+        {
+            <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-xs font-bold">
+                @Html.ValidationSummary(false, "Vui lòng kiểm tra lại các lỗi bên dưới:")
+            </div>
+        }
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Cột trái: Thông tin cửa hàng (8 phần) -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <i class="fa fa-shop text-primary text-lg"></i>
+                        <h3 class="font-black text-slate-700 uppercase tracking-tight text-sm">Thông tin doanh nghiệp & Showroom</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tên cửa hàng</label>
+                            @Html.TextBoxFor(m => m.StoreName, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" })
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hotline hỗ trợ</label>
+                            @Html.TextBoxFor(m => m.StoreHotline, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" })
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Địa chỉ Showroom chính</label>
+                        @Html.TextBoxFor(m => m.StoreAddress, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" })
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email liên hệ</label>
+                            @Html.TextBoxFor(m => m.StoreEmail, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700", type = "email" })
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Giờ làm việc</label>
+                            @Html.TextBoxFor(m => m.StoreWorkingHours, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm text-slate-700" })
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Đường dẫn Google Maps (Liên kết ngoài)</label>
+                        @Html.TextBoxFor(m => m.StoreMapUrl, new { @class = "w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-xs text-slate-700" })
+                        <p class="text-[10px] text-slate-400 italic ml-1">Đường dẫn khi click vào nút "Mua trực tiếp tại cửa hàng"</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mã nguồn nhúng bản đồ (Google Maps Iframe Embed)</label>
+                        @Html.TextAreaFor(m => m.StoreMapEmbed, new { @class = "w-full h-24 px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-medium text-xs text-slate-700 font-mono" })
+                        <p class="text-[10px] text-slate-400 italic ml-1">Dán toàn bộ mã nhúng iframe được cung cấp bởi Google Maps (Ví dụ: &lt;iframe src="..."&gt;&lt;/iframe&gt;)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Cấu hình vận hành (4 phần) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <i class="fa fa-sliders text-primary text-lg"></i>
+                        <h3 class="font-black text-slate-700 uppercase tracking-tight text-sm">VẬN HÀNH HỆ THỐNG</h3>
+                    </div>
+
+                    <!-- Chế độ bảo trì -->
+                    <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl hover:bg-slate-50/80 transition-colors">
+                        <div class="space-y-0.5">
+                            <span class="text-xs font-black text-slate-700 block">Chế độ bảo trì</span>
+                            <span class="text-[10px] text-slate-400 font-medium">Bật màn hình thông báo bảo trì toàn trang</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer select-none">
+                            @Html.CheckBoxFor(m => m.MaintenanceMode, new { @class = "sr-only peer" })
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Nút lưu cấu hình -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                        <i class="fa fa-save text-sm"></i> Lưu cấu hình hệ thống
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>

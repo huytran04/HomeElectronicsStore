@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
@@ -71,6 +71,9 @@
           <Property Name="MaVaiTro" Type="int" />
           <Property Name="NgayTao" Type="datetime" />
           <Property Name="TrangThai" Type="bit" />
+          <Property Name="MaKichHoat" Type="varchar" MaxLength="6" />
+          <Property Name="MaQuenMatKhau" Type="varchar" MaxLength="6" />
+          <Property Name="KichHoat" Type="bit" />
         </EntityType>
         <EntityType Name="PhanQuyen">
           <Key>
@@ -418,6 +421,9 @@
           <Property Name="MaVaiTro" Type="Int32" />
           <Property Name="NgayTao" Type="DateTime" Precision="3" />
           <Property Name="TrangThai" Type="Boolean" />
+          <Property Name="MaKichHoat" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="MaQuenMatKhau" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="KichHoat" Type="Boolean" />
           <NavigationProperty Name="DonHangs" Relationship="Self.FK__DonHang__MaKhach__5070F446" FromRole="NguoiDung" ToRole="DonHang" />
           <NavigationProperty Name="DonHangs1" Relationship="Self.FK__DonHang__MaNhanV__5165187F" FromRole="NguoiDung" ToRole="DonHang" />
           <NavigationProperty Name="GioHangs" Relationship="Self.FK__GioHang__MaNguoi__4AB81AF0" FromRole="NguoiDung" ToRole="GioHang" />
@@ -742,6 +748,9 @@
                 <ScalarProperty Name="MaVaiTro" ColumnName="MaVaiTro" />
                 <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
                 <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="MaKichHoat" ColumnName="MaKichHoat" />
+                <ScalarProperty Name="MaQuenMatKhau" ColumnName="MaQuenMatKhau" />
+                <ScalarProperty Name="KichHoat" ColumnName="KichHoat" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
