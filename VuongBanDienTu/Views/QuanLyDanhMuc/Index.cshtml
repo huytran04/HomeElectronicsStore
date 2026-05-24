@@ -91,6 +91,28 @@
     </div>
 </div>
 
+<!-- Confirm Delete Modal -->
+<div id="confirmDeleteModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="confirmDeleteContent">
+        <div class="p-8 text-center">
+            <div class="w-16 h-16 bg-red-50 text-primary rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa fa-trash-can"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-800 mb-2">Xác nhận xóa</h3>
+            <p class="text-xs text-slate-400 font-medium px-4 mb-6">Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.</p>
+            
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" onclick="closeConfirmDeleteModal()" class="flex-1 py-3.5 bg-slate-50 hover:bg-slate-100 text-slate-500 font-bold rounded-xl text-xs transition-all uppercase tracking-wider">
+                    Hủy bỏ
+                </button>
+                <button type="button" onclick="executeDeleteDanhMuc()" id="confirmDeleteBtn" class="flex-1 py-3.5 bg-primary hover:bg-primary-dark text-white font-black rounded-xl text-xs shadow-lg shadow-red-100 transition-all uppercase tracking-wider">
+                    Xác nhận xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts {
     <script>
         function openDanhMucModal() {
@@ -161,8 +183,40 @@
             }
         }
 
-        async function deleteDanhMuc(id) {
-            if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
+        let categoryIdToDelete = null;
+
+        function deleteDanhMuc(id) {
+            categoryIdToDelete = id;
+            const modal = document.getElementById('confirmDeleteModal');
+            const content = document.getElementById('confirmDeleteContent');
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfirmDeleteModal() {
+            categoryIdToDelete = null;
+            const modal = document.getElementById('confirmDeleteModal');
+            const content = document.getElementById('confirmDeleteContent');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.classList.add('invisible');
+            }, 300);
+        }
+
+        async function executeDeleteDanhMuc() {
+            if (!categoryIdToDelete) return;
+            const id = categoryIdToDelete;
+            const btn = document.getElementById('confirmDeleteBtn');
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Đang xóa...';
 
             try {
                 const response = await fetch('@Url.Action("Xoa", "QuanLyDanhMuc")?id=' + id, {
@@ -171,14 +225,20 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    showToast('Thao tác thành công!', 'success');
+                    showToast('Xóa danh mục thành công!', 'success');
+                    closeConfirmDeleteModal();
                     location.reload();
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
+                    closeConfirmDeleteModal();
                 }
             } catch (err) {
                 console.error(err);
                 showToast('Lỗi kết nối!', 'error');
+                closeConfirmDeleteModal();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
     </script>

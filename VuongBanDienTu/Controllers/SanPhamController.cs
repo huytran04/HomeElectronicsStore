@@ -12,21 +12,21 @@ namespace VuongBanDienTu.Controllers
     {
         private VuongDienTuEntities db = new VuongDienTuEntities();
 
-        public ActionResult Index(int? id, string q, string sort)
+        public ActionResult Index(int? id, string q, string sort, int? page)
         {
             ViewBag.Categories = db.DanhMucs.ToList();
-            var products = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng bán").AsQueryable();
+            var query = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng kinh doanh").AsQueryable();
 
             if (id.HasValue)
             {
-                products = products.Where(p => p.MaDanhMuc == id);
+                query = query.Where(p => p.MaDanhMuc == id);
                 ViewBag.CurrentCategory = db.DanhMucs.Find(id);
             }
 
             if (!string.IsNullOrEmpty(q))
             {
                 string term = q.ToLower().Trim();
-                products = products.Where(p => p.TenSanPham.ToLower().Contains(term));
+                query = query.Where(p => p.TenSanPham.ToLower().Contains(term));
                 ViewBag.SearchQuery = q;
             }
 
@@ -35,23 +35,40 @@ namespace VuongBanDienTu.Controllers
             switch (sort)
             {
                 case "price_asc":
-                    products = products.OrderBy(p => p.GiaBan);
+                    query = query.OrderBy(p => p.GiaBan);
                     break;
                 case "price_desc":
-                    products = products.OrderByDescending(p => p.GiaBan);
+                    query = query.OrderByDescending(p => p.GiaBan);
                     break;
                 case "best_seller":
-                    products = from p in products
-                               let totalSold = db.ChiTietDonHangs.Where(ct => ct.MaSanPham == p.MaSanPham).Sum(ct => (int?)ct.SoLuong) ?? 0
-                               orderby totalSold descending
-                               select p;
+                    query = from p in query
+                            let totalSold = db.ChiTietDonHangs.Where(ct => ct.MaSanPham == p.MaSanPham).Sum(ct => (int?)ct.SoLuong) ?? 0
+                            orderby totalSold descending
+                            select p;
                     break;
                 default:
-                    products = products.OrderByDescending(p => p.NgayTao);
+                    query = query.OrderByDescending(p => p.NgayTao);
                     break;
             }
 
-            return View(products.ToList());
+            int pageSize = 8;
+            int pageNumber = page ?? 1;
+            if (pageNumber < 1) pageNumber = 1;
+
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            if (pageNumber > totalPages && totalPages > 0) pageNumber = totalPages;
+
+            var products = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentId = id; // Store category ID for links
+
+            return View(products);
         }
 
         [HttpGet]

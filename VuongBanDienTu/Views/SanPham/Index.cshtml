@@ -133,6 +133,59 @@
             </div>
         }
     </div>
+
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="flex items-center justify-center mt-12">
+            <nav class="isolate inline-flex -space-x-px rounded-2xl shadow-sm bg-white p-2 border border-slate-100 gap-1.5" aria-label="Pagination">
+                <!-- Prev Button -->
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <a href="@Url.Action("Index", new { id = ViewBag.CurrentId, q = ViewBag.SearchQuery, sort = ViewBag.CurrentSort, page = ViewBag.CurrentPage - 1 })" class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-red-50 hover:text-primary transition-all">
+                        <i class="fa fa-chevron-left text-xs"></i>
+                    </a>
+                }
+                else
+                {
+                    <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
+                        <i class="fa fa-chevron-left text-xs"></i>
+                    </span>
+                }
+
+                <!-- Page Numbers -->
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    if (i == ViewBag.CurrentPage)
+                    {
+                        <span class="relative z-10 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-white text-sm font-black select-none">
+                            @i
+                        </span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Index", new { id = ViewBag.CurrentId, q = ViewBag.SearchQuery, sort = ViewBag.CurrentSort, page = i })" class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-red-50 hover:text-primary transition-all select-none">
+                            @i
+                        </a>
+                    }
+                }
+
+                <!-- Next Button -->
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <a href="@Url.Action("Index", new { id = ViewBag.CurrentId, q = ViewBag.SearchQuery, sort = ViewBag.CurrentSort, page = ViewBag.CurrentPage + 1 })" class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-red-50 hover:text-primary transition-all">
+                        <i class="fa fa-chevron-right text-xs"></i>
+                    </a>
+                }
+                else
+                {
+                    <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
+                        <i class="fa fa-chevron-right text-xs"></i>
+                    </span>
+                }
+            </nav>
+        </div>
+    }
 </div>
 </div>
 
