@@ -37,9 +37,25 @@ namespace VuongBanDienTu.Controllers
             base.OnActionExecuting(filterContext);
         }
 
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            var products = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).OrderByDescending(p => p.NgayTao).ToList();
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+            if (pageNumber < 1) pageNumber = 1;
+
+            var query = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).OrderByDescending(p => p.NgayTao);
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            if (pageNumber > totalPages && totalPages > 0) pageNumber = totalPages;
+
+            var products = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.PageSize = pageSize;
+
             return View(products);
         }
 
@@ -61,6 +77,29 @@ namespace VuongBanDienTu.Controllers
             {
                 sp.SoLuongTon = 0;
             }
+
+            if (sp.GiaBan < 0)
+            {
+                ModelState.AddModelError("GiaBan", "Giá bán không được phép âm!");
+            }
+            if (!sp.SoLuongTon.HasValue)
+            {
+                ModelState.AddModelError("SoLuongTon", "Số lượng tồn không được để trống!");
+            }
+            else if (sp.SoLuongTon < 0)
+            {
+                ModelState.AddModelError("SoLuongTon", "Số lượng tồn không được phép âm!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Dữ liệu không hợp lệ!";
+                    return Json(new { success = false, message = firstError });
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 string folderPath = Server.MapPath("~/Content/Images/Products/");
@@ -142,6 +181,33 @@ namespace VuongBanDienTu.Controllers
         [ValidateInput(false)]
         public ActionResult SuaSanPham(SanPham sp, HttpPostedFileBase AnhChinhFile, IEnumerable<HttpPostedFileBase> AnhPhuFiles)
         {
+            if (sp.TrangThai == "Hết hàng")
+            {
+                sp.SoLuongTon = 0;
+            }
+
+            if (sp.GiaBan < 0)
+            {
+                ModelState.AddModelError("GiaBan", "Giá bán không được phép âm!");
+            }
+            if (!sp.SoLuongTon.HasValue)
+            {
+                ModelState.AddModelError("SoLuongTon", "Số lượng tồn không được để trống!");
+            }
+            else if (sp.SoLuongTon < 0)
+            {
+                ModelState.AddModelError("SoLuongTon", "Số lượng tồn không được phép âm!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Dữ liệu không hợp lệ!";
+                    return Json(new { success = false, message = firstError });
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 string folderPath = Server.MapPath("~/Content/Images/Products/");

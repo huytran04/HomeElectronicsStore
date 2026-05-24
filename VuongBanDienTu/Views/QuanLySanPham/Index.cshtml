@@ -94,6 +94,95 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="flex items-center justify-between border-t border-slate-100 px-6 py-4 bg-slate-50/50">
+            <div class="flex flex-1 justify-between sm:hidden">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })" class="relative inline-flex items-center rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all select-none">
+                        Trang trước
+                    </a>
+                }
+                else
+                {
+                    <span class="relative inline-flex items-center rounded-xl bg-white border border-slate-100 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed select-none">
+                        Trang trước
+                    </span>
+                }
+
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })" class="relative ml-3 inline-flex items-center rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all select-none">
+                        Trang sau
+                    </a>
+                }
+                else
+                {
+                    <span class="relative ml-3 inline-flex items-center rounded-xl bg-white border border-slate-100 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed select-none">
+                        Trang sau
+                    </span>
+                }
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">
+                        Hiển thị từ <span class="font-bold text-slate-800">@(((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1)</span> đến <span class="font-bold text-slate-800">@(Math.Min((int)ViewBag.CurrentPage * (int)ViewBag.PageSize, (int)ViewBag.TotalItems))</span> trong tổng số <span class="font-bold text-slate-800">@ViewBag.TotalItems</span> sản phẩm
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-xl shadow-sm gap-1" aria-label="Pagination">
+                        <!-- Prev Page Button -->
+                        @if (ViewBag.CurrentPage > 1)
+                        {
+                            <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })" class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all">
+                                <i class="fa fa-chevron-left text-[10px]"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
+                                <i class="fa fa-chevron-left text-[10px]"></i>
+                            </span>
+                        }
+
+                        <!-- Page Numbers -->
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            if (i == ViewBag.CurrentPage)
+                            {
+                                <span class="relative z-10 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white text-xs font-black select-none">
+                                    @i
+                                </span>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Index", new { page = i })" class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-all select-none">
+                                    @i
+                                </a>
+                            }
+                        }
+
+                        <!-- Next Page Button -->
+                        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                        {
+                            <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })" class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all">
+                                <i class="fa fa-chevron-right text-[10px]"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 text-slate-300 cursor-not-allowed">
+                                <i class="fa fa-chevron-right text-[10px]"></i>
+                            </span>
+                        }
+                    </nav>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 <!-- MODAL STRUCTURE -->
