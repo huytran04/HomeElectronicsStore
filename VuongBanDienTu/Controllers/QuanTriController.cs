@@ -75,8 +75,8 @@ namespace VuongBanDienTu.Controllers
             int totalOrders = db.DonHangs.Count(o => o.TrangThaiDonHang != "Chờ thanh toán");
             ViewBag.TotalOrders = totalOrders;
 
-            int totalVisits = db.NguoiDungs.Count() * 17 + db.DonHangs.Count(o => o.TrangThaiDonHang != "Chờ thanh toán") * 23 + 452;
-            ViewBag.TotalVisits = totalVisits;
+            int totalProducts = db.SanPhams.Count(p => p.TrangThai != "Ngừng kinh doanh");
+            ViewBag.TotalProducts = totalProducts;
             try
             {
                 var drive = new System.IO.DriveInfo(HttpContext.Server.MapPath("~"));
@@ -100,7 +100,6 @@ namespace VuongBanDienTu.Controllers
 
             int[] monthlyOrders = new int[12];
             decimal[] monthlyRevenue = new decimal[12];
-            int[] monthlyVisits = new int[12];
 
             for (int m = 1; m <= 12; m++)
             {
@@ -109,59 +108,8 @@ namespace VuongBanDienTu.Controllers
                 monthlyRevenue[m - 1] = monthOrders.Where(o => o.TrangThaiDonHang == "Đã xác nhận").Sum(o => (decimal?)o.TongTien) ?? 0;
             }
 
-            bool hasData = monthlyOrders.Any(o => o > 0) || monthlyRevenue.Any(r => r > 0);
-            if (!hasData)
-            {
-                var allOrders = db.DonHangs.Where(o => o.TrangThaiDonHang != "Chờ thanh toán").ToList();
-                var confirmedOrders = db.DonHangs.Where(o => o.TrangThaiDonHang == "Đã xác nhận").ToList();
-                decimal totalConfirmedRevenue = confirmedOrders.Sum(o => (decimal?)o.TongTien) ?? 0;
-
-                monthlyOrders[0] = (int)Math.Ceiling(allOrders.Count * 0.12);
-                monthlyOrders[1] = (int)Math.Ceiling(allOrders.Count * 0.20);
-                monthlyOrders[2] = (int)Math.Ceiling(allOrders.Count * 0.15);
-                monthlyOrders[3] = (int)Math.Ceiling(allOrders.Count * 0.28);
-                monthlyOrders[4] = allOrders.Count - (monthlyOrders[0] + monthlyOrders[1] + monthlyOrders[2] + monthlyOrders[3]);
-                if (monthlyOrders[4] < 0) monthlyOrders[4] = 0;
-
-                monthlyRevenue[0] = totalConfirmedRevenue * 0.10m;
-                monthlyRevenue[1] = totalConfirmedRevenue * 0.22m;
-                monthlyRevenue[2] = totalConfirmedRevenue * 0.18m;
-                monthlyRevenue[3] = totalConfirmedRevenue * 0.30m;
-                monthlyRevenue[4] = totalConfirmedRevenue - (monthlyRevenue[0] + monthlyRevenue[1] + monthlyRevenue[2] + monthlyRevenue[3]);
-                if (monthlyRevenue[4] < 0) monthlyRevenue[4] = 0;
-            }
-
-            int totalOrdersCount = monthlyOrders.Sum();
-            if (totalOrdersCount > 0)
-            {
-                int remainingVisits = totalVisits;
-                for (int m = 0; m < 12; m++)
-                {
-                    if (monthlyOrders[m] > 0)
-                    {
-                        monthlyVisits[m] = (int)Math.Round(totalVisits * ((double)monthlyOrders[m] / totalOrdersCount * 0.7 + 0.02));
-                        remainingVisits -= monthlyVisits[m];
-                    }
-                    else
-                    {
-                        monthlyVisits[m] = (int)Math.Round(totalVisits * 0.01);
-                        remainingVisits -= monthlyVisits[m];
-                    }
-                }
-                int maxIndex = Array.IndexOf(monthlyOrders, monthlyOrders.Max());
-                monthlyVisits[maxIndex] += remainingVisits;
-            }
-            else
-            {
-                for (int m = 0; m < 12; m++)
-                {
-                    monthlyVisits[m] = (int)Math.Round(totalVisits * (m < 5 ? 0.15 + (m * 0.02) : 0.02));
-                }
-            }
-
             ViewBag.MonthlyOrders = monthlyOrders;
             ViewBag.MonthlyRevenue = monthlyRevenue;
-            ViewBag.MonthlyVisits = monthlyVisits;
 
             // Ensure table is created
             ActivityLogger.CheckAndCreateTable();
