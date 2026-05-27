@@ -55,7 +55,7 @@
     <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-bold text-slate-800">Hoạt động gần đây</h3>
-            <a href="@Url.Action("Index", "QuanLyDonHang")" class="text-xs text-primary font-bold hover:underline">Xem tất cả</a>
+            <a href="@Url.Action("LichSuHoatDong", "QuanTri")" class="text-xs text-primary font-bold hover:underline">Xem tất cả</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -68,66 +68,48 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                    @if (ViewBag.RecentOrders != null && (ViewBag.RecentOrders as List<VuongBanDienTu.Models.DonHang>).Count > 0)
+                    @if (ViewBag.RecentLogs != null && (ViewBag.RecentLogs as List<VuongBanDienTu.Models.LichSuHoatDong>).Count > 0)
                     {
-                        foreach (var order in ViewBag.RecentOrders as List<VuongBanDienTu.Models.DonHang>)
+                        foreach (var log in ViewBag.RecentLogs as List<VuongBanDienTu.Models.LichSuHoatDong>)
                         {
+                            string timeAgo = VuongBanDienTu.Helpers.PhanQuyen.GetTimeAgo(log.ThoiGian);
+                            string statusClass = "bg-slate-100 text-slate-700";
+                            if (log.TrangThai == "Thành công" || log.TrangThai == "Đã xác nhận" || log.TrangThai == "Hoàn thành")
+                            {
+                                statusClass = "bg-green-100 text-green-700";
+                            }
+                            else if (log.TrangThai == "Thất bại" || log.TrangThai == "Đã hủy")
+                            {
+                                statusClass = "bg-red-100 text-red-700";
+                            }
+                            else if (log.TrangThai == "Chờ xử lý" || log.TrangThai == "Chờ thanh toán")
+                            {
+                                statusClass = "bg-amber-100 text-amber-700";
+                            }
+
+                            string roleClass = "text-slate-400";
+                            if (log.VaiTro == "Admin") { roleClass = "text-red-500 font-bold"; }
+                            else if (log.VaiTro == "Quản lý") { roleClass = "text-blue-500 font-bold"; }
+                            else if (log.VaiTro == "Nhân viên") { roleClass = "text-purple-500 font-bold"; }
+
                             <tr>
                                 <td class="px-6 py-4 flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center">
-                                        @((order.NguoiDung != null && !string.IsNullOrEmpty(order.NguoiDung.HoTen)) ? order.NguoiDung.HoTen.Substring(0, 1).ToUpper() : "K")
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs text-center border border-slate-200">
+                                        @(!string.IsNullOrEmpty(log.TenDangNhap) ? log.TenDangNhap.Substring(0, Math.Min(log.TenDangNhap.Length, 2)).ToUpper() : "KH")
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-800 leading-none">@(order.NguoiDung != null ? order.NguoiDung.HoTen : "Khách ẩn danh")</p>
-                                        <p class="text-[10px] text-slate-400 mt-1">Khách hàng</p>
+                                        <p class="font-bold text-slate-800 leading-none">@log.HoTen</p>
+                                        <p class="text-[10px] @roleClass mt-1">@log.VaiTro</p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600">
-                                    @if (order.TrangThaiDonHang?.Trim() == "Chờ xử lý")
-                                    {
-                                        <span>Đặt đơn hàng mới <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
-                                    }
-                                    else if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
-                                    {
-                                        <span>Duyệt & xác nhận đơn <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
-                                        if (order.NguoiDung1 != null)
-                                        {
-                                            <span class="text-[9px] text-slate-400 block uppercase">Bởi: @order.NguoiDung1.HoTen</span>
-                                        }
-                                    }
-                                    else if (order.TrangThaiDonHang?.Trim() == "Đã hủy")
-                                    {
-                                        <span>Hủy đơn hàng <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
-                                        if (!string.IsNullOrEmpty(order.GhiChu))
-                                        {
-                                            <span class="text-[9px] text-slate-400 block italic">Lý do: @order.GhiChu</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span>Cập nhật trạng thái đơn <strong class="text-slate-800">#ORD-@order.MaDonHang</strong></span>
-                                    }
+                                    <span class="font-semibold text-slate-800">@log.HanhDong</span>: @log.ChiTiet
                                 </td>
                                 <td class="px-6 py-4 text-slate-500 text-xs">
-                                    @VuongBanDienTu.Helpers.PhanQuyen.GetTimeAgo(order.NgayDat)
+                                    @timeAgo
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    @if (order.TrangThaiDonHang?.Trim() == "Chờ xử lý")
-                                    {
-                                        <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Chờ xử lý</span>
-                                    }
-                                    else if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
-                                    {
-                                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Đã xác nhận</span>
-                                    }
-                                    else if (order.TrangThaiDonHang?.Trim() == "Đã hủy")
-                                    {
-                                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Đã hủy</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">@order.TrangThaiDonHang</span>
-                                    }
+                                    <span class="@statusClass text-[10px] font-bold px-2 py-0.5 rounded-full">@log.TrangThai</span>
                                 </td>
                             </tr>
                         }

@@ -21,6 +21,12 @@ namespace VuongBanDienTu.Controllers
             return user != null && PhanQuyen.IsStaff(user.MaVaiTro);
         }
 
+        private bool IsAuthorized()
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            return user != null && (user.MaVaiTro == PhanQuyen.ADMIN || user.MaVaiTro == PhanQuyen.QUAN_LY);
+        }
+
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (!IsInternal())
@@ -125,6 +131,7 @@ namespace VuongBanDienTu.Controllers
                 sp.NgayTao = DateTime.Now;
                 db.SanPhams.Add(sp);
                 db.SaveChanges(); 
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Thêm sản phẩm", $"Thêm sản phẩm '{sp.TenSanPham}', Giá bán: {sp.GiaBan:N0}₫", "Thành công");
 
                 if (AnhPhuFiles != null && AnhPhuFiles.Any())
                 {
@@ -166,6 +173,13 @@ namespace VuongBanDienTu.Controllers
 
         public ActionResult SuaSanPham(int id)
         {
+            if (!IsAuthorized())
+            {
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, message = "Bạn không có quyền thực hiện thao tác này!" }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = "Bạn không có quyền thực hiện thao tác này!";
+                return RedirectToAction("Index");
+            }
             var sp = db.SanPhams.Find(id);
             if (sp == null) return HttpNotFound();
             ViewBag.MaDanhMuc = new SelectList(db.DanhMucs, "MaDanhMuc", "TenDanhMuc", sp.MaDanhMuc);
@@ -181,6 +195,13 @@ namespace VuongBanDienTu.Controllers
         [ValidateInput(false)]
         public ActionResult SuaSanPham(SanPham sp, HttpPostedFileBase AnhChinhFile, IEnumerable<HttpPostedFileBase> AnhPhuFiles)
         {
+            if (!IsAuthorized())
+            {
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, message = "Bạn không có quyền thực hiện thao tác này!" });
+                TempData["Error"] = "Bạn không có quyền thực hiện thao tác này!";
+                return RedirectToAction("Index");
+            }
             if (sp.TrangThai == "Hết hàng")
             {
                 sp.SoLuongTon = 0;
@@ -253,6 +274,7 @@ namespace VuongBanDienTu.Controllers
                 }
 
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Cập nhật sản phẩm", $"Cập nhật thông tin sản phẩm '{existingProduct.TenSanPham}'", "Thành công");
 
                 if (AnhPhuFiles != null && AnhPhuFiles.Any())
                 {
@@ -301,6 +323,10 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult XoaAnhPhu(int id)
         {
+            if (!IsAuthorized())
+            {
+                return Json(new { success = false, message = "Bạn không có quyền thực hiện thao tác này!" });
+            }
             var hinhAnh = db.HinhAnhSanPhams.Find(id);
             if (hinhAnh != null)
             {
@@ -320,6 +346,13 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult XoaSanPham(int id)
         {
+            if (!IsAuthorized())
+            {
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, message = "Bạn không có quyền thực hiện thao tác này!" });
+                TempData["Error"] = "Bạn không có quyền thực hiện thao tác này!";
+                return RedirectToAction("Index");
+            }
             var sp = db.SanPhams.Include(p => p.HinhAnhSanPhams).FirstOrDefault(p => p.MaSanPham == id);
             if (sp != null)
             {
@@ -327,9 +360,9 @@ namespace VuongBanDienTu.Controllers
                 if (hasOrders)
                 {
                     if (Request.IsAjaxRequest())
-                        return Json(new { success = false, message = "Sản phẩm đang có đơn đặt hàng, không thể xóa!" });
+                        return Json(new { success = false, message = "Không thể xóa sản phẩm đã phát sinh đơn hàng! Nếu muốn ẩn sản phẩm, vui lòng chuyển sang trạng thái ngừng kinh doanh." });
                     
-                    TempData["Error"] = "Sản phẩm đang có đơn đặt hàng, không thể xóa!";
+                    TempData["Error"] = "Không thể xóa sản phẩm đã phát sinh đơn hàng! Nếu muốn ẩn sản phẩm, vui lòng chuyển sang trạng thái ngừng kinh doanh.";
                     return RedirectToAction("Index");
                 }
                 var images = sp.HinhAnhSanPhams.ToList();
@@ -339,6 +372,7 @@ namespace VuongBanDienTu.Controllers
                 }
                 db.SanPhams.Remove(sp);
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Xóa sản phẩm", $"Xóa sản phẩm '{sp.TenSanPham}'", "Thành công");
                 
                 if (Request.IsAjaxRequest())
                     return Json(new { success = true, message = "Đã xóa sản phẩm thành công!" });

@@ -19,10 +19,30 @@
                     <span class="px-6 py-2 rounded-2xl bg-amber-50 text-amber-600 text-xs font-black uppercase tracking-widest border border-amber-100">Đang chờ xử lý</span>
                 } else if (Model.TrangThaiDonHang == "Đã xác nhận") {
                     <span class="px-6 py-2 rounded-2xl bg-green-50 text-green-600 text-xs font-black uppercase tracking-widest border border-green-100">Đã xác nhận</span>
+                } else if (Model.TrangThaiDonHang == "Chờ hoàn tiền") {
+                    <span class="px-6 py-2 rounded-2xl bg-orange-50 text-orange-600 text-xs font-black uppercase tracking-widest border border-orange-100">Chờ hoàn tiền</span>
                 } else if (Model.TrangThaiDonHang == "Đã hủy") {
                     <span class="px-6 py-2 rounded-2xl bg-red-50 text-primary text-xs font-black uppercase tracking-widest border border-red-100">Đã hủy bỏ</span>
                 }
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Trạng thái thanh toán: <span class="text-slate-600">@Model.TrangThaiThanhToan</span></p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Trạng thái thanh toán: 
+                    @if (Model.TrangThaiThanhToan == "Đã thanh toán")
+                    {
+                        <span class="text-green-600 font-black">@Model.TrangThaiThanhToan</span>
+                    }
+                    else if (Model.TrangThaiThanhToan == "Đã hoàn tiền")
+                    {
+                        <span class="text-primary font-black">@Model.TrangThaiThanhToan</span>
+                    }
+                    else if (Model.TrangThaiThanhToan == "Chờ hoàn tiền")
+                    {
+                        <span class="text-amber-600 font-black">@Model.TrangThaiThanhToan</span>
+                    }
+                    else
+                    {
+                        <span class="text-slate-600">@Model.TrangThaiThanhToan</span>
+                    }
+                </p>
             </div>
         </div>
 

@@ -97,6 +97,7 @@ namespace VuongBanDienTu.Controllers
                 db.Configuration.ValidateOnSaveEnabled = false;
                 db.NguoiDungs.Add(user);
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Đăng ký tài khoản", $"Tên đăng nhập: {user.TenDangNhap}, Họ tên: {user.HoTen}", "Thành công");
 
                 var registeredUserId = user.MaNguoiDung;
                 var username = user.TenDangNhap;
@@ -176,6 +177,7 @@ namespace VuongBanDienTu.Controllers
 
                 Session["TaiKhoan"] = user;
                 PhanQuyen.RefreshPermissions();
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Đăng nhập", "Đăng nhập vào hệ thống", "Thành công");
                 
                 string redirectUrl = Url.Action("Index", "Home");
                 if (PhanQuyen.HasPermission("TRUY_CAP_QUAN_TRI"))
@@ -204,6 +206,7 @@ namespace VuongBanDienTu.Controllers
 
         public ActionResult DangXuat()
         {
+            VuongBanDienTu.Helpers.ActivityLogger.Log("Đăng xuất", "Đăng xuất khỏi hệ thống", "Thành công");
             Session["TaiKhoan"] = null;
             return RedirectToAction("Index", "Home");
         }
@@ -505,6 +508,37 @@ namespace VuongBanDienTu.Controllers
 
             TempData["SuccessMessage"] = "Đổi mật khẩu thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập.";
             return RedirectToAction("DangNhap");
+        }
+
+        [HttpPost]
+        public ActionResult UploadAvatar(HttpPostedFileBase avatar)
+        {
+            if (Session["TaiKhoan"] == null)
+                return Json(new { success = false, message = "Vui lòng đăng nhập lại!" });
+
+            if (avatar == null || avatar.ContentLength == 0)
+                return Json(new { success = false, message = "Vui lòng chọn một file ảnh hợp lệ!" });
+
+            try
+            {
+                var userSession = (NguoiDung)Session["TaiKhoan"];
+                string folderPath = Server.MapPath("~/Content/Avatars");
+                if (!System.IO.Directory.Exists(folderPath))
+                {
+                    System.IO.Directory.CreateDirectory(folderPath);
+                }
+
+                string fileName = "avatar_" + userSession.MaNguoiDung + ".png";
+                string physicalPath = System.IO.Path.Combine(folderPath, fileName);
+
+                avatar.SaveAs(physicalPath);
+
+                return Json(new { success = true, message = "Tải lên ảnh đại diện thành công!", avatarUrl = "/Content/Avatars/" + fileName + "?t=" + DateTime.Now.Ticks });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
         }
     }
 }

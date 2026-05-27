@@ -107,7 +107,7 @@
                     var cart = Session["GioHang"] as List<VuongBanDienTu.Models.GioHang>;
                     int count = cart != null ? (int)cart.Sum(n => n.SoLuong) : 0;
                 }
-                <a href="@Url.Action("Index", "GioHang")" onclick="if(@count == 0) { showToast('Không có sản phẩm nào trong giỏ hàng!', 'warning'); return false; }" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity relative group">
+                <a href="@Url.Action("Index", "GioHang")" onclick="const cnt = parseInt(document.getElementById('cart-count')?.innerText || '0'); if(cnt === 0) { showToast('Không có sản phẩm nào trong giỏ hàng!', 'warning'); return false; }" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity relative group">
                     <span class="text-xl relative">
                         <i class="fa fa-shopping-cart"></i>
                         <span id="cart-count" class="absolute -top-1.5 -right-2 bg-gold text-gray-900 text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">@count</span>
@@ -121,9 +121,19 @@
                 @if (Session["TaiKhoan"] != null)
                 {
                     var user = (VuongBanDienTu.Models.NguoiDung)Session["TaiKhoan"];
+                    var layoutAvatarPath = "/Content/Avatars/avatar_" + user.MaNguoiDung + ".png";
+                    var hasLayoutAvatar = System.IO.File.Exists(Server.MapPath("~" + layoutAvatarPath));
+                    
                     <div class="relative group">
                         <button class="flex flex-col items-center text-white hover:opacity-80 transition-opacity">
-                            <i class="fa fa-user-check text-xl text-gold"></i>
+                            @if (hasLayoutAvatar)
+                            {
+                                <img src="@(layoutAvatarPath + "?t=" + DateTime.Now.Ticks)" alt="Avatar" class="w-6 h-6 rounded-full border border-gold object-cover shadow-sm" />
+                            }
+                            else
+                            {
+                                <i class="fa fa-user-check text-xl text-gold"></i>
+                            }
                             <span class="text-[10px] truncate max-w-[80px]">Hi, @user.HoTen.Split(' ').Last()</span>
                         </button>
                         <!-- Dropdown -->
@@ -152,7 +162,7 @@
                 }
                 else
                 {
-                    <a href="javascript:void(0)" onclick="showAuthModal('login')" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity">
+                    <a href="@Url.Action("DangNhap", "TaiKhoan")" class="flex flex-col items-center text-white hover:opacity-80 transition-opacity">
                         <i class="fa fa-user text-xl"></i>
                         <span class="text-[10px]">Tài khoản</span>
                     </a>
@@ -298,7 +308,7 @@
     </div>
 
     <!-- Auth Modal (Login/Register) -->
-    <div id="authModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 opacity-0 invisible transition-[opacity,visibility] duration-300">
+    <div id="authModal" class="hidden">
         <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden transform scale-95 opacity-0 transition-[transform,opacity] duration-300" id="authModalContent">
             <div class="p-8 sm:p-10">
                 <!-- Close Button -->
@@ -377,14 +387,7 @@
 
     <script>
         function showAuthModal(tab = 'login') {
-            const modal = document.getElementById('authModal');
-            const content = document.getElementById('authModalContent');
-            modal.classList.remove('invisible', 'opacity-0');
-            modal.classList.add('opacity-100');
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-            document.body.style.overflow = 'hidden';
-            switchAuthTab(tab);
+            window.location.href = tab === 'register' ? '@Url.Action("DangKy", "TaiKhoan")' : '@Url.Action("DangNhap", "TaiKhoan")';
         }
 
         function closeAuthModal() {

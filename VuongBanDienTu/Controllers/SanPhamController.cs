@@ -82,7 +82,7 @@ namespace VuongBanDienTu.Controllers
             string term = q.ToLower().Trim();
             var products = db.SanPhams
                 .Include(p => p.HinhAnhSanPhams)
-                .Where(p => p.TrangThai != "Ngừng bán" && p.TenSanPham.ToLower().Contains(term))
+                .Where(p => p.TrangThai != "Ngừng kinh doanh" && p.TenSanPham.ToLower().Contains(term))
                 .Take(8)
                 .ToList();
 
@@ -102,7 +102,7 @@ namespace VuongBanDienTu.Controllers
 
         public ActionResult SanPhamNoiBat()
         {
-            var products = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng bán").OrderByDescending(p => p.NgayTao).Take(4).ToList();
+            var products = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.TrangThai != "Ngừng kinh doanh").OrderByDescending(p => p.NgayTao).Take(4).ToList();
             return PartialView("SanPhamNoiBat/Index", products);
         }
 
@@ -118,7 +118,7 @@ namespace VuongBanDienTu.Controllers
 
             var products = db.SanPhams
                 .Include(p => p.HinhAnhSanPhams)
-                .Where(p => bestSellerIds.Contains(p.MaSanPham) && p.TrangThai != "Ngừng bán")
+                .Where(p => bestSellerIds.Contains(p.MaSanPham) && p.TrangThai != "Ngừng kinh doanh")
                 .ToList()
                 .OrderBy(p => bestSellerIds.IndexOf(p.MaSanPham)) 
                 .ToList();
@@ -128,10 +128,10 @@ namespace VuongBanDienTu.Controllers
 
         public ActionResult ChiTiet(int id)
         {
-            var sp = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).FirstOrDefault(p => p.MaSanPham == id);
+            var sp = db.SanPhams.Include(p => p.DanhMuc).Include(p => p.HinhAnhSanPhams).FirstOrDefault(p => p.MaSanPham == id && p.TrangThai != "Ngừng kinh doanh");
             if (sp == null) return HttpNotFound();
             
-            ViewBag.RelatedProducts = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.MaDanhMuc == sp.MaDanhMuc && p.MaSanPham != id).Take(4).ToList();
+            ViewBag.RelatedProducts = db.SanPhams.Include(p => p.HinhAnhSanPhams).Where(p => p.MaDanhMuc == sp.MaDanhMuc && p.MaSanPham != id && p.TrangThai != "Ngừng kinh doanh").Take(4).ToList();
             
             return View(sp);
         }

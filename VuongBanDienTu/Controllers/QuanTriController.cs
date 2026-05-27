@@ -163,15 +163,10 @@ namespace VuongBanDienTu.Controllers
             ViewBag.MonthlyRevenue = monthlyRevenue;
             ViewBag.MonthlyVisits = monthlyVisits;
 
-            var recentOrders = db.DonHangs
-                .Include("NguoiDung")
-                .Include("NguoiDung1")
-                .Where(o => o.TrangThaiDonHang != "Chờ thanh toán")
-                .OrderByDescending(o => o.NgayDat)
-                .Take(5)
-                .ToList();
-
-            ViewBag.RecentOrders = recentOrders;
+            // Ensure table is created
+            ActivityLogger.CheckAndCreateTable();
+            var recentLogs = db.Database.SqlQuery<Models.LichSuHoatDong>("SELECT TOP 5 * FROM LichSuHoatDong ORDER BY ThoiGian DESC").ToList();
+            ViewBag.RecentLogs = recentLogs;
 
             return View();
         }
@@ -538,6 +533,7 @@ namespace VuongBanDienTu.Controllers
             {
                 if (VuongBanDienTu.Helpers.CauHinhHelper.LuuCauHinh(config))
                 {
+                    ActivityLogger.Log("Cấu hình hệ thống", "Cập nhật cài đặt cấu hình cửa hàng", "Thành công");
                     TempData["Success"] = "Cập nhật cấu hình hệ thống thành công!";
                     return RedirectToAction("CaiDat");
                 }
@@ -547,6 +543,16 @@ namespace VuongBanDienTu.Controllers
                 }
             }
             return View(config);
+        }
+        public ActionResult LichSuHoatDong()
+        {
+            if (!IsManagerOrAdmin())
+            {
+                return RedirectToAction("Index", "QuanLySanPham");
+            }
+            ActivityLogger.CheckAndCreateTable();
+            var logs = db.Database.SqlQuery<Models.LichSuHoatDong>("SELECT * FROM LichSuHoatDong ORDER BY ThoiGian DESC").ToList();
+            return View(logs);
         }
     }
 }

@@ -28,6 +28,18 @@
                 {
                     <span class="px-6 py-2 rounded-full bg-green-100 text-green-600 text-xs font-black uppercase tracking-widest ring-4 ring-green-50">Đã xác nhận</span>
                 }
+                else if (Model.TrangThaiDonHang?.Trim() == "Đang giao")
+                {
+                    <span class="px-6 py-2 rounded-full bg-blue-100 text-blue-600 text-xs font-black uppercase tracking-widest ring-4 ring-blue-50">Đang giao hàng</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Hoàn thành")
+                {
+                    <span class="px-6 py-2 rounded-full bg-purple-100 text-purple-600 text-xs font-black uppercase tracking-widest ring-4 ring-purple-50">Hoàn thành</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Chờ hoàn tiền")
+                {
+                    <span class="px-6 py-2 rounded-full bg-orange-100 text-orange-600 text-xs font-black uppercase tracking-widest ring-4 ring-orange-50">Chờ hoàn tiền</span>
+                }
                 else if (Model.TrangThaiDonHang?.Trim() == "Đã hủy")
                 {
                     <span class="px-6 py-2 rounded-full bg-red-100 text-primary text-xs font-black uppercase tracking-widest ring-4 ring-red-50">Đã hủy bỏ</span>
@@ -42,30 +54,40 @@
                 <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
                     <div class="flex items-center justify-between relative">
                         <div class="absolute left-0 top-5 w-full h-0.5 bg-slate-100 -z-0"></div>
-                        @if (Model.TrangThaiDonHang != "Đã hủy") {
+                        @{
+                            var orderStatus = Model.TrangThaiDonHang?.Trim() ?? "";
+                        }
+                        @if (orderStatus != "Đã hủy" && orderStatus != "Chờ hoàn tiền") {
                             <div class="z-10 text-center">
-                                <div class="w-10 h-10 rounded-full @(Model.TrangThaiDonHang == "Chờ xử lý" || Model.TrangThaiDonHang == "Đã xác nhận" ? "bg-primary text-white" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all shadow-lg shadow-red-100">
+                                <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mx-auto mb-2 transition-all shadow-lg shadow-red-100">
                                     <i class="fa fa-clock text-xs"></i>
                                 </div>
                                 <span class="text-[10px] font-black uppercase text-slate-800">Chờ xử lý</span>
                             </div>
                             <div class="z-10 text-center">
-                                <div class="w-10 h-10 rounded-full @(Model.TrangThaiDonHang == "Đã xác nhận" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all">
+                                <div class="w-10 h-10 rounded-full @(orderStatus == "Đã xác nhận" || orderStatus == "Đang giao" || orderStatus == "Hoàn thành" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all">
                                     <i class="fa fa-check text-xs"></i>
                                 </div>
                                 <span class="text-[10px] font-black uppercase text-slate-400">Đã xác nhận</span>
                             </div>
                             <div class="z-10 text-center">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-2 transition-all">
+                                <div class="w-10 h-10 rounded-full @(orderStatus == "Đang giao" || orderStatus == "Hoàn thành" ? "bg-blue-600 text-white shadow-lg shadow-blue-100" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all">
                                     <i class="fa fa-truck text-xs"></i>
                                 </div>
                                 <span class="text-[10px] font-black uppercase text-slate-400">Đang giao</span>
                             </div>
                             <div class="z-10 text-center">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-2 transition-all">
+                                <div class="w-10 h-10 rounded-full @(orderStatus == "Hoàn thành" ? "bg-purple-600 text-white shadow-lg shadow-purple-100" : "bg-slate-200 text-slate-400") flex items-center justify-center mx-auto mb-2 transition-all">
                                     <i class="fa fa-box-open text-xs"></i>
                                 </div>
                                 <span class="text-[10px] font-black uppercase text-slate-400">Hoàn thành</span>
+                            </div>
+                        } else if (orderStatus == "Chờ hoàn tiền") {
+                            <div class="z-10 text-center w-full">
+                                <div class="w-12 h-12 rounded-full bg-amber-500 text-white flex items-center justify-center mx-auto mb-2 shadow-xl shadow-amber-100">
+                                    <i class="fa fa-hand-holding-usd text-xl"></i>
+                                </div>
+                                <span class="text-xs font-black uppercase text-amber-600">Đơn hàng đang chờ hoàn tiền</span>
                             </div>
                         } else {
                             <div class="z-10 text-center w-full">
@@ -171,6 +193,14 @@
                             @if (Model.TrangThaiThanhToan == "Đã thanh toán")
                             {
                                 <span class="text-xs font-black text-green-600 uppercase">Đã thanh toán</span>
+                            }
+                            else if (Model.TrangThaiThanhToan == "Đã hoàn tiền")
+                            {
+                                <span class="text-xs font-black text-primary uppercase">Đã hoàn tiền</span>
+                            }
+                            else if (Model.TrangThaiThanhToan == "Chờ hoàn tiền")
+                            {
+                                <span class="text-xs font-black text-amber-600 uppercase">Chờ hoàn tiền</span>
                             }
                             else
                             {

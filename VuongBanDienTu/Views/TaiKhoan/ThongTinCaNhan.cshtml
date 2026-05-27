@@ -3,6 +3,12 @@
 @{
     ViewBag.Title = "Thông tin cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Check if user has uploaded avatar
+    var avatarPath = "/Content/Avatars/avatar_" + Model.MaNguoiDung + ".png";
+    var physicalPath = Server.MapPath("~" + avatarPath);
+    var hasAvatar = System.IO.File.Exists(physicalPath);
+    var avatarUrl = hasAvatar ? avatarPath + "?t=" + DateTime.Now.Ticks : "";
 }
 
 <div class="bg-slate-50 min-h-screen py-12">
@@ -11,9 +17,25 @@
             <!-- Sidebar -->
             <div class="md:col-span-4 space-y-4">
                 <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 text-center">
-                    <div class="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black">
-                        @Model.HoTen.Substring(0, 1).ToUpper()
+                    <div class="relative w-24 h-24 mx-auto mb-4 group cursor-pointer" onclick="document.getElementById('avatarInput').click()">
+                        @if (hasAvatar)
+                        {
+                            <img id="avatarDisplay" src="@avatarUrl" alt="Avatar" class="w-full h-full object-cover rounded-full border-2 border-primary/20 shadow-md transition-all group-hover:opacity-75" />
+                        }
+                        else
+                        {
+                            <div id="avatarPlaceholder" class="w-full h-full bg-primary/10 text-primary rounded-full flex items-center justify-center text-3xl font-black transition-all group-hover:bg-primary/20">
+                                @Model.HoTen.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                        <!-- Edit overlay -->
+                        <div class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                            <i class="fa fa-camera mr-1"></i> Tải ảnh
+                        </div>
                     </div>
+                    <!-- Hidden input file -->
+                    <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="uploadAvatar(this)" />
+
                     <h3 class="text-xl font-black text-slate-800">@Model.HoTen</h3>
                     <p class="text-xs text-slate-400 font-medium mt-1">@Model.Email</p>
                     
@@ -142,5 +164,52 @@
                 btn.innerHTML = originalText;
             }
         };
+
+        async function uploadAvatar(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('avatar', file);
+            
+            showToast('Đang tải lên ảnh đại diện...', 'info');
+            
+            try {
+                const response = await fetch('@Url.Action("UploadAvatar", "TaiKhoan")', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    
+                    const avatarDisplay = document.getElementById('avatarDisplay');
+                    if (avatarDisplay) {
+                        avatarDisplay.src = data.avatarUrl;
+                    } else {
+                        const placeholder = document.getElementById('avatarPlaceholder');
+                        if (placeholder) {
+                            const container = placeholder.parentElement;
+                            placeholder.remove();
+                            
+                            const img = document.createElement('img');
+                            img.id = 'avatarDisplay';
+                            img.src = data.avatarUrl;
+                            img.alt = 'Avatar';
+                            img.className = 'w-full h-full object-cover rounded-full border-2 border-primary/20 shadow-md transition-all group-hover:opacity-75';
+                            container.insertBefore(img, container.firstChild);
+                        }
+                    }
+                    setTimeout(() => { window.location.reload(); }, 1000);
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Lỗi tải ảnh lên máy chủ!', 'error');
+            }
+        }
     </script>
 }

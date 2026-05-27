@@ -123,7 +123,7 @@ namespace VuongBanDienTu.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult ThanhToan()
+        public ActionResult ThanhToan(string selectedIds = "")
         {
             if (Session["TaiKhoan"] == null)
             {
@@ -136,7 +136,22 @@ namespace VuongBanDienTu.Controllers
                 return RedirectToAction("Index", "SanPham");
             }
 
-            ViewBag.TongTien = lstGioHang.Sum(n => n.SoLuong * n.SanPham.GiaBan);
+            if (!string.IsNullOrEmpty(selectedIds))
+            {
+                var ids = selectedIds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(int.Parse)
+                                     .ToList();
+                lstGioHang = lstGioHang.Where(item => ids.Contains(item.MaSanPham.Value)).ToList();
+            }
+
+            if (lstGioHang.Count == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn ít nhất một sản phẩm để thanh toán!";
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.SelectedIds = selectedIds;
+            ViewBag.TongTien = lstGioHang.Sum(n => n.SoLuong * n.SanPham.GiaBan) ?? 0;
             return View(lstGioHang);
         }
 
@@ -148,10 +163,27 @@ namespace VuongBanDienTu.Controllers
             NguoiDung user = (NguoiDung)Session["TaiKhoan"];
             List<GioHang> lstGioHang = LayGioHang();
 
+            string selectedIds = f["selectedIds"] ?? "";
+            List<GioHang> itemsToOrder = lstGioHang.ToList();
+
+            if (!string.IsNullOrEmpty(selectedIds))
+            {
+                var ids = selectedIds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(int.Parse)
+                                     .ToList();
+                itemsToOrder = lstGioHang.Where(item => ids.Contains(item.MaSanPham.Value)).ToList();
+            }
+
+            if (itemsToOrder.Count == 0)
+            {
+                TempData["Error"] = "Đơn hàng không có sản phẩm nào hợp lệ!";
+                return RedirectToAction("Index");
+            }
+
             var freshProducts = new Dictionary<int, SanPham>();
             decimal tongTien = 0;
 
-            foreach (var item in lstGioHang)
+            foreach (var item in itemsToOrder)
             {
                 var sp = db.SanPhams.Find(item.MaSanPham);
                 if (sp == null || sp.SoLuongTon < item.SoLuong)
@@ -176,8 +208,9 @@ namespace VuongBanDienTu.Controllers
             
             db.DonHangs.Add(dh);
             db.SaveChanges();
+            VuongBanDienTu.Helpers.ActivityLogger.Log($"Đặt đơn hàng mới #ORD-{dh.MaDonHang}", $"Phương thức: {dh.PhuongThucThanhToan}, Tổng tiền: {dh.TongTien:N0}₫", dh.TrangThaiDonHang);
 
-            foreach (var item in lstGioHang)
+            foreach (var item in itemsToOrder)
             {
                 var sp = freshProducts[item.MaSanPham.Value];
                 ChiTietDonHang ctdh = new ChiTietDonHang();
@@ -212,7 +245,12 @@ namespace VuongBanDienTu.Controllers
                 }
             });
 
-            Session["GioHang"] = null;
+            // Chỉ xóa những sản phẩm đã đặt ra khỏi giỏ hàng
+            foreach (var item in itemsToOrder)
+            {
+                lstGioHang.RemoveAll(x => x.MaSanPham == item.MaSanPham);
+            }
+            Session["GioHang"] = lstGioHang;
 
             if (dh.PhuongThucThanhToan == "VNPAY")
             {

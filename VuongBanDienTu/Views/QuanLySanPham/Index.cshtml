@@ -4,6 +4,8 @@
 @{
     Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
     ViewBag.Title = "Quản lý sản phẩm";
+    var user = Session["TaiKhoan"] as VuongBanDienTu.Models.NguoiDung;
+    bool canEdit = user != null && (user.MaVaiTro == 1 || user.MaVaiTro == 2);
 }
 
 <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -27,7 +29,10 @@
                     <th class="px-6 py-4">Danh mục</th>
                     <th class="px-6 py-4">Giá bán</th>
                     <th class="px-6 py-4 text-center">Tồn kho</th>
-                    <th class="px-6 py-4 text-right">Thao tác</th>
+                    @if (canEdit)
+                    {
+                        <th class="px-6 py-4 text-right">Thao tác</th>
+                    }
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-sm">
@@ -79,16 +84,19 @@
                                 <span class="text-slate-600 font-bold">@item.SoLuongTon</span>
                             }
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <button onclick="openEditModal(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <button onclick="deleteProduct(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-red-50 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
+                        @if (canEdit)
+                        {
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button onclick="openEditModal(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteProduct(@item.MaSanPham)" class="w-8 h-8 rounded-lg bg-red-50 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

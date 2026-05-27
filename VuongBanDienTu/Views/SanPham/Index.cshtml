@@ -8,7 +8,7 @@
 
 <div class="max-w-screen-xl mx-auto px-4 py-8 flex gap-6">
     <!-- Sidebar for filtering -->
-    <aside class="hidden md:flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm flex-shrink-0 w-60 border border-slate-100 self-start">
+    <aside class="sticky top-[76px] hidden md:flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm flex-shrink-0 w-60 border border-slate-100 self-start z-10">
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
             <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Danh mục</h3>
         </div>
@@ -114,6 +114,50 @@
                                     <div class="truncate">Đang cập nhật thông số...</div>
                                     <div class="truncate">Nhà sản xuất: @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "Đang cập nhật")</div>
                                     <div class="truncate">Bảo hành: 12-24 tháng</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-3 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <span>Đã bán @(item.ChiTietDonHangs != null ? item.ChiTietDonHangs.Sum(c => c.SoLuong) : 0)</span>
+                                    </span>
+                                    <span>•</span>
+                                    @if (item.SoLuongTon.HasValue && item.SoLuongTon.Value > 0)
+                                    {
+                                        <span class="text-green-600 font-bold">Còn @item.SoLuongTon</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-red-500 font-black">Hết hàng</span>
+                                    }
+                                </div>
+                                <div class="flex items-center gap-0.5 text-yellow-400 text-[10px]">
+                                    <i class="fa fa-star"></i>
+                                    <span class="text-slate-400 font-bold">4.8</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                @if (item.SoLuongTon.HasValue && item.SoLuongTon.Value > 0)
+                                {
+                                    <button onclick="addToCart(@item.MaSanPham, event, false)" class="flex-1 py-1.5 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-primary text-[10px] font-black uppercase rounded-lg border border-slate-100 hover:border-primary/20 transition-all tracking-wider text-center">
+                                        Thêm giỏ
+                                    </button>
+                                    <button onclick="addToCart(@item.MaSanPham, event, true)" class="flex-1 py-1.5 bg-primary hover:bg-primary-dark text-white text-[10px] font-black uppercase rounded-lg shadow-sm hover:shadow transition-all tracking-wider text-center">
+                                        Mua ngay
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button disabled class="flex-1 py-1.5 bg-slate-100 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-slate-200 cursor-not-allowed tracking-wider text-center">
+                                        Thêm giỏ
+                                    </button>
+                                    <button disabled class="flex-1 py-1.5 bg-slate-200 text-slate-400 text-[10px] font-black uppercase rounded-lg cursor-not-allowed tracking-wider text-center">
+                                        Mua ngay
+                                    </button>
                                 }
                             </div>
                         </div>

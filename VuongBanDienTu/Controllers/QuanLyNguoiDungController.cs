@@ -17,7 +17,7 @@ namespace VuongBanDienTu.Controllers
         private bool IsAuthorized()
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            return user != null && user.MaVaiTro == PhanQuyen.ADMIN;
+            return user != null && (user.MaVaiTro == PhanQuyen.ADMIN || user.MaVaiTro == PhanQuyen.QUAN_LY);
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -34,14 +34,7 @@ namespace VuongBanDienTu.Controllers
                     if (user != null && PhanQuyen.IsStaff(user.MaVaiTro))
                     {
                         TempData["Error"] = "Bạn không có quyền truy cập quản lý người dùng!";
-                        if (user.MaVaiTro == PhanQuyen.QUAN_LY)
-                        {
-                            filterContext.Result = RedirectToAction("TongQuan", "QuanTri");
-                        }
-                        else
-                        {
-                            filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
-                        }
+                        filterContext.Result = RedirectToAction("Index", "QuanLySanPham");
                     }
                     else
                     {
@@ -62,6 +55,11 @@ namespace VuongBanDienTu.Controllers
         [HttpPost]
         public ActionResult TaoNhanVien(NguoiDung user)
         {
+            var currentUser = Session["TaiKhoan"] as NguoiDung;
+            if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && user.MaVaiTro == PhanQuyen.ADMIN)
+            {
+                return Json(new { success = false, message = "Quản lý không thể tạo tài khoản Admin!" });
+            }
 
             if (ModelState.IsValid)
             {
@@ -109,6 +107,27 @@ namespace VuongBanDienTu.Controllers
         {
             try
             {
+                var currentUser = Session["TaiKhoan"] as NguoiDung;
+                if (currentUser == null) return Json(new { success = false, message = "Hết phiên đăng nhập!" });
+
+                if (currentUser.MaNguoiDung == maND)
+                {
+                    return Json(new { success = false, message = "Bạn không thể tự thay đổi vai trò của chính mình!" });
+                }
+
+                if (currentUser.MaVaiTro == PhanQuyen.QUAN_LY)
+                {
+                    if (maVT == PhanQuyen.ADMIN)
+                    {
+                        return Json(new { success = false, message = "Quản lý không thể chỉ định vai trò Admin!" });
+                    }
+                    var target = db.NguoiDungs.Find(maND);
+                    if (target != null && target.MaVaiTro == PhanQuyen.ADMIN)
+                    {
+                        return Json(new { success = false, message = "Quản lý không thể thay đổi vai trò của Admin!" });
+                    }
+                }
+
                 var user = db.NguoiDungs.Find(maND);
                 if (user == null) return Json(new { success = false, message = "Không tìm thấy người dùng!" });
 
@@ -144,6 +163,11 @@ namespace VuongBanDienTu.Controllers
                 if (user == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+                }
+
+                if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && user.MaVaiTro == PhanQuyen.ADMIN)
+                {
+                    return Json(new { success = false, message = "Quản lý không thể xóa hoặc khóa tài khoản Admin!" });
                 }
 
                 if (user.MaVaiTro == 4)
@@ -191,6 +215,12 @@ namespace VuongBanDienTu.Controllers
                 var user = db.NguoiDungs.Include("VaiTro").FirstOrDefault(u => u.MaNguoiDung == id);
                 if (user == null) return Json(new { success = false, message = "Không tìm thấy người dùng!" }, JsonRequestBehavior.AllowGet);
 
+                var currentUser = Session["TaiKhoan"] as NguoiDung;
+                if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && user.MaVaiTro == PhanQuyen.ADMIN)
+                {
+                    return Json(new { success = false, message = "Bạn không có quyền xem thông tin tài khoản Admin!" }, JsonRequestBehavior.AllowGet);
+                }
+
                 int orderCount = db.DonHangs.Count(o => o.MaKhachHang == id && o.TrangThaiDonHang != "Chờ thanh toán");
                 decimal totalSpent = db.DonHangs.Where(o => o.MaKhachHang == id && o.TrangThaiDonHang == "Đã xác nhận").Sum(o => (decimal?)o.TongTien) ?? 0;
 
@@ -234,6 +264,26 @@ namespace VuongBanDienTu.Controllers
                 if (existingUser == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy người dùng!" });
+                }
+
+                var currentUser = Session["TaiKhoan"] as NguoiDung;
+                if (currentUser != null)
+                {
+                    if (currentUser.MaNguoiDung == user.MaNguoiDung && existingUser.MaVaiTro != user.MaVaiTro)
+                    {
+                        return Json(new { success = false, message = "Bạn không thể tự thay đổi vai trò của chính mình!" });
+                    }
+                    if (currentUser.MaVaiTro == PhanQuyen.QUAN_LY)
+                    {
+                        if (user.MaVaiTro == PhanQuyen.ADMIN)
+                        {
+                            return Json(new { success = false, message = "Quản lý không thể chỉ định vai trò Admin!" });
+                        }
+                        if (existingUser.MaVaiTro == PhanQuyen.ADMIN)
+                        {
+                            return Json(new { success = false, message = "Quản lý không thể chỉnh sửa thông tin của Admin!" });
+                        }
+                    }
                 }
 
                 var nameRegex = new System.Text.RegularExpressions.Regex(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỶỷỸỹỴỵ\s]+$");

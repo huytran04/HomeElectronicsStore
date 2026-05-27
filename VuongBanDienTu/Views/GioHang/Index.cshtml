@@ -49,7 +49,10 @@
             <div class="lg:col-span-8 space-y-4">
                 @foreach (var item in Model)
                 {
-                    <div class="bg-white rounded-3xl border border-slate-100 p-6 flex items-center gap-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 cart-item" data-id="@item.MaSanPham">
+                    <div class="bg-white rounded-3xl border border-slate-100 p-6 flex items-center gap-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 cart-item" data-id="@item.MaSanPham" data-price="@item.SanPham.GiaBan">
+                        <div class="flex-shrink-0">
+                            <input type="checkbox" checked class="w-5 h-5 accent-primary rounded cursor-pointer item-checkbox" data-id="@item.MaSanPham" />
+                        </div>
                         <div class="w-24 h-24 bg-slate-50 rounded-2xl p-2 flex-shrink-0 overflow-hidden">
                             @{
                                 var mainImage = item.SanPham.HinhAnhSanPhams.FirstOrDefault(h => h.AnhChinh);
@@ -106,7 +109,7 @@
                         </div>
                     </div>
 
-                    <a href="@Url.Action("ThanhToan", "GioHang")" class="w-full bg-primary text-white h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-primary-dark hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                    <a href="@Url.Action("ThanhToan", "GioHang")" id="btn-checkout" class="w-full bg-primary text-white h-14 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-primary-dark hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
                         Tiến hành thanh toán
                         <i class="fa fa-chevron-right text-[10px]"></i>
                     </a>
@@ -124,6 +127,67 @@
 
 @section scripts {
 <script>
+    function updateCartSummary() {
+        let total = 0;
+        let selectedIds = [];
+        
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const checkbox = item.querySelector('.item-checkbox');
+            if (checkbox && checkbox.checked) {
+                const id = item.getAttribute('data-id');
+                const qty = parseInt(item.querySelector('.qty-val').innerText);
+                const price = parseFloat(item.getAttribute('data-price'));
+                total += qty * price;
+                selectedIds.push(id);
+            }
+        });
+        
+        // Save checked IDs to sessionStorage
+        sessionStorage.setItem('checkedCartItems', JSON.stringify(selectedIds));
+        
+        // Format total as currency (e.g. 422.000₫)
+        const formattedTotal = total.toLocaleString('vi-VN') + '₫';
+        document.querySelectorAll('.summary-total').forEach(el => {
+            el.innerText = formattedTotal;
+        });
+        
+        // Update Checkout Button
+        const btnCheckout = document.getElementById('btn-checkout');
+        if (btnCheckout) {
+            if (selectedIds.length === 0) {
+                btnCheckout.href = 'javascript:void(0)';
+                btnCheckout.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            } else {
+                btnCheckout.href = '@Url.Action("ThanhToan", "GioHang")?selectedIds=' + selectedIds.join(',');
+                btnCheckout.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Restore checkbox states from sessionStorage
+        const savedCheckedStr = sessionStorage.getItem('checkedCartItems');
+        if (savedCheckedStr) {
+            try {
+                const savedChecked = JSON.parse(savedCheckedStr);
+                document.querySelectorAll('.item-checkbox').forEach(chk => {
+                    const id = chk.getAttribute('data-id');
+                    chk.checked = savedChecked.includes(id);
+                });
+            } catch (e) {
+                console.error("Error restoring checked cart items:", e);
+            }
+        }
+
+        // Attach event listeners to checkboxes
+        document.querySelectorAll('.item-checkbox').forEach(chk => {
+            chk.addEventListener('change', updateCartSummary);
+        });
+
+        // Initialize summary
+        updateCartSummary();
+    });
+
     function updateQuantity(id, change) {
         const itemRow = document.querySelector(`.cart-item[data-id="${id}"]`);
         const qtyEl = itemRow.querySelector('.qty-val');
@@ -141,6 +205,10 @@
         .then(data => {
             if (data.success) {
                 if (newQty <= 0) {
+                    // Remove from selection history before reload
+                    let checkedIds = JSON.parse(sessionStorage.getItem('checkedCartItems') || '[]');
+                    checkedIds = checkedIds.filter(x => x !== id.toString());
+                    sessionStorage.setItem('checkedCartItems', JSON.stringify(checkedIds));
                     location.reload();
                 } else {
                     location.reload();

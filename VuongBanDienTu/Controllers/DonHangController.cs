@@ -90,6 +90,7 @@ namespace VuongBanDienTu.Controllers
                 order.TrangThaiDonHang = "Chờ hoàn tiền";
                 order.GhiChu = lyDoGhiChu;
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log($"Yêu cầu hủy đơn #ORD-{order.MaDonHang}", $"Lý do: {order.GhiChu}", "Chờ hoàn tiền");
 
                 var orderId = order.MaDonHang;
                 var reason = order.GhiChu;
@@ -115,6 +116,7 @@ namespace VuongBanDienTu.Controllers
                 order.TrangThaiDonHang = "Đã hủy";
                 order.GhiChu = lyDoGhiChu;
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log($"Hủy đơn hàng #ORD-{order.MaDonHang}", $"Lý do: {order.GhiChu}", "Đã hủy");
 
                 var orderId = order.MaDonHang;
                 System.Threading.Tasks.Task.Run(() => {

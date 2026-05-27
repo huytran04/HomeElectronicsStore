@@ -141,6 +141,8 @@
     <Compile Include="Helpers\CauHinhHelper.cs" />
     <Compile Include="Helpers\MaHoa.cs" />
     <Compile Include="Helpers\PhanQuyen.cs" />
+    <Compile Include="Models\LichSuHoatDong.cs" />
+    <Compile Include="Helpers\ActivityLogger.cs" />
     <Compile Include="Controllers\GioHangController.cs" />
     <Compile Include="Controllers\ThanhToanController.cs" />
     <Compile Include="Services\VnPayService.cs" />
@@ -276,6 +278,7 @@
     <Content Include="Views\DonHang\KetQua.cshtml" />
     <Content Include="Views\DonHang\LichSu.cshtml" />
     <Content Include="Views\QuanTri\TongQuan.cshtml" />
+    <Content Include="Views\QuanTri\LichSuHoatDong.cshtml" />
     <Content Include="Views\QuanLyNguoiDung\Index.cshtml" />
     <Content Include="Views\QuanLyDanhMuc\Index.cshtml" />
     <Content Include="Views\QuanLyDonHang\Index.cshtml" />

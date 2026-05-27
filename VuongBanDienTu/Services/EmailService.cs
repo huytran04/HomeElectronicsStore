@@ -400,5 +400,231 @@ namespace VuongBanDienTu.Services
 
             SendHtmlEmail(customerEmail, subject, body);
         }
+
+        // Gửi email HOÀN TIỀN kèm lý do khi KHÁCH HÀNG TỰ HỦY đơn đã thanh toán
+        public static void SendUserCancelRefundEmail(DonHang order, string lyDoHuy)
+        {
+            if (order == null) return;
+            string customerEmail = order.NguoiDung?.Email;
+            if (string.IsNullOrEmpty(customerEmail)) return;
+
+            string customerName = order.NguoiDung?.HoTen ?? "Khách hàng";
+            string totalAmount = (order.TongTien ?? 0).ToString("N0");
+            string orderDate = order.NgayDat.HasValue ? order.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---";
+            string paymentMethod = order.PhuongThucThanhToan == "VNPAY"
+                ? "VNPAY (hoàn về tài khoản ngân hàng trong 3–5 ngày làm việc)"
+                : "Tiền mặt (hoàn tại cửa hàng)";
+
+            StringBuilder itemsHtml = new StringBuilder();
+            if (order.ChiTietDonHangs != null && order.ChiTietDonHangs.Count > 0)
+            {
+                foreach (var detail in order.ChiTietDonHangs)
+                {
+                    string productName = detail.SanPham?.TenSanPham ?? "Sản phẩm";
+                    decimal subTotal = detail.GiaLuuTru * detail.SoLuong;
+                    itemsHtml.Append($@"
+                    <tr style='border-bottom:1px solid #f1f5f9;'>
+                        <td style='padding:10px 8px;font-size:13px;color:#1e293b;font-weight:bold;'>{productName}</td>
+                        <td style='padding:10px 8px;font-size:13px;color:#475569;text-align:center;'>{detail.SoLuong}</td>
+                        <td style='padding:10px 8px;font-size:13px;color:#e8192c;font-weight:bold;text-align:right;'>{subTotal.ToString("N0")}₫</td>
+                    </tr>");
+                }
+            }
+
+            string subject = $"[Vương Bán Điện Tử] Đơn hàng #{order.MaDonHang} đã được hủy thành công — Tiền đã được hoàn trả";
+            string body = $@"
+            <div style='font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);'>
+                
+                <!-- Header -->
+                <div style='background:linear-gradient(135deg,#e8192c 0%,#ff4b5c 100%);padding:32px;text-align:center;color:white;'>
+                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống Vương Bán Điện Tử</p>
+                    <h1 style='margin:0;font-size:26px;font-weight:900;letter-spacing:.5px;'>✓ HỦY ĐƠN HÀNG &amp; HOÀN TIỀN THÀNH CÔNG</h1>
+                </div>
+
+                <!-- Body -->
+                <div style='padding:32px;color:#334155;line-height:1.7;'>
+                    <p style='font-size:15px;margin-top:0;'>Chào <strong>{customerName}</strong>,</p>
+                    <p style='font-size:14px;'>Đơn hàng <strong>#{order.MaDonHang}</strong> của bạn đã được hủy thành công theo yêu cầu của bạn. Chúng tôi đã tiến hành <strong style='color:#16a34a;'>hoàn trả toàn bộ số tiền</strong> về cho bạn.</p>
+
+                    <!-- Lý do hủy -->
+                    <div style='background:#fef2f2;border-left:4px solid #e8192c;padding:16px 18px;border-radius:6px;margin:20px 0;'>
+                        <p style='margin:0 0 4px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#991b1b;letter-spacing:.5px;'>📋 Lý do hủy đơn</p>
+                        <p style='margin:0;font-size:14px;color:#7f1d1d;font-style:italic;'>{lyDoHuy}</p>
+                    </div>
+
+                    <!-- Số tiền hoàn trả -->
+                    <div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:20px 24px;margin:20px 0;text-align:center;'>
+                        <p style='margin:0 0 4px;font-size:12px;color:#166534;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;'>💰 Số tiền được hoàn trả</p>
+                        <p style='margin:0;font-size:34px;font-weight:900;color:#16a34a;'>{totalAmount}₫</p>
+                        <p style='margin:8px 0 0;font-size:12px;color:#4ade80;'>{paymentMethod}</p>
+                    </div>
+
+                    <!-- Thông tin đơn hàng -->
+                    <div style='background:#f8fafc;border-radius:10px;padding:18px;margin:20px 0;border:1px solid #e2e8f0;'>
+                        <p style='margin:0 0 12px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#64748b;letter-spacing:.5px;'>Thông tin đơn hàng</p>
+                        <table style='width:100%;font-size:13px;border-collapse:collapse;'>
+                            <tr><td style='padding:5px 0;color:#64748b;width:150px;'>Mã đơn hàng:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>#{order.MaDonHang}</td></tr>
+                            <tr><td style='padding:5px 0;color:#64748b;'>Ngày đặt:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>{orderDate}</td></tr>
+                            <tr><td style='padding:5px 0;color:#64748b;'>Địa chỉ giao hàng:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>{order.DiaChiGiaoHang ?? "Tại cửa hàng"}</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div style='margin:20px 0;'>
+                        <p style='margin:0 0 10px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#64748b;letter-spacing:.5px;'>Sản phẩm trong đơn</p>
+                        <table style='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;'>
+                            <thead>
+                                <tr style='background:#f1f5f9;'>
+                                    <th style='padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;color:#475569;'>Sản phẩm</th>
+                                    <th style='padding:10px 8px;text-align:center;font-size:11px;text-transform:uppercase;color:#475569;width:50px;'>SL</th>
+                                    <th style='padding:10px 8px;text-align:right;font-size:11px;text-transform:uppercase;color:#475569;width:110px;'>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {itemsHtml}
+                                <tr style='background:#fafafa;border-top:2px solid #e2e8f0;'>
+                                    <td colspan='2' style='padding:14px 8px;font-size:14px;font-weight:bold;color:#1e293b;text-align:right;'>Tổng hoàn trả:</td>
+                                    <td style='padding:14px 8px;font-size:16px;font-weight:900;color:#e8192c;text-align:right;'>{totalAmount}₫</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p style='font-size:13px;color:#64748b;'>Nếu bạn có bất kỳ thắc mắc nào về quá trình hoàn tiền, vui lòng liên hệ hotline <strong style='color:#e8192c;'>1800 6800</strong> hoặc đến trực tiếp cửa hàng.</p>
+
+                    <div style='text-align:center;margin:28px 0 10px;'>
+                        <a href='http://localhost:63259/DonHang/Index' style='background:#e8192c;color:white;padding:13px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:14px;box-shadow:0 4px 10px rgba(232,25,44,0.25);'>Xem Lịch Sử Đơn Hàng</a>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style='background:#f1f5f9;padding:20px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
+                    <p style='margin:0 0 4px;'>Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.</p>
+                    <p style='margin:0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                </div>
+            </div>";
+
+            SendHtmlEmail(customerEmail, subject, body);
+
+            // Đồng thời gửi thông báo cho Admin biết
+            if (!string.IsNullOrEmpty(AdminEmail))
+            {
+                string adminSubject = $"[ADMIN] Khách tự hủy + hoàn tiền đơn #{order.MaDonHang} — {customerName}";
+                SendHtmlEmail(AdminEmail, adminSubject, body);
+            }
+        }
+
+        // Gửi email HOÀN TIỀN kèm lý do khi ADMIN/QUẢN LÝ/NHÂN VIÊN hủy đơn đã thanh toán
+        public static void SendAdminCancelRefundEmail(DonHang order, string lyDoHuy)
+        {
+            if (order == null) return;
+            string customerEmail = order.NguoiDung?.Email;
+            if (string.IsNullOrEmpty(customerEmail)) return;
+
+            string customerName = order.NguoiDung?.HoTen ?? "Khách hàng";
+            string totalAmount = (order.TongTien ?? 0).ToString("N0");
+            string orderDate = order.NgayDat.HasValue ? order.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---";
+            string paymentMethod = order.PhuongThucThanhToan == "VNPAY"
+                ? "VNPAY (hoàn về tài khoản ngân hàng trong 3–5 ngày làm việc)"
+                : "Tiền mặt (hoàn tại cửa hàng)";
+
+            StringBuilder itemsHtml = new StringBuilder();
+            if (order.ChiTietDonHangs != null && order.ChiTietDonHangs.Count > 0)
+            {
+                foreach (var detail in order.ChiTietDonHangs)
+                {
+                    string productName = detail.SanPham?.TenSanPham ?? "Sản phẩm";
+                    decimal subTotal = detail.GiaLuuTru * detail.SoLuong;
+                    itemsHtml.Append($@"
+                    <tr style='border-bottom:1px solid #f1f5f9;'>
+                        <td style='padding:10px 8px;font-size:13px;color:#1e293b;font-weight:bold;'>{productName}</td>
+                        <td style='padding:10px 8px;font-size:13px;color:#475569;text-align:center;'>{detail.SoLuong}</td>
+                        <td style='padding:10px 8px;font-size:13px;color:#e8192c;font-weight:bold;text-align:right;'>{subTotal.ToString("N0")}₫</td>
+                    </tr>");
+                }
+            }
+
+            string subject = $"[Vương Bán Điện Tử] Đơn hàng #{order.MaDonHang} đã bị hủy — Tiền đã được hoàn trả";
+            string body = $@"
+            <div style='font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);'>
+                
+                <!-- Header -->
+                <div style='background:linear-gradient(135deg,#e8192c 0%,#ff4b5c 100%);padding:32px;text-align:center;color:white;'>
+                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống Vương Bán Điện Tử</p>
+                    <h1 style='margin:0;font-size:26px;font-weight:900;letter-spacing:.5px;'>ĐƠN HÀNG ĐÃ HỦY &amp; HOÀN TIỀN</h1>
+                </div>
+
+                <!-- Body -->
+                <div style='padding:32px;color:#334155;line-height:1.7;'>
+                    <p style='font-size:15px;margin-top:0;'>Chào <strong>{customerName}</strong>,</p>
+                    <p style='font-size:14px;'>Đơn hàng <strong>#{order.MaDonHang}</strong> của bạn đã bị hủy bởi hệ thống. Chúng tôi đã tiến hành <strong style='color:#16a34a;'>hoàn trả toàn bộ số tiền</strong> về cho bạn.</p>
+
+                    <!-- Lý do hủy -->
+                    <div style='background:#fef2f2;border-left:4px solid #e8192c;padding:16px 18px;border-radius:6px;margin:20px 0;'>
+                        <p style='margin:0 0 4px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#991b1b;letter-spacing:.5px;'>📋 Lý do hủy đơn</p>
+                        <p style='margin:0;font-size:14px;color:#7f1d1d;font-style:italic;'>{lyDoHuy}</p>
+                    </div>
+
+                    <!-- Số tiền hoàn trả -->
+                    <div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:20px 24px;margin:20px 0;text-align:center;'>
+                        <p style='margin:0 0 4px;font-size:12px;color:#166534;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;'>💰 Số tiền được hoàn trả</p>
+                        <p style='margin:0;font-size:34px;font-weight:900;color:#16a34a;'>{totalAmount}₫</p>
+                        <p style='margin:8px 0 0;font-size:12px;color:#4ade80;'>{paymentMethod}</p>
+                    </div>
+
+                    <!-- Thông tin đơn hàng -->
+                    <div style='background:#f8fafc;border-radius:10px;padding:18px;margin:20px 0;border:1px solid #e2e8f0;'>
+                        <p style='margin:0 0 12px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#64748b;letter-spacing:.5px;'>Thông tin đơn hàng</p>
+                        <table style='width:100%;font-size:13px;border-collapse:collapse;'>
+                            <tr><td style='padding:5px 0;color:#64748b;width:150px;'>Mã đơn hàng:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>#{order.MaDonHang}</td></tr>
+                            <tr><td style='padding:5px 0;color:#64748b;'>Ngày đặt:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>{orderDate}</td></tr>
+                            <tr><td style='padding:5px 0;color:#64748b;'>Địa chỉ giao hàng:</td><td style='padding:5px 0;font-weight:bold;color:#1e293b;'>{order.DiaChiGiaoHang ?? "Tại cửa hàng"}</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div style='margin:20px 0;'>
+                        <p style='margin:0 0 10px;font-size:12px;font-weight:bold;text-transform:uppercase;color:#64748b;letter-spacing:.5px;'>Sản phẩm trong đơn</p>
+                        <table style='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;'>
+                            <thead>
+                                <tr style='background:#f1f5f9;'>
+                                    <th style='padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;color:#475569;'>Sản phẩm</th>
+                                    <th style='padding:10px 8px;text-align:center;font-size:11px;text-transform:uppercase;color:#475569;width:50px;'>SL</th>
+                                    <th style='padding:10px 8px;text-align:right;font-size:11px;text-transform:uppercase;color:#475569;width:110px;'>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {itemsHtml}
+                                <tr style='background:#fafafa;border-top:2px solid #e2e8f0;'>
+                                    <td colspan='2' style='padding:14px 8px;font-size:14px;font-weight:bold;color:#1e293b;text-align:right;'>Tổng hoàn trả:</td>
+                                    <td style='padding:14px 8px;font-size:16px;font-weight:900;color:#e8192c;text-align:right;'>{totalAmount}₫</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p style='font-size:13px;color:#64748b;'>Nếu bạn có bất kỳ thắc mắc nào về quá trình hoàn tiền, vui lòng liên hệ hotline <strong style='color:#e8192c;'>1800 6800</strong> hoặc đến trực tiếp cửa hàng.</p>
+
+                    <div style='text-align:center;margin:28px 0 10px;'>
+                        <a href='http://localhost:63259/DonHang/Index' style='background:#e8192c;color:white;padding:13px 32px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:14px;box-shadow:0 4px 10px rgba(232,25,44,0.25);'>Xem Lịch Sử Đơn Hàng</a>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style='background:#f1f5f9;padding:20px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
+                    <p style='margin:0 0 4px;'>Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.</p>
+                    <p style='margin:0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                </div>
+            </div>";
+
+            SendHtmlEmail(customerEmail, subject, body);
+
+            // Đồng thời gửi thông báo cho Admin biết
+            if (!string.IsNullOrEmpty(AdminEmail))
+            {
+                string adminSubject = $"[ADMIN] Đã hủy + hoàn tiền đơn #{order.MaDonHang} — {customerName}";
+                SendHtmlEmail(AdminEmail, adminSubject, body);
+            }
+        }
     }
 }

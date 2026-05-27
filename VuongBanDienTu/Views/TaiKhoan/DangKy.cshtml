@@ -1,5 +1,41 @@
 @{
     Layout = null;
+    var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
+    string storeName = config?.StoreName ?? "Vương Bản Điện Tử";
+    string storeHotline = config?.StoreHotline ?? "1800.6800";
+    
+    string firstWord = "VƯƠNG";
+    string remainingWords = "ĐIỆN TỬ";
+    if (!string.IsNullOrEmpty(storeName))
+    {
+        var parts = storeName.Split(new char[] { ' ', '.', '-' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length > 0)
+        {
+            firstWord = parts[0].ToUpper();
+            if (parts.Length > 1)
+            {
+                remainingWords = string.Join(" ", parts.Skip(1)).ToUpper();
+            }
+            else
+            {
+                remainingWords = "";
+            }
+        }
+    }
+
+    int dbCustomers = 0;
+    int dbProducts = 0;
+    try
+    {
+        using (var db = new VuongBanDienTu.Models.VuongDienTuEntities())
+        {
+            dbCustomers = db.NguoiDungs.Count(u => u.MaVaiTro == 4);
+            dbProducts = db.SanPhams.Count();
+        }
+    }
+    catch {}
+    
+    int displayCustomers = dbCustomers;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -16,7 +52,8 @@
                         primary: '#e8192c',
                         'primary-dark': '#c0001a',
                         facebook: '#3b5998',
-                        google: '#4285f4'
+                        google: '#4285f4',
+                        gold: '#fbbf24'
                     }
                 }
             }
@@ -26,112 +63,194 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .tab-active { border-bottom: 2px solid #e8192c; color: #e8192c; font-weight: 700; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    
-    <!-- Header -->
-    <header class="bg-primary text-white h-12 flex items-center shadow-md">
-        <div class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center text-xs font-medium">
-            <div class="flex items-center gap-8">
-                <a href="@Url.Action("Index", "Home")" class="hover:underline transition-all">Trở về</a>
-            </div>
-            <div class="text-xl font-black italic tracking-tighter uppercase">
-                <span class="text-yellow-400">VUONG</span>DIENTU
-            </div>
-        </div>
-    </header>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
 
-    <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center p-4">
-        <div class="w-full max-w-[480px] bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    <div class="flex-1 flex flex-col lg:flex-row min-h-screen">
+        <!-- Cột Trái: Giới thiệu thương hiệu (Chỉ hiện từ màn hình lg trở lên) -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-red-800 via-red-700 to-primary text-white p-16 flex-col justify-between relative overflow-hidden">
+            <!-- Decorative blur circles -->
+            <div class="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-red-600/30 blur-3xl"></div>
+            <div class="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-red-500/20 blur-3xl"></div>
             
-            <!-- Tabs -->
-            <div class="flex justify-center gap-12 mb-8 border-b border-gray-100">
-                <button class="pb-3 text-sm tab-active uppercase tracking-wider">ĐĂNG KÝ</button>
-                <a href="@Url.Action("DangNhap", "TaiKhoan")" class="pb-3 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider">ĐĂNG NHẬP</a>
+            <!-- Top Section -->
+            <div class="relative z-10">
+                <a href="/" class="inline-block">
+                    <span class="text-3xl font-black italic tracking-tighter uppercase">
+                        <span class="text-gold">@firstWord</span> @remainingWords
+                    </span>
+                </a>
+                <p class="text-xs font-semibold tracking-widest text-red-100/70 uppercase mt-2">Hệ Thống Bán Lẻ @storeName Uy Tín</p>
             </div>
 
-            <!-- Register Form -->
-            <form action="@Url.Action("DangKy", "TaiKhoan")" method="post" class="space-y-4">
-                @if (ViewBag.Error != null)
-                {
-                    <div class="bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
-                        <i class="fa fa-circle-exclamation"></i>
-                        @ViewBag.Error
+            <!-- Middle Section: Brand Intro & Features -->
+            <div class="relative z-10 max-w-lg space-y-10 my-auto">
+                <div class="space-y-3">
+                    <h2 class="text-4xl font-extrabold tracking-tight leading-tight">Chào mừng bạn đến với không gian mua sắm công nghệ số!</h2>
+                    <p class="text-sm text-red-100/90 leading-relaxed font-medium">Trở thành thành viên của @storeName để nhận ngập tràn ưu đãi đặc quyền, quản lý đơn hàng dễ dàng và bảo hành chính hãng chuẩn 5 sao.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/15 backdrop-blur-md">
+                            <i class="fa fa-shield-halved text-xl text-gold"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold">100% Sản phẩm chính hãng</h4>
+                            <p class="text-xs text-red-100/80 mt-1 font-medium">Cam kết chất lượng đạt chuẩn, hỗ trợ bảo hành chính hãng dài hạn lên đến 24 tháng.</p>
+                        </div>
                     </div>
-                }
-
-                <div class="relative">
-                    <input type="text" name="TenDangNhap" required placeholder="Tên đăng nhập" 
-                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
-                </div>
-
-                <div class="relative flex flex-col">
-                    <div class="relative">
-                        <input type="password" name="MatKhau" required placeholder="Nhập mật khẩu" id="matKhauInput"
-                               class="w-full border border-gray-200 rounded px-4 py-3 pr-10 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
-                        <span onclick="togglePasswordVisibility('matKhauInput', this)" class="absolute right-3 top-3.5 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
-                            <i class="fa fa-eye"></i>
-                        </span>
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/15 backdrop-blur-md">
+                            <i class="fa fa-truck-fast text-xl text-gold"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold">Giao hàng hỏa tốc miễn phí</h4>
+                            <p class="text-xs text-red-100/80 mt-1 font-medium">Giao hàng cực nhanh trong ngày đối với các tỉnh thành phố lớn và miễn phí toàn quốc.</p>
+                        </div>
                     </div>
-                    <p class="text-[10px] text-gray-400 mt-1 font-medium leading-relaxed">
-                        <i class="fa fa-info-circle mr-1"></i> Mật khẩu phải tối thiểu 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt.
-                    </p>
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/15 backdrop-blur-md">
+                            <i class="fa fa-clock-rotate-left text-xl text-gold"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold">Hoàn tiền &amp; Đổi trả dễ dàng</h4>
+                            <p class="text-xs text-red-100/80 mt-1 font-medium">Lỗi là đổi ngay trong 30 ngày đầu tiên. Đội ngũ kỹ thuật hỗ trợ chuyên nghiệp 24/7.</p>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="relative">
-                    <input type="text" name="HoTen" required placeholder="Họ và tên" 
-                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
-                </div>
-
-                <div class="relative">
-                    <input type="email" name="Email" required placeholder="Email" 
-                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
-                </div>
-
-                <div class="relative">
-                    <input type="tel" name="SoDienThoai" required placeholder="Số điện thoại" 
-                           class="w-full border border-gray-200 rounded px-4 py-3 text-sm outline-none focus:border-primary transition-all placeholder:text-gray-400">
-                </div>
-
-                <div class="flex items-start gap-2 px-1 py-2">
-                    <input type="checkbox" required id="terms" class="mt-1">
-                    <label for="terms" class="text-[11px] text-gray-500 leading-tight">
-                        Tôi đồng ý với các <a href="#" class="text-blue-600">điều khoản dịch vụ</a> và <a href="#" class="text-blue-600">chính sách bảo mật</a>
-                    </label>
-                </div>
-
-                <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded shadow-sm hover:bg-primary-dark transition-all flex items-center justify-center gap-2 tracking-widest uppercase">
-                    ĐĂNG KÝ <i class="fa fa-chevron-right text-[10px]"></i>
-                </button>
-            </form>
-
-            <!-- Separator -->
-            <div class="flex items-center gap-4 my-8">
-                <div class="flex-1 h-px bg-gray-200"></div>
-                <span class="text-xs text-gray-400 font-medium">Hoặc</span>
-                <div class="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            <!-- Social Logins -->
-            <div class="space-y-3 text-center">
-                <p class="text-[11px] text-gray-400 mb-4">Bạn đã có tài khoản? <a href="@Url.Action("DangNhap", "TaiKhoan")" class="text-primary font-bold">ĐĂNG NHẬP NGAY</a></p>
+            <!-- Bottom Section: Stats -->
+            <div class="relative z-10 border-t border-white/10 pt-8 flex items-center justify-between gap-6">
+                <div>
+                    <p class="text-2xl font-black text-white leading-none">@displayCustomers.ToString("N0")</p>
+                    <p class="text-[10px] text-red-100/70 font-bold uppercase tracking-wider mt-1">Khách hàng tin dùng</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-white leading-none">@dbProducts.ToString("N0")+</p>
+                    <p class="text-[10px] text-red-100/70 font-bold uppercase tracking-wider mt-1">Sản phẩm đa dạng</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-white leading-none">@storeHotline</p>
+                    <p class="text-[10px] text-red-100/70 font-bold uppercase tracking-wider mt-1">Hotline hỗ trợ miễn phí</p>
+                </div>
             </div>
         </div>
-    </main>
+
+        <!-- Cột Phải: Biểu mẫu đăng ký -->
+        <div class="w-full lg:w-1/2 bg-white flex items-center justify-center p-8 sm:p-12 md:p-16 relative">
+            <div class="max-w-md w-full">
+                
+                <!-- Logo cho thiết bị di động (Ẩn trên màn hình lớn) -->
+                <div class="lg:hidden text-center mb-10">
+                    <a href="/" class="inline-block">
+                        <span class="text-3xl font-black italic tracking-tighter uppercase text-primary">
+                            <span class="text-gold">@firstWord</span> @remainingWords
+                        </span>
+                    </a>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Không gian công nghệ số @storeName</p>
+                </div>
+
+                <!-- Quay lại trang chủ -->
+                <a href="/" class="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-primary transition-colors mb-6 uppercase tracking-wider">
+                    <i class="fa fa-arrow-left"></i> Quay lại trang chủ
+                </a>
+
+                <!-- Form Card -->
+                <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/40 p-8 sm:p-10">
+                    
+                    <!-- Tabs -->
+                    <div class="flex justify-center gap-8 mb-8 border-b border-slate-100">
+                        <a href="@Url.Action("DangNhap", "TaiKhoan")" class="pb-3 text-sm font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">Đăng nhập</a>
+                        <button class="pb-3 text-sm font-black uppercase tracking-widest border-b-2 border-primary text-primary">Đăng ký</button>
+                    </div>
+
+                    <!-- Notification Boxes -->
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="bg-red-50 text-primary text-xs font-bold p-4 rounded-2xl border border-red-100 flex items-center gap-3 mb-6">
+                            <i class="fa fa-circle-exclamation text-base flex-shrink-0"></i>
+                            <span>@ViewBag.Error</span>
+                        </div>
+                    }
+
+                    <!-- Form -->
+                    <form action="@Url.Action("DangKy", "TaiKhoan")" method="post" class="space-y-4">
+                        
+                        <div class="relative group">
+                            <i class="fa fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
+                            <input type="text" name="TenDangNhap" required placeholder="Tên đăng nhập *" 
+                                   class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-sm text-slate-700">
+                        </div>
+
+                        <div class="relative group flex flex-col">
+                            <div class="relative">
+                                <i class="fa fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
+                                <input type="password" id="txtMatKhau" name="MatKhau" required placeholder="Nhập mật khẩu *" 
+                                       class="w-full pl-12 pr-12 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-sm text-slate-700">
+                                <span onclick="togglePasswordVisibility('txtMatKhau', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 cursor-pointer transition-colors">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 mt-1 font-semibold leading-relaxed px-1">
+                                <i class="fa fa-info-circle mr-0.5"></i> Tối thiểu 8 ký tự, 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt.
+                            </p>
+                        </div>
+
+                        <div class="relative group">
+                            <i class="fa fa-id-card absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
+                            <input type="text" name="HoTen" required placeholder="Họ và tên *" 
+                                   class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-sm text-slate-700">
+                        </div>
+
+                        <div class="relative group">
+                            <i class="fa fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
+                            <input type="email" name="Email" required placeholder="Địa chỉ Email *" 
+                                   class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-sm text-slate-700">
+                        </div>
+
+                        <div class="relative group">
+                            <i class="fa fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all"></i>
+                            <input type="tel" name="SoDienThoai" required placeholder="Số điện thoại *" 
+                                   class="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-semibold text-sm text-slate-700">
+                        </div>
+
+                        <div class="flex items-start gap-2.5 px-2 py-1">
+                            <input type="checkbox" required id="terms" class="mt-1 accent-primary cursor-pointer w-4 h-4 rounded">
+                            <label for="terms" class="text-[11px] text-slate-400 font-semibold leading-tight cursor-pointer">
+                                Tôi đồng ý với các <a href="#" class="text-blue-500 hover:underline">điều khoản dịch vụ</a> và <a href="#" class="text-blue-500 hover:underline">chính sách bảo mật</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-red-100 hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] transition-all cursor-pointer">
+                            Đăng ký tài khoản
+                        </button>
+                    </form>
+
+                    <div class="mt-8 text-center border-t border-slate-50 pt-6">
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">
+                            Đã có tài khoản? <a href="@Url.Action("DangNhap", "TaiKhoan")" class="text-primary hover:underline">Đăng nhập ngay</a>
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-50 border-t border-gray-200 py-4">
-        <div class="max-w-screen-xl mx-auto px-4 text-center text-[11px] text-gray-600 font-medium">
-            Bạn gặp khó khăn khi đăng nhập, đăng ký? Gọi <span class="text-primary font-bold">1800 6800</span> để được hỗ trợ tốt nhất.
+    <footer class="bg-white border-t border-slate-100 py-4 w-full">
+        <div class="max-w-screen-xl mx-auto px-4 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+            Bạn gặp khó khăn khi đăng ký? Gọi Hotline <span class="text-primary">@storeHotline</span> để được hỗ trợ tốt nhất.
         </div>
     </footer>
 
     <script>
         const form = document.querySelector('form');
-        const matKhauInput = document.getElementById('matKhauInput');
+        const matKhauInput = document.getElementById('txtMatKhau');
         const hoTenInput = document.querySelector('input[name="HoTen"]');
         const sdtInput = document.querySelector('input[name="SoDienThoai"]');
         
@@ -175,13 +294,13 @@
                 if (!errBox) {
                     errBox = document.createElement('div');
                     errBox.id = 'dynamicErrorBox';
-                    errBox.className = 'bg-red-50 text-primary text-xs font-bold p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4';
+                    errBox.className = 'bg-red-50 text-primary text-xs font-bold p-4 rounded-2xl border border-red-100 flex items-center gap-3 mb-6';
                     form.insertBefore(errBox, form.firstChild);
                 }
-                errBox.innerHTML = `<i class="fa fa-circle-exclamation"></i> <span>${errMsg}</span>`;
+                errBox.innerHTML = `<i class="fa fa-circle-exclamation text-base flex-shrink-0"></i> <span>${errMsg}</span>`;
                 
                 // Remove old MVC errors if any
-                const mvcError = form.querySelector('.bg-red-50:not(#dynamicErrorBox)');
+                const mvcError = form.parentNode.querySelector('.bg-red-50:not(#dynamicErrorBox)');
                 if (mvcError) mvcError.remove();
                 
                 return false;

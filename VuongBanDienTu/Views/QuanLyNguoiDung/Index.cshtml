@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_BoCucQuanTri.cshtml";
     ViewBag.Title = "Quản lý nhân sự & Hệ thống";
     var roles = ViewBag.Roles as IEnumerable<VuongBanDienTu.Models.VaiTro>;
+    var currentUser = Session["TaiKhoan"] as VuongBanDienTu.Models.NguoiDung;
 }
 
 <div class="space-y-6">
@@ -50,6 +51,10 @@
                 <tbody class="divide-y divide-slate-50">
                     @foreach (var item in Model)
                     {
+                        if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && item.MaVaiTro == PhanQuyen.ADMIN)
+                        {
+                            continue;
+                        }
                         <tr class="user-row hover:bg-slate-50/50 transition-colors group" data-vai-tro="@item.MaVaiTro">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
@@ -70,10 +75,21 @@
                                 <p class="text-[10px] text-slate-400 mt-0.5">SĐT: @item.SoDienThoai</p>
                             </td>
                             <td class="px-6 py-4 col-vai-tro">
+                                @{
+                                    bool isOwnAccount = currentUser != null && currentUser.MaNguoiDung == item.MaNguoiDung;
+                                    bool isTargetAdmin = item.MaVaiTro == PhanQuyen.ADMIN;
+                                    bool isCurrentManager = currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY;
+                                    bool canChangeRole = !isOwnAccount && !(isCurrentManager && isTargetAdmin);
+                                }
                                 <select onchange="updateUserRole(@item.MaNguoiDung, this.value)" 
-                                        class="bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-600 focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                                        @(canChangeRole ? "" : "disabled")
+                                        class="bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-black uppercase text-slate-600 focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer @(canChangeRole ? "" : "opacity-60 cursor-not-allowed")">
                                     @foreach (var role in (ViewBag.Roles as List<VuongBanDienTu.Models.VaiTro>).Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
                                     {
+                                        if (isCurrentManager && role.MaVaiTro == PhanQuyen.ADMIN)
+                                        {
+                                            continue;
+                                        }
                                         <option value="@role.MaVaiTro" @(item.MaVaiTro == role.MaVaiTro ? "selected" : "")>
                                             @role.TenVaiTro
                                         </option>
@@ -96,15 +112,29 @@
                                     </button>
                                     @if (item.MaVaiTro != PhanQuyen.KHACH_HANG)
                                     {
-                                        <button onclick="openEditStaffModal(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center" title="Sửa nhân sự">
-                                            <i class="fa fa-edit text-xs"></i>
-                                        </button>
+                                        if (isCurrentManager && isTargetAdmin)
+                                        {
+                                            <!-- Quản lý cannot edit Admin -->
+                                        }
+                                        else
+                                        {
+                                            <button onclick="openEditStaffModal(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center" title="Sửa nhân sự">
+                                                <i class="fa fa-edit text-xs"></i>
+                                            </button>
+                                        }
                                     }
                                     @if (item.MaVaiTro != PhanQuyen.KHACH_HANG)
                                     {
-                                        <button onclick="deleteUser(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-primary transition-all flex items-center justify-center">
-                                            <i class="fa fa-trash text-xs"></i>
-                                        </button>
+                                        if (isCurrentManager && isTargetAdmin)
+                                        {
+                                            <!-- Quản lý cannot delete Admin -->
+                                        }
+                                        else
+                                        {
+                                            <button onclick="deleteUser(@item.MaNguoiDung)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-primary transition-all flex items-center justify-center" title="Xóa nhân sự">
+                                                <i class="fa fa-trash text-xs"></i>
+                                            </button>
+                                        }
                                     }
                                 </div>
                             </td>
@@ -168,6 +198,10 @@
                     <select name="MaVaiTro" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm appearance-none">
                         @foreach (var role in roles.Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
                         {
+                            if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && role.MaVaiTro == PhanQuyen.ADMIN)
+                            {
+                                continue;
+                            }
                             <option value="@role.MaVaiTro">@role.TenVaiTro</option>
                         }
                     </select>
@@ -237,6 +271,10 @@
                     <select name="MaVaiTro" id="editStaffMaVaiTro" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all font-bold text-sm appearance-none">
                         @foreach (var role in roles.Where(r => r.MaVaiTro != PhanQuyen.KHACH_HANG))
                         {
+                            if (currentUser != null && currentUser.MaVaiTro == PhanQuyen.QUAN_LY && role.MaVaiTro == PhanQuyen.ADMIN)
+                            {
+                                continue;
+                            }
                             <option value="@role.MaVaiTro">@role.TenVaiTro</option>
                         }
                     </select>
@@ -448,7 +486,18 @@
                 document.getElementById('editStaffHoTen').value = data.HoTen || '';
                 document.getElementById('editStaffEmail').value = data.Email || '';
                 document.getElementById('editStaffSoDienThoai').value = data.SoDienThoai || '';
-                document.getElementById('editStaffMaVaiTro').value = data.MaVaiTro;
+                
+                const maVaiTroSelect = document.getElementById('editStaffMaVaiTro');
+                maVaiTroSelect.value = data.MaVaiTro;
+
+                // Disable role select if editing self
+                const isSelf = data.MaNguoiDung === @(currentUser != null ? currentUser.MaNguoiDung : 0);
+                maVaiTroSelect.disabled = isSelf;
+                if (isSelf) {
+                    maVaiTroSelect.classList.add('opacity-60', 'cursor-not-allowed');
+                } else {
+                    maVaiTroSelect.classList.remove('opacity-60', 'cursor-not-allowed');
+                }
 
                 const modal = document.getElementById('editStaffModal');
                 const content = document.getElementById('editStaffContent');
@@ -479,7 +528,14 @@
         async function handleEditStaffForm(e) {
             e.preventDefault();
             const form = e.target;
+            
+            const maVaiTroSelect = document.getElementById('editStaffMaVaiTro');
+            const wasDisabled = maVaiTroSelect.disabled;
+            maVaiTroSelect.disabled = false;
+            
             const formData = new FormData(form);
+            maVaiTroSelect.disabled = wasDisabled;
+            
             const btn = form.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
 

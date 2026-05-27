@@ -14,6 +14,7 @@
 
     @using (Html.BeginForm("DatHang", "GioHang", FormMethod.Post))
     {
+        <input type="hidden" name="selectedIds" value="@ViewBag.SelectedIds" />
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <!-- Information Section -->
             <div class="lg:col-span-7 space-y-10">

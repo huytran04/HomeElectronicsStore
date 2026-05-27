@@ -64,12 +64,14 @@ namespace VuongBanDienTu.Controllers
                         existing.TenDanhMuc = dm.TenDanhMuc;
                         existing.MoTa = dm.MoTa;
                         db.SaveChanges();
+                        VuongBanDienTu.Helpers.ActivityLogger.Log("Sửa danh mục", $"Cập nhật danh mục '{dm.TenDanhMuc}'", "Thành công");
                     }
                 }
                 else
                 {
                     db.DanhMucs.Add(dm);
                     db.SaveChanges();
+                    VuongBanDienTu.Helpers.ActivityLogger.Log("Thêm danh mục", $"Thêm danh mục '{dm.TenDanhMuc}'", "Thành công");
                 }
                 return Json(new { success = true });
             }
@@ -91,6 +93,7 @@ namespace VuongBanDienTu.Controllers
                 }
                 db.DanhMucs.Remove(dm);
                 db.SaveChanges();
+                VuongBanDienTu.Helpers.ActivityLogger.Log("Xóa danh mục", $"Xóa danh mục '{dm.TenDanhMuc}'", "Thành công");
                 return Json(new { success = true });
             }
             return Json(new { success = false, message = "Không tìm thấy danh mục!" });

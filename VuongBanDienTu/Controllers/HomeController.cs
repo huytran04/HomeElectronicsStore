@@ -18,7 +18,7 @@ namespace VuongBanDienTu.Controllers
             var newestProduct = db.SanPhams
                 .Include("HinhAnhSanPhams")
                 .Include("DanhMuc")
-                .Where(p => p.TrangThai != "Ngừng bán")
+                .Where(p => p.TrangThai != "Ngừng kinh doanh")
                 .OrderByDescending(p => p.NgayTao)
                 .FirstOrDefault();
             ViewBag.NewestProduct = newestProduct;
@@ -33,14 +33,14 @@ namespace VuongBanDienTu.Controllers
             var bestSeller = db.SanPhams
                 .Include("HinhAnhSanPhams")
                 .Include("DanhMuc")
-                .FirstOrDefault(p => p.MaSanPham == topSellerId && p.TrangThai != "Ngừng bán");
+                .FirstOrDefault(p => p.MaSanPham == topSellerId && p.TrangThai != "Ngừng kinh doanh");
 
             if (bestSeller == null)
             {
                 bestSeller = db.SanPhams
                     .Include("HinhAnhSanPhams")
                     .Include("DanhMuc")
-                    .Where(p => p.TrangThai != "Ngừng bán")
+                    .Where(p => p.TrangThai != "Ngừng kinh doanh")
                     .OrderByDescending(p => p.NgayTao)
                     .Skip(1)
                     .FirstOrDefault();
@@ -50,7 +50,7 @@ namespace VuongBanDienTu.Controllers
             var featuredProduct = db.SanPhams
                 .Include("HinhAnhSanPhams")
                 .Include("DanhMuc")
-                .Where(p => p.TrangThai != "Ngừng bán")
+                .Where(p => p.TrangThai != "Ngừng kinh doanh")
                 .OrderByDescending(p => p.GiaBan)
                 .FirstOrDefault();
 
@@ -59,14 +59,14 @@ namespace VuongBanDienTu.Controllers
                 featuredProduct = db.SanPhams
                     .Include("HinhAnhSanPhams")
                     .Include("DanhMuc")
-                    .Where(p => p.TrangThai != "Ngừng bán")
+                    .Where(p => p.TrangThai != "Ngừng kinh doanh")
                     .OrderByDescending(p => p.NgayTao)
                     .Skip(2)
                     .FirstOrDefault();
             }
             ViewBag.FeaturedProduct = featuredProduct;
 
-            var products = db.SanPhams.Include("DanhMuc").OrderByDescending(p => p.NgayTao).ToList();
+            var products = db.SanPhams.Include("DanhMuc").Where(p => p.TrangThai != "Ngừng kinh doanh").OrderByDescending(p => p.NgayTao).ToList();
             return View(products);
         }
 
