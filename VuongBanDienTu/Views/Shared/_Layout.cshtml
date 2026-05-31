@@ -1,5 +1,8 @@
 @{
     var config = VuongBanDienTu.Helpers.CauHinhHelper.LayCauHinh();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    bool isSanPhamIndex = controller == "SanPham" && action == "Index";
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -197,10 +200,10 @@
     <!-- ===================== SECONDARY NAV ===================== -->
     <nav class="bg-white border-b-2 border-primary">
         <div class="max-w-screen-xl mx-auto flex items-stretch">
-            <div class="relative flex-shrink-0 group-category">
-                <button id="categoryBtn" class="bg-primary text-white flex items-center gap-2 px-3 sm:px-4 h-full font-bold text-xs sm:text-sm min-w-[120px] sm:min-w-[190px] whitespace-nowrap select-none hover:bg-primary-dark transition-colors">
-                    <i class="fa fa-bars"></i>
-                    <span>Danh mục <span class="hidden sm:inline">sản phẩm</span></span>
+            <div class="relative flex-shrink-0 group-category @(isSanPhamIndex ? "md:hidden" : "")">
+                <button id="categoryBtn" class="bg-primary text-white flex items-center gap-2.5 px-4 sm:px-6 h-full font-black text-sm sm:text-base min-w-[140px] sm:min-w-[210px] whitespace-nowrap select-none hover:bg-primary-dark transition-colors shadow-inner">
+                    <i class="fa fa-bars text-lg"></i>
+                    <span class="uppercase tracking-tight">Danh mục <span class="hidden sm:inline">sản phẩm</span></span>
                 </button>
                 <!-- Category Dropdown -->
                 <div id="categoryDropdown" class="absolute left-0 top-full mt-0.5 z-[70] opacity-0 invisible translate-y-2 transition-all duration-200">

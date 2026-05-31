@@ -8,26 +8,26 @@
 
 <div class="max-w-screen-xl mx-auto px-4 py-8 flex gap-6">
     <!-- Sidebar for filtering -->
-    <aside class="sticky top-[76px] hidden md:flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm flex-shrink-0 w-60 border border-slate-100 self-start z-10">
-        <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
-            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Danh mục</h3>
+    <aside class="sticky top-[76px] hidden md:flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm flex-shrink-0 w-64 border border-slate-100 self-start z-10">
+        <div class="bg-slate-50 px-4 py-4 border-b border-slate-100">
+            <h3 class="text-base font-black text-slate-800 uppercase tracking-widest">Danh mục</h3>
         </div>
         <ul class="flex-1 py-1">
-            <li class="transition-colors hover:bg-red-50 @(currentCat == null ? "bg-red-50 text-primary font-bold" : "text-slate-600")">
-                <a href="@Url.Action("Index", "SanPham", new { id = "" })" class="flex items-center gap-2 px-4 py-2.5 text-xs">
-                    <i class="fa fa-grid-2 text-[10px]"></i> Tất cả sản phẩm
+            <li class="transition-colors hover:bg-red-50 @(currentCat == null ? "bg-red-50 text-primary font-black" : "text-slate-600 font-black")">
+                <a href="@Url.Action("Index", "SanPham", new { id = "" })" class="flex items-center gap-2 px-4 py-3 text-base">
+                    <i class="fa fa-grid-2 text-sm"></i> Tất cả sản phẩm
                 </a>
             </li>
             @if (ViewBag.Categories != null)
             {
                 foreach (var cat in (IEnumerable<VuongBanDienTu.Models.DanhMuc>)ViewBag.Categories)
                 {
-                    <li class="transition-colors hover:bg-red-50 @(currentCat != null && currentCat.MaDanhMuc == cat.MaDanhMuc ? "bg-red-50 text-primary font-bold" : "text-slate-600")">
-                        <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-4 py-2.5 text-xs">
-                            <span class="truncate">@cat.TenDanhMuc</span>
+                    <li class="transition-colors hover:bg-red-50 @(currentCat != null && currentCat.MaDanhMuc == cat.MaDanhMuc ? "bg-red-50 text-primary font-black" : "text-slate-600 font-black")">
+                        <a href="@Url.Action("Index", "SanPham", new { id = cat.MaDanhMuc })" class="flex items-center justify-between px-4 py-3 text-base gap-2">
+                            <span>@cat.TenDanhMuc</span>
                             @if (currentCat != null && currentCat.MaDanhMuc == cat.MaDanhMuc)
                             {
-                                <i class="fa fa-check text-[8px]"></i>
+                                <i class="fa fa-check text-xs flex-shrink-0"></i>
                             }
                         </a>
                     </li>
@@ -100,7 +100,7 @@
                                 }
                             </div>
 
-                            <div class="space-y-1 text-[11px] text-slate-500 font-medium h-20 overflow-hidden">
+                            <div class="space-y-1 text-xs text-slate-500 font-bold h-20 overflow-hidden">
                                 @if (!string.IsNullOrEmpty(item.ThongSoKyThuat))
                                 {
                                     var specs = item.ThongSoKyThuat.Split(new[] { '\n', '\r', ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
@@ -111,9 +111,9 @@
                                 }
                                 else
                                 {
-                                    <div class="truncate">Đang cập nhật thông số...</div>
-                                    <div class="truncate">Nhà sản xuất: @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "Đang cập nhật")</div>
-                                    <div class="truncate">Bảo hành: 12-24 tháng</div>
+                                    <div class="text-primary font-black uppercase text-xs mb-1">Danh mục: @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : "Đang cập nhật")</div>
+                                    <div class="truncate font-bold">• Bảo hành: 12-24 tháng</div>
+                                    <div class="truncate font-bold">• Hàng chính hãng 100%</div>
                                 }
                             </div>
                         </div>

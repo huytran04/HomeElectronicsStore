@@ -8,14 +8,14 @@
 }
 
 <div class="bg-slate-50 border-b border-slate-200">
-    <div class="max-w-screen-xl mx-auto px-4 py-4 flex items-center gap-2 text-xs text-slate-500 font-medium">
-        <a href="@Url.Action("Index", "Home")" class="hover:text-primary">Trang chủ</a>
-        <i class="fa fa-chevron-right text-[8px]"></i>
-        <a href="@Url.Action("Index", "SanPham")" class="hover:text-primary">Sản phẩm</a>
-        <i class="fa fa-chevron-right text-[8px]"></i>
-        <a href="@Url.Action("Index", "SanPham", new { id = Model.MaDanhMuc })" class="hover:text-primary">@(Model.DanhMuc != null ? Model.DanhMuc.TenDanhMuc : "Khác")</a>
-        <i class="fa fa-chevron-right text-[8px]"></i>
-        <span class="text-slate-900 font-bold truncate">@Model.TenSanPham</span>
+    <div class="max-w-screen-xl mx-auto px-4 py-5 flex items-center flex-wrap gap-2 text-base text-slate-500 font-black">
+        <a href="@Url.Action("Index", "Home")" class="hover:text-primary transition-colors">Trang chủ</a>
+        <i class="fa fa-chevron-right text-xs opacity-50"></i>
+        <a href="@Url.Action("Index", "SanPham")" class="hover:text-primary transition-colors">Sản phẩm</a>
+        <i class="fa fa-chevron-right text-xs opacity-50"></i>
+        <a href="@Url.Action("Index", "SanPham", new { id = Model.MaDanhMuc })" class="hover:text-primary text-slate-900 font-black underline decoration-primary/30 decoration-2 underline-offset-4">@(Model.DanhMuc != null ? Model.DanhMuc.TenDanhMuc : "Khác")</a>
+        <i class="fa fa-chevron-right text-xs opacity-50"></i>
+        <span class="text-primary font-black">@Model.TenSanPham</span>
     </div>
 </div>
 
@@ -99,7 +99,14 @@
                     Mới nhất
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">@Model.TenSanPham</h1>
-                <div class="flex items-center gap-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Danh mục:</span>
+                        <a href="@Url.Action("Index", "SanPham", new { id = Model.MaDanhMuc })" class="text-lg font-black text-primary hover:underline uppercase tracking-tight">
+                            @(Model.DanhMuc != null ? Model.DanhMuc.TenDanhMuc : "Khác")
+                        </a>
+                    </div>
+                    <div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
                     <div class="flex items-center gap-1 text-yellow-400">
                         <i class="fa fa-star"></i>
                         <i class="fa fa-star"></i>

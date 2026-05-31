@@ -75,8 +75,7 @@ namespace VuongBanDienTu.Controllers
 
             if (order != null)
             {
-                if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
-                    return Json(new { success = false, message = "Đơn hàng này đã được duyệt trước đó!" });
+                // Removed restriction: if (order.TrangThaiDonHang?.Trim() == "Đã xác nhận")
 
                 foreach (var ct in order.ChiTietDonHangs)
                 {
@@ -86,9 +85,12 @@ namespace VuongBanDienTu.Controllers
                     }
                 }
 
-                foreach (var ct in order.ChiTietDonHangs)
+                if (order.TrangThaiDonHang != "Đã xác nhận")
                 {
-                    ct.SanPham.SoLuongTon -= ct.SoLuong;
+                    foreach (var ct in order.ChiTietDonHangs)
+                    {
+                        ct.SanPham.SoLuongTon -= ct.SoLuong;
+                    }
                 }
 
                 order.TrangThaiDonHang = "Đã xác nhận";
@@ -98,6 +100,53 @@ namespace VuongBanDienTu.Controllers
                 return Json(new { success = true });
             }
             return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+        }
+
+        [HttpPost]
+        public ActionResult UpdateStatus(int id, string status)
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            var order = db.DonHangs.Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham").FirstOrDefault(o => o.MaDonHang == id);
+            
+            if (order == null) return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+
+            string oldStatus = order.TrangThaiDonHang?.Trim();
+            string newStatus = status.Trim();
+
+            if (oldStatus == newStatus) return Json(new { success = true });
+
+            // Xử lý tồn kho khi chuyển TRẠNG THÁI
+            // 1. Nếu chuyển SANG "Đã xác nhận", "Đang giao", "Hoàn thành" mà trước đó KHÔNG PHẢI nhóm này -> Trừ tồn kho
+            string[] confirmedGroup = { "Đã xác nhận", "Đang giao", "Hoàn thành" };
+            bool wasConfirmed = confirmedGroup.Contains(oldStatus);
+            bool isNewConfirmed = confirmedGroup.Contains(newStatus);
+
+            if (!wasConfirmed && isNewConfirmed)
+            {
+                // Trừ tồn kho
+                foreach (var ct in order.ChiTietDonHangs)
+                {
+                    if (ct.SanPham.SoLuongTon < ct.SoLuong)
+                        return Json(new { success = false, message = $"Sản phẩm '{ct.SanPham.TenSanPham}' không đủ tồn kho!" });
+                    ct.SanPham.SoLuongTon -= ct.SoLuong;
+                }
+            }
+            // 2. Nếu chuyển TỪ nhóm xác nhận SANG nhóm hủy/chờ -> Hoàn tồn kho
+            else if (wasConfirmed && !isNewConfirmed)
+            {
+                foreach (var ct in order.ChiTietDonHangs)
+                {
+                    ct.SanPham.SoLuongTon += ct.SoLuong;
+                }
+            }
+
+            order.TrangThaiDonHang = newStatus;
+            order.MaNhanVienXuLy = user.MaNguoiDung;
+            db.SaveChanges();
+            
+            VuongBanDienTu.Helpers.ActivityLogger.Log($"Cập nhật trạng thái đơn #ORD-{order.MaDonHang}", $"Từ '{oldStatus}' sang '{newStatus}'", newStatus);
+            
+            return Json(new { success = true, message = $"Đã cập nhật trạng thái đơn hàng sang '{newStatus}'" });
         }
 
         [HttpPost]
@@ -178,8 +227,7 @@ namespace VuongBanDienTu.Controllers
             var order = db.DonHangs.Find(id);
             if (order == null) return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
 
-            if (order.TrangThaiDonHang?.Trim() != "Chờ hoàn tiền")
-                return Json(new { success = false, message = "Đơn hàng này không ở trạng thái chờ hoàn tiền!" });
+            // Removed restriction: if (order.TrangThaiDonHang?.Trim() != "Chờ hoàn tiền")
 
             order.TrangThaiDonHang = "Đã hủy";
             order.TrangThaiThanhToan = "Đã hoàn tiền";
@@ -218,8 +266,7 @@ namespace VuongBanDienTu.Controllers
             var order = db.DonHangs.Find(id);
             if (order != null)
             {
-                if (order.TrangThaiDonHang?.Trim() != "Đã xác nhận")
-                    return Json(new { success = false, message = "Đơn hàng phải ở trạng thái 'Đã xác nhận' mới có thể giao hàng!" });
+                // Removed restriction: if (order.TrangThaiDonHang?.Trim() != "Đã xác nhận")
 
                 order.TrangThaiDonHang = "Đang giao";
                 order.MaNhanVienXuLy = user.MaNguoiDung;
@@ -237,8 +284,7 @@ namespace VuongBanDienTu.Controllers
             var order = db.DonHangs.Find(id);
             if (order != null)
             {
-                if (order.TrangThaiDonHang?.Trim() != "Đang giao")
-                    return Json(new { success = false, message = "Đơn hàng phải ở trạng thái 'Đang giao' mới có thể hoàn thành!" });
+                // Removed restriction: if (order.TrangThaiDonHang?.Trim() != "Đang giao")
 
                 order.TrangThaiDonHang = "Hoàn thành";
                 order.MaNhanVienXuLy = user.MaNguoiDung;

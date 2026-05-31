@@ -252,7 +252,7 @@
                         </div>
                     </div>
 
-                    <div class="relative flex items-center gap-3 cursor-pointer group py-2" id="userMenuBtn">
+                    <div class="relative flex items-center gap-3 cursor-pointer py-2" id="userMenuBtn">
                         @if (hasLayoutAvatar)
                         {
                             <img src="@(layoutAvatarPath + "?t=" + DateTime.Now.Ticks)" alt="Avatar" class="w-8 h-8 rounded-full border border-primary/20 object-cover shadow-sm ring-2 ring-primary/20" />
@@ -271,10 +271,10 @@
                                 </span>
                             </p>
                         </div>
-                        <i class="fa fa-chevron-down text-[10px] text-slate-400 group-hover:text-slate-600 transition-colors"></i>
+                        <i class="fa fa-chevron-down text-[10px] text-slate-400 transition-colors"></i>
 
                         <!-- Dropdown Menu -->
-                        <div class="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden group-hover:block hover:block z-50 transition-all duration-300">
+                        <div id="userDropdownMenu" class="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden z-50 transition-all duration-300">
                             <div class="px-4 py-3 border-b border-slate-100">
                                 <p class="text-xs font-black text-slate-800">@(user != null ? user.HoTen : "Quản trị viên")</p>
                                 <p class="text-[10px] text-slate-400 mt-0.5 truncate">@(user != null ? user.Email : "admin@vuongbdt.vn")</p>
@@ -304,6 +304,12 @@
         const sidebar = document.getElementById('adminSidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const toggleBtn = document.getElementById('sidebarToggle');
+        
+        // Dropdown elements
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationMenu = document.getElementById('notificationMenu');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdownMenu = document.getElementById('userDropdownMenu');
 
         if (toggleBtn && sidebar && overlay) {
             toggleBtn.addEventListener('click', toggleSidebar);
@@ -334,21 +340,33 @@
         }
 
         // Notification dropdown toggle
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationMenu = document.getElementById('notificationMenu');
-        
         if (notificationBtn && notificationMenu) {
             notificationBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                // Close user menu if open
+                if (userDropdownMenu) userDropdownMenu.classList.add('hidden');
                 notificationMenu.classList.toggle('hidden');
             });
-            
-            document.addEventListener('click', (e) => {
-                if (!notificationMenu.classList.contains('hidden') && !notificationMenu.contains(e.target) && e.target !== notificationBtn) {
-                    notificationMenu.classList.add('hidden');
-                }
+        }
+
+        // User dropdown toggle
+        if (userMenuBtn && userDropdownMenu) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close notification menu if open
+                if (notificationMenu) notificationMenu.classList.add('hidden');
+                userDropdownMenu.classList.toggle('hidden');
             });
         }
+            
+        document.addEventListener('click', (e) => {
+            if (notificationMenu && !notificationMenu.classList.contains('hidden') && !notificationMenu.contains(e.target) && e.target !== notificationBtn) {
+                notificationMenu.classList.add('hidden');
+            }
+            if (userDropdownMenu && !userDropdownMenu.classList.contains('hidden') && !userDropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                userDropdownMenu.classList.add('hidden');
+            }
+        });
     </script>
     @Scripts.Render("~/bundles/jquery")
     @RenderSection("scripts", required: false)

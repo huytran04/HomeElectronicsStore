@@ -442,7 +442,7 @@ namespace VuongBanDienTu.Controllers
             Session["TaiKhoan"] = user;
             PhanQuyen.RefreshPermissions();
 
-            TempData["SuccessMessage"] = "Kích hoạt tài khoản thành công! Chào mừng bạn đến với Vương Bán Điện Tử.";
+            TempData["SuccessMessage"] = "Kích hoạt tài khoản thành công! Chào mừng bạn đến với Vương Điện Tử.";
             string redirectTo = Url.Action("Index", "Home");
             if (PhanQuyen.HasPermission("TRUY_CAP_QUAN_TRI"))
             {

@@ -43,7 +43,7 @@
         <a href="@Url.Action("Index", "Home")" class="px-12 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-200">
             Quay lại trang chủ
         </a>
-        <a href="#" class="px-12 py-4 border-2 border-primary text-primary rounded-2xl font-black uppercase tracking-widest hover:bg-red-50 transition-all">
+        <a href="@Url.Action("ChiTiet", "DonHang", new { id = Model.MaDonHang })" class="px-12 py-4 border-2 border-primary text-primary rounded-2xl font-black uppercase tracking-widest hover:bg-red-50 transition-all">
             Xem chi tiết đơn hàng
         </a>
     </div>

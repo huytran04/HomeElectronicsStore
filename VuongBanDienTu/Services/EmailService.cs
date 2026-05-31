@@ -35,7 +35,7 @@ namespace VuongBanDienTu.Services
 
                 using (var mail = new MailMessage())
                 {
-                    mail.From = new MailAddress(SenderEmail, "Vương Bán Điện Tử");
+                    mail.From = new MailAddress(SenderEmail, "VUONGDIENTU");
                     mail.To.Add(toEmail);
                     mail.Subject = subject;
                     mail.Body = body;
@@ -63,17 +63,17 @@ namespace VuongBanDienTu.Services
         {
             if (user == null || string.IsNullOrEmpty(user.Email)) return;
 
-            string subject = "Mã kích hoạt tài khoản Vương Bán Điện Tử của bạn";
+            string subject = "Mã kích hoạt tài khoản VUONGDIENTU của bạn";
 
             string body = $@"
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'>
                 <div style='background: linear-gradient(135deg, #e8192c 0%, #ff4b5c 100%); padding: 30px; text-align: center; color: white;'>
-                    <h1 style='margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;'>VƯƠNG BÁN ĐIỆN TỬ</h1>
+                    <h1 style='margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;'>VUONGDIENTU</h1>
                     <p style='margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;'>Xác nhận kích hoạt tài khoản</p>
                 </div>
                 <div style='padding: 30px; color: #334155; line-height: 1.6;'>
                     <h2 style='color: #e8192c; margin-top: 0;'>Chào {user.HoTen},</h2>
-                    <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Vương Bán Điện Tử</strong>!</p>
+                    <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>VUONGDIENTU</strong>!</p>
                     <p>Để kích hoạt tài khoản và bắt đầu mua sắm, vui lòng nhập mã OTP gồm 6 chữ số dưới đây:</p>
 
                     <div style='background-color: #fff5f5; border: 2px dashed #e8192c; padding: 24px; margin: 25px 0; text-align: center; border-radius: 12px;'>
@@ -94,7 +94,7 @@ namespace VuongBanDienTu.Services
                 </div>
                 <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;'>
                     <p style='margin: 0 0 5px 0;'>Mọi thắc mắc xin liên hệ tổng đài hỗ trợ: <strong>1800 6800</strong></p>
-                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} VUONGDIENTU. All rights reserved.</p>
                 </div>
             </div>";
 
@@ -105,14 +105,14 @@ namespace VuongBanDienTu.Services
         {
             if (user == null || string.IsNullOrEmpty(user.Email)) return;
 
-            string subject = "Mã xác nhận khôi phục mật khẩu tài khoản Vương Bán Điện Tử";
+            string subject = "Mã xác nhận khôi phục mật khẩu tài khoản VUONGDIENTU";
 
             string resetLink = $"http://localhost:63259/TaiKhoan/XacNhanResetMatKhau?username={Uri.EscapeDataString(user.TenDangNhap)}&code={resetCode}";
 
             string body = $@"
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'>
                 <div style='background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 30px; text-align: center; color: white;'>
-                    <h1 style='margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;'>VƯƠNG BÁN ĐIỆN TỬ</h1>
+                    <h1 style='margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;'>VUONGDIENTU</h1>
                     <p style='margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;'>Khôi phục mật khẩu tài khoản</p>
                 </div>
                 <div style='padding: 30px; color: #334155; line-height: 1.6;'>
@@ -136,7 +136,7 @@ namespace VuongBanDienTu.Services
                 </div>
                 <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;'>
                     <p style='margin: 0 0 5px 0;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ CSKH của chúng tôi.</p>
-                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} VUONGDIENTU. All rights reserved.</p>
                 </div>
             </div>";
 
@@ -160,14 +160,14 @@ namespace VuongBanDienTu.Services
 
             if (type == "DatHang")
             {
-                subject = $"[Vương Bán Điện Tử] Xác nhận đặt đơn hàng mới thành công #{order.MaDonHang}";
+                subject = $"[VUONGDIENTU] Xác nhận đặt đơn hàng mới thành công #{order.MaDonHang}";
                 headerText = "ĐẶT HÀNG THÀNH CÔNG";
                 headerBg = "linear-gradient(135deg, #e8192c 0%, #ff4b5c 100%)";
-                statusMessage = $"Cảm ơn bạn đã mua sắm tại Vương Bán Điện Tử! Đơn hàng #{order.MaDonHang} của bạn đã được tiếp nhận thành công và đang được chuẩn bị đóng gói.";
+                statusMessage = $"Cảm ơn bạn đã mua sắm tại VUONGDIENTU! Đơn hàng #{order.MaDonHang} của bạn đã được tiếp nhận thành công và đang được chuẩn bị đóng gói.";
             }
             else if (type == "HuyHang")
             {
-                subject = $"[Vương Bán Điện Tử] Thông báo hủy đơn hàng #{order.MaDonHang}";
+                subject = $"[VUONGDIENTU] Thông báo hủy đơn hàng #{order.MaDonHang}";
                 headerText = "ĐƠN HÀNG ĐÃ HỦY";
                 headerBg = "linear-gradient(135deg, #64748b 0%, #475569 100%)";
                 statusMessage = $"Chúng tôi xin thông báo đơn hàng #{order.MaDonHang} của bạn đã được hủy thành công.";
@@ -196,7 +196,7 @@ namespace VuongBanDienTu.Services
             string bodyTemplate = $@"
             <div style='font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'>
                 <div style='background: {headerBg}; padding: 30px; text-align: center; color: white;'>
-                    <h1 style='margin: 0 0 5px 0; font-size: 18px; font-weight: 500; opacity: 0.9; text-transform: uppercase;'>HỆ THỐNG VƯƠNG BÁN ĐIỆN TỬ</h1>
+                    <h1 style='margin: 0 0 5px 0; font-size: 18px; font-weight: 500; opacity: 0.9; text-transform: uppercase;'>HỆ THỐNG VUONGDIENTU</h1>
                     <h2 style='margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 1px;'>{headerText}</h2>
                 </div>
                 <div style='padding: 30px; color: #334155; line-height: 1.6;'>
@@ -258,7 +258,7 @@ namespace VuongBanDienTu.Services
                 </div>
                 <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;'>
                     <p style='margin: 0 0 5px 0;'>Cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi.</p>
-                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                    <p style='margin: 0;'>&copy; {DateTime.Now.Year} VUONGDIENTU. All rights reserved.</p>
                 </div>
             </div>";
 
@@ -291,7 +291,7 @@ namespace VuongBanDienTu.Services
             string body = $@"
             <div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;'>
                 <div style='background:linear-gradient(135deg,#f59e0b,#d97706);padding:28px;text-align:center;color:white;'>
-                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống Vương Bán Điện Tử</h1>
+                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống VUONGDIENTU</h1>
                     <h2 style='margin:0;font-size:24px;font-weight:900;'>⚠ YÊU CẦU HOÀN TIỀN</h2>
                 </div>
                 <div style='padding:28px;color:#334155;'>
@@ -328,11 +328,11 @@ namespace VuongBanDienTu.Services
             string totalAmount = (order.TongTien ?? 0).ToString("N0");
             string paymentMethod = order.PhuongThucThanhToan == "VNPAY" ? "VNPAY (hoàn về tài khoản ngân hàng)" : "COD (hoàn tiền mặt tại cửa hàng)";
 
-            string subject = $"[Vương Bán Điện Tử] Yêu cầu hoàn tiền đơn #{order.MaDonHang} đã được duyệt";
+            string subject = $"[VUONGDIENTU] Yêu cầu hoàn tiền đơn #{order.MaDonHang} đã được duyệt";
             string body = $@"
             <div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;'>
                 <div style='background:linear-gradient(135deg,#16a34a,#15803d);padding:28px;text-align:center;color:white;'>
-                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống Vương Bán Điện Tử</h1>
+                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống VUONGDIENTU</h1>
                     <h2 style='margin:0;font-size:24px;font-weight:900;'>✓ YÊU CẦU HOÀN TIỀN ĐÃ ĐƯỢC DUYỆT</h2>
                 </div>
                 <div style='padding:28px;color:#334155;line-height:1.7;'>
@@ -350,7 +350,7 @@ namespace VuongBanDienTu.Services
                     </div>
                 </div>
                 <div style='background:#f1f5f9;padding:18px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
-                    Cảm ơn bạn đã tin dùng Vương Bán Điện Tử &copy; {DateTime.Now.Year}
+                    Cảm ơn bạn đã tin dùng VUONGDIENTU &copy; {DateTime.Now.Year}
                 </div>
             </div>";
 
@@ -369,11 +369,11 @@ namespace VuongBanDienTu.Services
             string totalAmount = (order.TongTien ?? 0).ToString("N0");
             string lyDo = !string.IsNullOrEmpty(order.GhiChu) ? order.GhiChu : "Khách hàng yêu cầu hủy";
 
-            string subject = $"[Vương Bán Điện Tử] Đơn hàng #{order.MaDonHang} đã được hủy thành công";
+            string subject = $"[VUONGDIENTU] Đơn hàng #{order.MaDonHang} đã được hủy thành công";
             string body = $@"
             <div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;'>
                 <div style='background:linear-gradient(135deg,#64748b,#475569);padding:28px;text-align:center;color:white;'>
-                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống Vương Bán Điện Tử</h1>
+                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống VUONGDIENTU</h1>
                     <h2 style='margin:0;font-size:24px;font-weight:900;'>✓ HỦY ĐƠN HÀNG THÀNH CÔNG</h2>
                 </div>
                 <div style='padding:28px;color:#334155;line-height:1.7;'>
@@ -394,7 +394,7 @@ namespace VuongBanDienTu.Services
                     </div>
                 </div>
                 <div style='background:#f1f5f9;padding:18px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
-                    Cảm ơn bạn đã tin dùng Vương Bán Điện Tử &copy; {DateTime.Now.Year}
+                    Cảm ơn bạn đã tin dùng VUONGDIENTU &copy; {DateTime.Now.Year}
                 </div>
             </div>";
 
@@ -431,13 +431,13 @@ namespace VuongBanDienTu.Services
                 }
             }
 
-            string subject = $"[Vương Bán Điện Tử] Đơn hàng #{order.MaDonHang} đã được hủy thành công — Tiền đã được hoàn trả";
+            string subject = $"[VUONGDIENTU] Đơn hàng #{order.MaDonHang} đã được hủy thành công — Tiền đã được hoàn trả";
             string body = $@"
             <div style='font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);'>
                 
                 <!-- Header -->
                 <div style='background:linear-gradient(135deg,#e8192c 0%,#ff4b5c 100%);padding:32px;text-align:center;color:white;'>
-                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống Vương Bán Điện Tử</p>
+                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống VUONGDIENTU</p>
                     <h1 style='margin:0;font-size:26px;font-weight:900;letter-spacing:.5px;'>✓ HỦY ĐƠN HÀNG &amp; HOÀN TIỀN THÀNH CÔNG</h1>
                 </div>
 
@@ -500,7 +500,7 @@ namespace VuongBanDienTu.Services
                 <!-- Footer -->
                 <div style='background:#f1f5f9;padding:20px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
                     <p style='margin:0 0 4px;'>Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.</p>
-                    <p style='margin:0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                    <p style='margin:0;'>&copy; {DateTime.Now.Year} VUONGDIENTU. All rights reserved.</p>
                 </div>
             </div>";
 
@@ -544,13 +544,13 @@ namespace VuongBanDienTu.Services
                 }
             }
 
-            string subject = $"[Vương Bán Điện Tử] Đơn hàng #{order.MaDonHang} đã bị hủy — Tiền đã được hoàn trả";
+            string subject = $"[VUONGDIENTU] Đơn hàng #{order.MaDonHang} đã bị hủy — Tiền đã được hoàn trả";
             string body = $@"
             <div style='font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);'>
                 
                 <!-- Header -->
                 <div style='background:linear-gradient(135deg,#e8192c 0%,#ff4b5c 100%);padding:32px;text-align:center;color:white;'>
-                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống Vương Bán Điện Tử</p>
+                    <p style='margin:0 0 6px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;'>Hệ Thống VUONGDIENTU</p>
                     <h1 style='margin:0;font-size:26px;font-weight:900;letter-spacing:.5px;'>ĐƠN HÀNG ĐÃ HỦY &amp; HOÀN TIỀN</h1>
                 </div>
 
@@ -613,7 +613,7 @@ namespace VuongBanDienTu.Services
                 <!-- Footer -->
                 <div style='background:#f1f5f9;padding:20px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
                     <p style='margin:0 0 4px;'>Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.</p>
-                    <p style='margin:0;'>&copy; {DateTime.Now.Year} Vương Bán Điện Tử. All rights reserved.</p>
+                    <p style='margin:0;'>&copy; {DateTime.Now.Year} VUONGDIENTU. All rights reserved.</p>
                 </div>
             </div>";
 
