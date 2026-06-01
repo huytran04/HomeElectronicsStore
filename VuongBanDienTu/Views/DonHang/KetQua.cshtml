@@ -19,8 +19,18 @@
                     <span class="px-6 py-2 rounded-2xl bg-amber-50 text-amber-600 text-xs font-black uppercase tracking-widest border border-amber-100">Đang chờ xử lý</span>
                 } else if (Model.TrangThaiDonHang == "Đã xác nhận") {
                     <span class="px-6 py-2 rounded-2xl bg-green-50 text-green-600 text-xs font-black uppercase tracking-widest border border-green-100">Đã xác nhận</span>
+                } else if (Model.TrangThaiDonHang == "Đang giao") {
+                    <span class="px-6 py-2 rounded-2xl bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-widest border border-blue-100">Đang giao hàng</span>
+                } else if (Model.TrangThaiDonHang == "Hoàn thành") {
+                    <span class="px-6 py-2 rounded-2xl bg-purple-50 text-purple-600 text-xs font-black uppercase tracking-widest border border-purple-100">Hoàn thành</span>
+                } else if (Model.TrangThaiDonHang == "Yêu cầu trả hàng") {
+                    <span class="px-6 py-2 rounded-2xl bg-indigo-50 text-indigo-600 text-xs font-black uppercase tracking-widest border border-indigo-100">Chờ duyệt trả hàng</span>
+                } else if (Model.TrangThaiDonHang == "Đã trả hàng") {
+                    <span class="px-6 py-2 rounded-2xl bg-gray-50 text-gray-500 text-xs font-black uppercase tracking-widest border border-gray-100">Đã hoàn trả hàng</span>
                 } else if (Model.TrangThaiDonHang == "Chờ hoàn tiền") {
-                    <span class="px-6 py-2 rounded-2xl bg-orange-50 text-orange-600 text-xs font-black uppercase tracking-widest border border-orange-100">Chờ hoàn tiền</span>
+                    <span class="px-6 py-2 rounded-2xl bg-orange-50 text-orange-600 text-xs font-black uppercase tracking-widest border border-orange-100">Chờ duyệt hoàn tiền</span>
+                } else if (Model.TrangThaiDonHang == "Chờ duyệt hủy") {
+                    <span class="px-6 py-2 rounded-2xl bg-red-50 text-primary text-xs font-black uppercase tracking-widest border border-red-100">Chờ duyệt hủy đơn</span>
                 } else if (Model.TrangThaiDonHang == "Đã hủy") {
                     <span class="px-6 py-2 rounded-2xl bg-red-50 text-primary text-xs font-black uppercase tracking-widest border border-red-100">Đã hủy bỏ</span>
                 }

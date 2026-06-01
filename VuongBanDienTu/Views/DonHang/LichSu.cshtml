@@ -51,9 +51,16 @@
                                 <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-600 text-[9px] font-black uppercase">Đang giao</span>
                             } else if (status == "Hoàn thành") {
                                 <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-purple-50 text-purple-600 text-[9px] font-black uppercase">Hoàn thành</span>
+                            } else if (status == "Yêu cầu trả hàng") {
+                                <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase">Chờ duyệt trả hàng</span>
+                            } else if (status == "Đã trả hàng") {
+                                <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-gray-50 text-gray-500 text-[9px] font-black uppercase">Đã hoàn trả hàng</span>
                             } else if (status == "Chờ hoàn tiền") {
-                                <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-orange-50 text-orange-600 text-[9px] font-black uppercase">Chờ hoàn tiền</span>
-                            } else if (status == "Đã hủy") {
+                                <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-orange-50 text-orange-600 text-[9px] font-black uppercase">Chờ duyệt hoàn tiền</span>
+                            } else if (status == "Chờ duyệt hủy") {
+                                <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-red-50 text-primary text-[9px] font-black uppercase">Chờ duyệt hủy đơn</span>
+                            }
+ else if (status == "Đã hủy") {
                                 <span class="w-fit mx-auto sm:mx-0 px-2 py-0.5 rounded-lg bg-red-50 text-primary text-[9px] font-black uppercase">Đã hủy</span>
                             }
                         </div>
@@ -62,13 +69,37 @@
                     <div class="text-center sm:text-right">
                         <p class="text-lg font-black text-slate-800">@(item.TongTien.HasValue ? item.TongTien.Value.ToString("N0") : "0")₫</p>
                         <div class="flex flex-col items-center sm:items-end gap-1 mt-0.5">
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">@item.TrangThaiThanhToan</p>
-                            @if (item.TrangThaiThanhToan == "Chưa thanh toán" && item.TrangThaiDonHang != "Đã hủy" && item.PhuongThucThanhToan != "COD")
-                            {
-                                <a href="@Url.Action("ThanhToanVnPay", "ThanhToan", new { orderId = item.MaDonHang })" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase rounded-lg hover:bg-primary-dark transition-all shadow-md shadow-red-50">
-                                    Thanh toán ngay
-                                </a>
+                            @{
+                                var pStatus = item.TrangThaiThanhToan?.Trim();
                             }
+                            @if (pStatus == "Đã thanh toán") {
+                                <span class="text-[9px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded uppercase tracking-wider">Đã thanh toán</span>
+                            } else if (pStatus == "Đã hoàn tiền") {
+                                <span class="text-[9px] font-black text-primary bg-red-50 px-2 py-0.5 rounded uppercase tracking-wider">Đã hoàn tiền</span>
+                            } else if (pStatus == "Chờ hoàn tiền") {
+                                <span class="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded uppercase tracking-wider">Chờ hoàn tiền</span>
+                            } else {
+                                <span class="text-[9px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded uppercase tracking-wider">Chưa thanh toán</span>
+                            }
+
+                            <div class="flex gap-2 mt-2">
+                                @if (item.TrangThaiThanhToan == "Chưa thanh toán" && item.TrangThaiDonHang != "Đã hủy" && item.PhuongThucThanhToan != "COD" && item.TrangThaiDonHang != "Hoàn thành")
+                                {
+                                    <a href="@Url.Action("ThanhToanVnPay", "ThanhToan", new { orderId = item.MaDonHang })" class="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase rounded-lg hover:bg-primary-dark transition-all shadow-md shadow-red-50">
+                                        Thanh toán ngay
+                                    </a>
+                                }
+                                
+                                @{
+                                    string[] cancellable = { "Chờ xử lý", "Đã xác nhận", "Đang giao" };
+                                }
+                                @if (cancellable.Contains(item.TrangThaiDonHang?.Trim()))
+                                {
+                                    <a href="@Url.Action("ChiTiet", "DonHang", new { id = item.MaDonHang })" class="px-3 py-1 bg-white border border-slate-200 text-slate-400 text-[9px] font-black uppercase rounded-lg hover:border-primary/30 hover:text-primary transition-all">
+                                        Hủy đơn
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                     <div class="sm:pl-6 sm:border-l border-slate-50 w-full sm:w-auto">

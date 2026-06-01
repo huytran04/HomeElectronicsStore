@@ -33,29 +33,40 @@ namespace VuongBanDienTu.Services
                     return;
                 }
 
-                using (var mail = new MailMessage())
+                // Chạy gửi email trong một luồng nền để tránh làm chậm phản hồi UI
+                System.Threading.Tasks.Task.Run(() =>
                 {
-                    mail.From = new MailAddress(SenderEmail, "VUONGDIENTU");
-                    mail.To.Add(toEmail);
-                    mail.Subject = subject;
-                    mail.Body = body;
-                    mail.IsBodyHtml = true;
-                    mail.BodyEncoding = Encoding.UTF8;
-                    mail.SubjectEncoding = Encoding.UTF8;
-
-                    using (var smtp = new SmtpClient(SmtpHost, SmtpPort))
+                    try
                     {
-                        smtp.UseDefaultCredentials = false;
-                        smtp.Credentials = new NetworkCredential(SenderEmail, SenderPassword);
-                        smtp.EnableSsl = true;
-                        smtp.Send(mail);
+                        using (var mail = new MailMessage())
+                        {
+                            mail.From = new MailAddress(SenderEmail, "VUONGDIENTU");
+                            mail.To.Add(toEmail);
+                            mail.Subject = subject;
+                            mail.Body = body;
+                            mail.IsBodyHtml = true;
+                            mail.BodyEncoding = Encoding.UTF8;
+                            mail.SubjectEncoding = Encoding.UTF8;
+
+                            using (var smtp = new SmtpClient(SmtpHost, SmtpPort))
+                            {
+                                smtp.UseDefaultCredentials = false;
+                                smtp.Credentials = new NetworkCredential(SenderEmail, SenderPassword);
+                                smtp.EnableSsl = true;
+                                smtp.Send(mail);
+                            }
+                        }
+                        System.Diagnostics.Debug.WriteLine($"EmailService Success: Sent email to {toEmail} with subject '{subject}'");
                     }
-                }
-                System.Diagnostics.Debug.WriteLine($"EmailService Success: Sent email to {toEmail} with subject '{subject}'");
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"EmailService Error: Failed to send email to {toEmail}. Details: {ex.Message}");
+                    }
+                });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"EmailService Error: Failed to send email to {toEmail}. Details: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"EmailService Outer Error: {ex.Message}");
             }
         }
 
@@ -276,8 +287,85 @@ namespace VuongBanDienTu.Services
             }
         }
 
-        // Gửi email cho ADMIN khi khách yêu cầu hủy đơn đã thanh toán
+        // Gửi email cho ADMIN khi khách yêu cầu HOÀN TRẢ HÀNG
+        public static void SendReturnRequestEmail(DonHang order, string lyDo)
+        {
+            if (order == null || string.IsNullOrEmpty(AdminEmail)) return;
+
+            string customerName = order.NguoiDung?.HoTen ?? "Khách hàng";
+            string customerEmail = order.NguoiDung?.Email ?? "Chưa có";
+            string orderDate = order.NgayDat.HasValue ? order.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "---";
+            string totalAmount = (order.TongTien ?? 0).ToString("N0");
+
+            string subject = $"[YÊU CẦU TRẢ HÀNG] Đơn hàng #{order.MaDonHang} - {customerName}";
+            string body = $@"
+            <div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;'>
+                <div style='background:linear-gradient(135deg,#6366f1,#4f46e5);padding:28px;text-align:center;color:white;'>
+                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống VUONGDIENTU</h1>
+                    <h2 style='margin:0;font-size:24px;font-weight:900;'>↺ YÊU CẦU TRẢ HÀNG</h2>
+                </div>
+                <div style='padding:28px;color:#334155;'>
+                    <p style='font-size:14px;'>Khách hàng <strong>{customerName}</strong> vừa yêu cầu trả lại đơn hàng <strong>#{order.MaDonHang}</strong> đã hoàn thành.</p>
+                    <div style='background:#f5f3ff;border-left:4px solid #6366f1;padding:14px;border-radius:4px;margin:16px 0;font-size:13px;color:#4338ca;'>
+                        <strong>Lý do trả hàng:</strong> {lyDo}
+                    </div>
+                    <table style='width:100%;font-size:13px;border-collapse:collapse;margin:16px 0;background:#f8fafc;border-radius:8px;overflow:hidden;'>
+                        <tr><td style='padding:8px 14px;color:#64748b;'>Khách hàng:</td><td style='padding:8px 14px;font-weight:bold;'>{customerName}</td></tr>
+                        <tr><td style='padding:8px 14px;color:#64748b;'>Email:</td><td style='padding:8px 14px;font-weight:bold;'>{customerEmail}</td></tr>
+                        <tr><td style='padding:8px 14px;color:#64748b;'>Mã đơn:</td><td style='padding:8px 14px;font-weight:bold;'>#{order.MaDonHang}</td></tr>
+                        <tr><td style='padding:8px 14px;color:#64748b;'>Tổng giá trị đơn:</td><td style='padding:8px 14px;font-weight:900;color:#e8192c;font-size:15px;'>{totalAmount}₫</td></tr>
+                    </table>
+                    <div style='text-align:center;margin:24px 0;'>
+                        <a href='http://localhost:63259/QuanLyDonHang' style='background:#e8192c;color:white;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;'>Xem Chi Tiết Tại Admin</a>
+                    </div>
+                </div>
+            </div>";
+
+            SendHtmlEmail(AdminEmail, subject, body);
+        }
+
+        // Gửi email cho KHÁCH HÀNG khi admin DUYỆT TRẢ HÀNG & HOÀN TIỀN
+        public static void SendReturnApprovedEmail(DonHang order)
+        {
+            if (order == null) return;
+            string customerEmail = order.NguoiDung?.Email;
+            if (string.IsNullOrEmpty(customerEmail)) return;
+
+            string customerName = order.NguoiDung?.HoTen ?? "Khách hàng";
+            string totalAmount = (order.TongTien ?? 0).ToString("N0");
+
+            string subject = $"[VUONGDIENTU] Thông báo Duyệt trả hàng và Hoàn tiền thành công #{order.MaDonHang}";
+            string body = $@"
+            <div style='font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;'>
+                <div style='background:linear-gradient(135deg,#0ea5e9,#0284c7);padding:28px;text-align:center;color:white;'>
+                    <h1 style='margin:0 0 4px;font-size:14px;opacity:.9;text-transform:uppercase;'>Hệ Thống VUONGDIENTU</h1>
+                    <h2 style='margin:0;font-size:24px;font-weight:900;'>✓ DUYỆT TRẢ HÀNG &amp; HOÀN TIỀN THÀNH CÔNG</h2>
+                </div>
+                <div style='padding:28px;color:#334155;line-height:1.7;'>
+                    <p style='font-size:15px;'>Chào <strong>{customerName}</strong>,</p>
+                    <p style='font-size:14px;'>Yêu cầu trả hàng cho đơn hàng <strong>#{order.MaDonHang}</strong> của bạn đã được Admin phê duyệt thành công.</p>
+                    <div style='background:#f0f9ff;border-left:4px solid #0ea5e9;padding:16px;border-radius:4px;margin:20px 0;'>
+                        <p style='margin:0 0 6px;font-size:13px;color:#0369a1;'><strong>Số tiền đã hoàn trả:</strong></p>
+                        <p style='margin:0;font-size:28px;font-weight:900;color:#0284c7;'>{totalAmount}₫</p>
+                        <p style='margin:6px 0 0;font-size:12px;color:#0ea5e9;'>Tiền đã được hoàn về theo phương thức thanh toán ban đầu của bạn.</p>
+                    </div>
+                    <p style='font-size:13px;color:#64748b;'>Lưu ý: Thời gian tiền nổi trong tài khoản có thể mất 3–7 ngày tùy theo ngân hàng.</p>
+                    <p style='font-size:13px;'>Cảm ơn bạn đã luôn tin tưởng và mua sắm tại <strong>VUONGDIENTU</strong>. Rất mong được phục vụ bạn trong những đơn hàng tiếp theo!</p>
+                    <div style='text-align:center;margin:28px 0 10px;'>
+                        <a href='http://localhost:63259' style='background:#e8192c;color:white;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;'>Tiếp Tục Mua Sắm</a>
+                    </div>
+                </div>
+                <div style='background:#f1f5f9;padding:18px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;'>
+                    Trân trọng, Đội ngũ VUONGDIENTU &copy; {DateTime.Now.Year}
+                </div>
+            </div>";
+
+            SendHtmlEmail(customerEmail, subject, body);
+        }
+
+        // Gửi email cho ADMIN khi khách yêu cầu hoàn tiền đơn đã thanh toán
         public static void SendRefundRequestEmail(DonHang order, string lyDo)
+
         {
             if (order == null || string.IsNullOrEmpty(AdminEmail)) return;
 

@@ -78,8 +78,10 @@ namespace VuongBanDienTu.Controllers
             if (order == null || order.MaKhachHang != user.MaNguoiDung)
                 return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
 
-            if (order.TrangThaiDonHang?.Trim() != "Chờ xử lý")
-                return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng ở trạng thái 'Chờ xử lý'!" });
+            string currentStatus = order.TrangThaiDonHang?.Trim();
+            string[] allowedToCancel = { "Chờ xử lý", "Đã xác nhận", "Đang giao" };
+            if (!allowedToCancel.Contains(currentStatus))
+                return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng khi chưa hoàn thành hoặc chưa bị hủy!" });
 
             bool daDangThanhToan = order.TrangThaiThanhToan?.Trim() == "Đã thanh toán";
             string lyDoGhiChu = string.IsNullOrEmpty(lyDo) ? "Khách hàng yêu cầu hủy" : lyDo;
@@ -112,13 +114,14 @@ namespace VuongBanDienTu.Controllers
             }
             else
             {
-                // Chưa thanh toán → hủy ngay, gửi email xác nhận cho khách
-                order.TrangThaiDonHang = "Đã hủy";
+                // Đơn COD / Chưa thanh toán -> chờ admin duyệt hủy
+                order.TrangThaiDonHang = "Chờ duyệt hủy";
                 order.GhiChu = lyDoGhiChu;
                 db.SaveChanges();
-                VuongBanDienTu.Helpers.ActivityLogger.Log($"Hủy đơn hàng #ORD-{order.MaDonHang}", $"Lý do: {order.GhiChu}", "Đã hủy");
+                VuongBanDienTu.Helpers.ActivityLogger.Log($"Yêu cầu hủy đơn #ORD-{order.MaDonHang}", $"Lý do: {order.GhiChu}", "Chờ duyệt hủy");
 
                 var orderId = order.MaDonHang;
+                var reason = order.GhiChu;
                 System.Threading.Tasks.Task.Run(() => {
                     try {
                         using (var ctx = new VuongDienTuEntities())
@@ -127,14 +130,57 @@ namespace VuongBanDienTu.Controllers
                                 .Include("NguoiDung").Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham")
                                 .FirstOrDefault(x => x.MaDonHang == orderId);
                             if (o != null)
-                                VuongBanDienTu.Services.EmailService.SendSelfCancelEmail(o);
+                                // Gửi email thông báo cho Admin có yêu cầu hủy đơn COD
+                                VuongBanDienTu.Services.EmailService.SendRefundRequestEmail(o, reason); // Tạm dùng chung mẫu request vì nội dung tương tự (cần admin xử lý)
                         }
                     }
-                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine("HuyDon SelfCancel: " + ex.Message); }
+                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine("HuyDon COD Request: " + ex.Message); }
                 });
 
-                return Json(new { success = true, message = "Hủy đơn hàng thành công! Email xác nhận đã được gửi đến bạn." });
+                return Json(new { success = true, message = "Yêu cầu hủy đơn hàng đã được gửi! Admin sẽ sớm xem xét và xác nhận cho bạn." });
             }
+        }
+
+        [HttpPost]
+        public ActionResult YeuCauTraHang(int id, string lyDo)
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            if (user == null) return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+
+            var order = db.DonHangs.Find(id);
+            if (order == null || order.MaKhachHang != user.MaNguoiDung)
+                return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+
+            if (order.TrangThaiDonHang?.Trim() != "Hoàn thành")
+                return Json(new { success = false, message = "Chỉ có thể yêu cầu trả hàng cho các đơn hàng đã 'Hoàn thành'!" });
+
+            if (string.IsNullOrWhiteSpace(lyDo))
+                return Json(new { success = false, message = "Vui lòng nhập lý do trả hàng!" });
+
+            order.TrangThaiDonHang = "Yêu cầu trả hàng";
+            order.GhiChu = lyDo.Trim();
+            db.SaveChanges();
+
+            VuongBanDienTu.Helpers.ActivityLogger.Log($"Yêu cầu trả hàng đơn #ORD-{order.MaDonHang}", $"Lý do: {order.GhiChu}", "Yêu cầu trả hàng");
+
+            var orderId = order.MaDonHang;
+            var reason = order.GhiChu;
+            System.Threading.Tasks.Task.Run(() => {
+                try
+                {
+                    using (var ctx = new VuongDienTuEntities())
+                    {
+                        var o = ctx.DonHangs
+                            .Include("NguoiDung").Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham")
+                            .FirstOrDefault(x => x.MaDonHang == orderId);
+                        if (o != null)
+                            VuongBanDienTu.Services.EmailService.SendReturnRequestEmail(o, reason);
+                    }
+                }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine("YeuCauTraHang Email Error: " + ex.Message); }
+            });
+
+            return Json(new { success = true, message = "Yêu cầu trả hàng của bạn đã được gửi đi! Admin sẽ sớm xem xét và phản hồi qua email." });
         }
 
         public ActionResult ChiTiet(int id)

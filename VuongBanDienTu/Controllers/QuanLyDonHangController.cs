@@ -131,7 +131,7 @@ namespace VuongBanDienTu.Controllers
                     ct.SanPham.SoLuongTon -= ct.SoLuong;
                 }
             }
-            // 2. Nếu chuyển TỪ nhóm xác nhận SANG nhóm hủy/chờ -> Hoàn tồn kho
+            // 2. Nếu chuyển TỪ nhóm xác nhận SANG nhóm hủy/chờ/trả hàng -> Hoàn tồn kho
             else if (wasConfirmed && !isNewConfirmed)
             {
                 foreach (var ct in order.ChiTietDonHangs)
@@ -139,14 +139,74 @@ namespace VuongBanDienTu.Controllers
                     ct.SanPham.SoLuongTon += ct.SoLuong;
                 }
             }
+            // 3. Nếu từ "Yêu cầu trả hàng" sang "Đã trả hàng" (Trường hợp Admin duyệt trực tiếp qua UpdateStatus)
+            else if (oldStatus == "Yêu cầu trả hàng" && newStatus == "Đã trả hàng")
+            {
+                foreach (var ct in order.ChiTietDonHangs)
+                {
+                    ct.SanPham.SoLuongTon += ct.SoLuong;
+                }
+                order.TrangThaiThanhToan = "Đã hoàn tiền";
+            }
 
             order.TrangThaiDonHang = newStatus;
+            
+            // Tự động chuyển sang "Đã thanh toán" cho đơn hàng COD khi hoàn thành
+            if (newStatus == "Hoàn thành" && order.PhuongThucThanhToan?.Trim() == "COD")
+            {
+                order.TrangThaiThanhToan = "Đã thanh toán";
+            }
+
             order.MaNhanVienXuLy = user.MaNguoiDung;
             db.SaveChanges();
             
             VuongBanDienTu.Helpers.ActivityLogger.Log($"Cập nhật trạng thái đơn #ORD-{order.MaDonHang}", $"Từ '{oldStatus}' sang '{newStatus}'", newStatus);
             
             return Json(new { success = true, message = $"Đã cập nhật trạng thái đơn hàng sang '{newStatus}'" });
+        }
+
+        [HttpPost]
+        public ActionResult DuyetTraHang(int id)
+        {
+            var user = Session["TaiKhoan"] as NguoiDung;
+            var order = db.DonHangs.Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham").FirstOrDefault(o => o.MaDonHang == id);
+            if (order == null) return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
+
+            // Hoàn tồn kho khi khách trả hàng
+            foreach (var ct in order.ChiTietDonHangs)
+            {
+                ct.SanPham.SoLuongTon += ct.SoLuong;
+            }
+
+            order.TrangThaiDonHang = "Đã trả hàng";
+            order.TrangThaiThanhToan = "Đã hoàn tiền";
+            order.MaNhanVienXuLy = user.MaNguoiDung;
+            db.SaveChanges();
+
+            VuongBanDienTu.Helpers.ActivityLogger.Log($"Duyệt trả hàng đơn #ORD-{order.MaDonHang}", "Đã nhận lại hàng và hoàn tiền cho khách", "Đã trả hàng");
+
+            var orderId = order.MaDonHang;
+            System.Threading.Tasks.Task.Run(() => {
+                try
+                {
+                    using (var context = new VuongDienTuEntities())
+                    {
+                        var orderToSend = context.DonHangs
+                            .Include("NguoiDung")
+                            .Include("ChiTietDonHangs")
+                            .Include("ChiTietDonHangs.SanPham")
+                            .FirstOrDefault(o => o.MaDonHang == orderId);
+                        if (orderToSend != null)
+                            VuongBanDienTu.Services.EmailService.SendReturnApprovedEmail(orderToSend);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("DuyetTraHang Email Error: " + ex.Message);
+                }
+            });
+
+            return Json(new { success = true, message = "Đã duyệt trả hàng, hoàn tồn kho và gửi email xác nhận hoàn tiền cho khách!" });
         }
 
         [HttpPost]
@@ -224,16 +284,46 @@ namespace VuongBanDienTu.Controllers
         public ActionResult DuyetHoanTien(int id)
         {
             var user = Session["TaiKhoan"] as NguoiDung;
-            var order = db.DonHangs.Find(id);
+            var order = db.DonHangs.Include("ChiTietDonHangs").Include("ChiTietDonHangs.SanPham").FirstOrDefault(o => o.MaDonHang == id);
             if (order == null) return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });
 
-            // Removed restriction: if (order.TrangThaiDonHang?.Trim() != "Chờ hoàn tiền")
+            string currentStatus = order.TrangThaiDonHang?.Trim();
+            bool isReturnRequest = currentStatus == "Yêu cầu trả hàng";
+            bool isCancelRequest = currentStatus == "Chờ duyệt hủy";
+            bool isRefundRequest = currentStatus == "Chờ hoàn tiền";
+            bool daThanhToan = order.TrangThaiThanhToan?.Trim() == "Đã thanh toán" || isRefundRequest;
 
-            order.TrangThaiDonHang = "Đã hủy";
-            order.TrangThaiThanhToan = "Đã hoàn tiền";
+            // Kiểm tra xem đơn hàng đã bị trừ tồn kho chưa (Đã xác nhận, Đang giao)
+            string[] deductedInventoryGroup = { "Đã xác nhận", "Đang giao", "Yêu cầu trả hàng" };
+            bool shouldReturnInventory = deductedInventoryGroup.Contains(currentStatus);
+
+            if (shouldReturnInventory)
+            {
+                foreach (var ct in order.ChiTietDonHangs)
+                {
+                    ct.SanPham.SoLuongTon += ct.SoLuong;
+                }
+            }
+
+            if (isReturnRequest)
+            {
+                order.TrangThaiDonHang = "Đã trả hàng";
+                order.TrangThaiThanhToan = "Đã hoàn tiền";
+            }
+            else
+            {
+                order.TrangThaiDonHang = "Đã hủy";
+                if (daThanhToan)
+                {
+                    order.TrangThaiThanhToan = "Đã hoàn tiền";
+                }
+            }
+
             order.MaNhanVienXuLy = user.MaNguoiDung;
             db.SaveChanges();
-            VuongBanDienTu.Helpers.ActivityLogger.Log($"Duyệt hoàn tiền đơn #ORD-{order.MaDonHang}", "Đã hoàn trả tiền cho khách hàng", "Đã hoàn tiền");
+
+            string logAction = isReturnRequest ? "Duyệt trả hàng & hoàn tiền" : (isCancelRequest ? "Duyệt hủy đơn COD" : "Duyệt hoàn tiền đơn hủy");
+            VuongBanDienTu.Helpers.ActivityLogger.Log($"{logAction} #ORD-{order.MaDonHang}", "Đã xử lý yêu cầu của khách hàng", order.TrangThaiDonHang);
 
             var orderId = order.MaDonHang;
             System.Threading.Tasks.Task.Run(() => {
@@ -246,8 +336,16 @@ namespace VuongBanDienTu.Controllers
                             .Include("ChiTietDonHangs")
                             .Include("ChiTietDonHangs.SanPham")
                             .FirstOrDefault(o => o.MaDonHang == orderId);
+
                         if (orderToSend != null)
-                            VuongBanDienTu.Services.EmailService.SendRefundApprovedEmail(orderToSend);
+                        {
+                            if (isReturnRequest)
+                                VuongBanDienTu.Services.EmailService.SendReturnApprovedEmail(orderToSend);
+                            else if (daThanhToan)
+                                VuongBanDienTu.Services.EmailService.SendRefundApprovedEmail(orderToSend);
+                            else
+                                VuongBanDienTu.Services.EmailService.SendSelfCancelEmail(orderToSend); // Gửi email thông báo hủy đơn thường
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -256,7 +354,7 @@ namespace VuongBanDienTu.Controllers
                 }
             });
 
-            return Json(new { success = true, message = "Đã duyệt hoàn tiền và gửi email xác nhận đến khách hàng!" });
+            return Json(new { success = true, message = "Đã xử lý yêu cầu duyệt hủy/hoàn tiền và gửi email cho khách hàng!" });
         }
 
         [HttpPost]
@@ -287,9 +385,16 @@ namespace VuongBanDienTu.Controllers
                 // Removed restriction: if (order.TrangThaiDonHang?.Trim() != "Đang giao")
 
                 order.TrangThaiDonHang = "Hoàn thành";
+                
+                // Tự động chuyển sang "Đã thanh toán" cho các đơn hàng COD khi hoàn thành
+                if (order.PhuongThucThanhToan?.Trim() == "COD" && order.TrangThaiThanhToan?.Trim() != "Đã thanh toán")
+                {
+                    order.TrangThaiThanhToan = "Đã thanh toán";
+                }
+
                 order.MaNhanVienXuLy = user.MaNguoiDung;
                 db.SaveChanges();
-                VuongBanDienTu.Helpers.ActivityLogger.Log($"Hoàn thành đơn hàng #ORD-{order.MaDonHang}", $"Nhân viên xử lý: {user.HoTen}", "Hoàn thành");
+                VuongBanDienTu.Helpers.ActivityLogger.Log($"Hoàn thành đơn hàng #ORD-{order.MaDonHang}", $"Nhân viên xử lý: {user.HoTen}. Tự động xác nhận thanh toán.", "Hoàn thành");
                 return Json(new { success = true });
             }
             return Json(new { success = false, message = "Không tìm thấy đơn hàng!" });

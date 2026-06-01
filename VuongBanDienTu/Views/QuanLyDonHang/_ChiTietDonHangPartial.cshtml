@@ -76,6 +76,24 @@
                     Xác nhận & Duyệt đơn
                 </button>
             }
+            @if (Model.TrangThaiDonHang != null && Model.TrangThaiDonHang.Trim() == "Chờ hoàn tiền")
+            {
+                <button onclick="openRefundModal(@Model.MaDonHang, 'Duyệt hoàn tiền?', 'Xác nhận duyệt hoàn tiền cho đơn hàng bị hủy này.')" class="px-8 py-3 bg-orange-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-orange-100">
+                    Duyệt hoàn tiền
+                </button>
+            }
+            @if (Model.TrangThaiDonHang != null && Model.TrangThaiDonHang.Trim() == "Chờ duyệt hủy")
+            {
+                <button onclick="openRefundModal(@Model.MaDonHang, 'Duyệt hủy đơn?', 'Xác nhận duyệt hủy đơn hàng COD này. Email thông báo sẽ được gửi cho khách.')" class="px-8 py-3 bg-red-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-100">
+                    Xác nhận Duyệt hủy
+                </button>
+            }
+            @if (Model.TrangThaiDonHang != null && Model.TrangThaiDonHang.Trim() == "Yêu cầu trả hàng")
+            {
+                <button onclick="openRefundModal(@Model.MaDonHang, 'Duyệt trả hàng & Hoàn tiền?', 'Xác nhận nhận lại hàng và hoàn tiền cho khách hàng.')" class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                    Duyệt trả hàng/hoàn tiền
+                </button>
+            }
             <button onclick="closeDetailsModal()" class="px-8 py-3 bg-slate-100 text-slate-600 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">
                 Đóng
             </button>

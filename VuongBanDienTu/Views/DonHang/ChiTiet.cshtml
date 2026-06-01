@@ -17,28 +17,42 @@
                 <p class="text-sm text-slate-500 font-medium mt-1">Đặt ngày @Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm")</p>
             </div>
             <div class="flex flex-col items-end gap-2">
-                @if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý")
+                @if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý" || Model.TrangThaiDonHang?.Trim() == "Đã xác nhận" || Model.TrangThaiDonHang?.Trim() == "Đang giao")
                 {
-                    <span class="px-6 py-2 rounded-full bg-amber-100 text-amber-600 text-xs font-black uppercase tracking-widest ring-4 ring-amber-50">Đang chờ xử lý</span>
+                    if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý") {
+                        <span class="px-6 py-2 rounded-full bg-amber-100 text-amber-600 text-xs font-black uppercase tracking-widest ring-4 ring-amber-50">Đang chờ xử lý</span>
+                    } else if (Model.TrangThaiDonHang?.Trim() == "Đã xác nhận") {
+                        <span class="px-6 py-2 rounded-full bg-green-100 text-green-600 text-xs font-black uppercase tracking-widest ring-4 ring-green-50">Đã xác nhận</span>
+                    } else {
+                        <span class="px-6 py-2 rounded-full bg-blue-100 text-blue-600 text-xs font-black uppercase tracking-widest ring-4 ring-blue-50">Đang giao hàng</span>
+                    }
+                    
                     <button onclick="openCancelModal()" class="mt-2 text-xs font-black text-primary hover:text-primary-dark transition-all border border-primary/20 hover:border-primary/50 px-4 py-2 rounded-xl flex items-center gap-1.5 bg-white">
                         <i class="fa fa-times-circle"></i> HỦY ĐƠN HÀNG
                     </button>
                 }
-                else if (Model.TrangThaiDonHang?.Trim() == "Đã xác nhận")
-                {
-                    <span class="px-6 py-2 rounded-full bg-green-100 text-green-600 text-xs font-black uppercase tracking-widest ring-4 ring-green-50">Đã xác nhận</span>
-                }
-                else if (Model.TrangThaiDonHang?.Trim() == "Đang giao")
-                {
-                    <span class="px-6 py-2 rounded-full bg-blue-100 text-blue-600 text-xs font-black uppercase tracking-widest ring-4 ring-blue-50">Đang giao hàng</span>
-                }
                 else if (Model.TrangThaiDonHang?.Trim() == "Hoàn thành")
                 {
                     <span class="px-6 py-2 rounded-full bg-purple-100 text-purple-600 text-xs font-black uppercase tracking-widest ring-4 ring-purple-50">Hoàn thành</span>
+                    <button onclick="openReturnModal()" class="mt-2 text-xs font-black text-indigo-600 hover:text-indigo-700 transition-all border border-indigo-200 hover:border-indigo-400 px-4 py-2 rounded-xl flex items-center gap-1.5 bg-white">
+                        <i class="fa fa-undo"></i> TRẢ HÀNG / HOÀN TIỀN
+                    </button>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Yêu cầu trả hàng")
+                {
+                    <span class="px-6 py-2 rounded-full bg-indigo-100 text-indigo-600 text-xs font-black uppercase tracking-widest ring-4 ring-indigo-50">Chờ duyệt trả hàng</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Đã trả hàng")
+                {
+                    <span class="px-6 py-2 rounded-full bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest ring-4 ring-gray-50">Đã hoàn trả hàng</span>
                 }
                 else if (Model.TrangThaiDonHang?.Trim() == "Chờ hoàn tiền")
                 {
-                    <span class="px-6 py-2 rounded-full bg-orange-100 text-orange-600 text-xs font-black uppercase tracking-widest ring-4 ring-orange-50">Chờ hoàn tiền</span>
+                    <span class="px-6 py-2 rounded-full bg-orange-100 text-orange-600 text-xs font-black uppercase tracking-widest ring-4 ring-orange-50">Chờ duyệt hoàn tiền</span>
+                }
+                else if (Model.TrangThaiDonHang?.Trim() == "Chờ duyệt hủy")
+                {
+                    <span class="px-6 py-2 rounded-full bg-red-100 text-primary text-xs font-black uppercase tracking-widest ring-4 ring-red-50">Chờ duyệt hủy đơn</span>
                 }
                 else if (Model.TrangThaiDonHang?.Trim() == "Đã hủy")
                 {
@@ -57,7 +71,7 @@
                         @{
                             var orderStatus = Model.TrangThaiDonHang?.Trim() ?? "";
                         }
-                        @if (orderStatus != "Đã hủy" && orderStatus != "Chờ hoàn tiền") {
+                        @if (orderStatus != "Đã hủy" && orderStatus != "Chờ hoàn tiền" && orderStatus != "Yêu cầu trả hàng" && orderStatus != "Đã trả hàng") {
                             <div class="z-10 text-center">
                                 <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mx-auto mb-2 transition-all shadow-lg shadow-red-100">
                                     <i class="fa fa-clock text-xs"></i>
@@ -88,6 +102,27 @@
                                     <i class="fa fa-hand-holding-usd text-xl"></i>
                                 </div>
                                 <span class="text-xs font-black uppercase text-amber-600">Đơn hàng đang chờ hoàn tiền</span>
+                            </div>
+                        } else if (orderStatus == "Chờ duyệt hủy") {
+                            <div class="z-10 text-center w-full">
+                                <div class="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center mx-auto mb-2 shadow-xl shadow-red-100">
+                                    <i class="fa fa-user-slash text-xl"></i>
+                                </div>
+                                <span class="text-xs font-black uppercase text-primary">Đang chờ Admin duyệt hủy đơn</span>
+                            </div>
+                        } else if (orderStatus == "Yêu cầu trả hàng") {
+                             <div class="z-10 text-center w-full">
+                                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center mx-auto mb-2 shadow-xl shadow-indigo-100">
+                                    <i class="fa fa-undo text-xl"></i>
+                                </div>
+                                <span class="text-xs font-black uppercase text-indigo-600">Đang chờ Admin duyệt trả hàng</span>
+                            </div>
+                        } else if (orderStatus == "Đã trả hàng") {
+                             <div class="z-10 text-center w-full">
+                                <div class="w-12 h-12 rounded-full bg-gray-500 text-white flex items-center justify-center mx-auto mb-2 shadow-xl shadow-gray-100">
+                                    <i class="fa fa-check-double text-xl"></i>
+                                </div>
+                                <span class="text-xs font-black uppercase text-gray-600">Đơn hàng đã được trả lại & Hoàn tiền</span>
                             </div>
                         } else {
                             <div class="z-10 text-center w-full">
@@ -214,8 +249,88 @@
     </div>
 </div>
 
+<!-- RETURN MODAL FOR CUSTOMER -->
+@if (Model.TrangThaiDonHang?.Trim() == "Hoàn thành")
+{
+    <div id="returnModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeReturnModal()"></div>
+            <div class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0 duration-300 p-8" id="returnModalContainer">
+                <h3 class="text-xl font-black text-slate-800 mb-2 uppercase italic tracking-tight">Yêu cầu trả hàng #ORD-@Model.MaDonHang</h3>
+                <p class="text-xs text-slate-400 font-medium mb-6 leading-relaxed">Vui lòng cung cấp lý do bạn muốn trả lại sản phẩm. Chúng tôi sẽ xem xét và phản hồi trong thời gian sớm nhất.</p>
+                
+                <div class="mb-6">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Lý do trả hàng *</label>
+                    <textarea id="returnReason" required class="w-full bg-slate-50 border border-slate-100 focus:border-indigo-300 focus:bg-white rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 outline-none transition-all h-28" placeholder="Ví dụ: Sản phẩm bị lỗi kỹ thuật, Không đúng như mô tả, Đổi ý không muốn mua nữa,..."></textarea>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <button id="confirmReturnBtn" onclick="submitReturnOrder()" class="w-full bg-indigo-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all">Gửi yêu cầu trả hàng</button>
+                    <button onclick="closeReturnModal()" class="w-full bg-slate-50 text-slate-500 py-3.5 rounded-2xl font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function reloadPage() {
+            window.location.href = window.location.pathname + window.location.search + (window.location.search ? '&' : '?') + 't=' + new Date().getTime();
+        }
+
+        const returnModal = document.getElementById('returnModal');
+        const returnModalContainer = document.getElementById('returnModalContainer');
+
+        function openReturnModal() {
+            returnModal.classList.remove('hidden');
+            setTimeout(() => {
+                returnModalContainer.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeReturnModal() {
+            returnModalContainer.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                returnModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function submitReturnOrder() {
+            const reason = document.getElementById('returnReason').value.trim();
+            if (!reason) {
+                showNotification('Vui lòng nhập lý do trả hàng!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('confirmReturnBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-circle-notch fa-spin mr-2"></i> Đang gửi yêu cầu...';
+
+            $.ajax({
+                url: '@Url.Action("YeuCauTraHang", "DonHang")',
+                type: 'POST',
+                data: { id: @Model.MaDonHang, lyDo: reason },
+                success: function (res) {
+                    if (res.success) {
+                        closeReturnModal();
+                        reloadPage();
+                    } else {
+                        showNotification(res.message || 'Có lỗi xảy ra!', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = 'Gửi yêu cầu trả hàng';
+                    }
+                },
+                error: function () {
+                    showNotification('Lỗi kết nối hệ thống!', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Gửi yêu cầu trả hàng';
+                }
+            });
+        }
+    </script>
+}
+
 <!-- CANCEL MODAL FOR CUSTOMER -->
-@if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý")
+@if (Model.TrangThaiDonHang?.Trim() == "Chờ xử lý" || Model.TrangThaiDonHang?.Trim() == "Đã xác nhận" || Model.TrangThaiDonHang?.Trim() == "Đang giao")
 {
     <div id="cancelModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen p-4">
@@ -273,8 +388,7 @@
                 success: function (res) {
                     if (res.success) {
                         closeCancelModal();
-                        showNotification(res.message || 'Hủy đơn hàng thành công!', 'success');
-                        setTimeout(() => location.reload(), 1800);
+                        reloadPage();
                     } else {
                         showNotification(res.message || 'Có lỗi xảy ra!', 'error');
                         btn.disabled = false;

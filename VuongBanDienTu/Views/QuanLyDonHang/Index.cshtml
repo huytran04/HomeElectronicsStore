@@ -19,6 +19,9 @@
                 <option value="Đã xác nhận">Đã xác nhận</option>
                 <option value="Đang giao">Đang giao</option>
                 <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Yêu cầu trả hàng">Yêu cầu trả hàng</option>
+                <option value="Đã trả hàng">Đã trả hàng</option>
+                <option value="Chờ duyệt hủy">Chờ duyệt hủy</option>
                 <option value="Chờ hoàn tiền">Chờ hoàn tiền</option>
                 <option value="Đã hủy">Đã hủy</option>
             </select>
@@ -73,21 +76,42 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="relative min-w-[130px]">
-                                    <select onchange="updateOrderStatus(@item.MaDonHang, this.value)" 
-                                        @(item.TrangThaiDonHang?.Trim() == "Đã hủy" ? "disabled" : "")
+                                    <select onchange="handleStatusChange(@item.MaDonHang, this)" 
+                                        data-old-status="@(item.TrangThaiDonHang != null ? item.TrangThaiDonHang.Trim() : "")"
+                                        @(item.TrangThaiDonHang?.Trim() == "Đã hủy" || item.TrangThaiDonHang?.Trim() == "Đã trả hàng" ? "disabled" : "")
                                         class="w-full bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-primary/10 transition-all
-                                        @(item.TrangThaiDonHang?.Trim() == "Đã hủy" ? "cursor-not-allowed opacity-75" : "cursor-pointer")
+                                        @(item.TrangThaiDonHang?.Trim() == "Đã hủy" || item.TrangThaiDonHang?.Trim() == "Đã trả hàng" ? "cursor-not-allowed opacity-75" : "cursor-pointer")
                                         @(item.TrangThaiDonHang?.Trim() == "Chờ xử lý" ? "text-amber-600 bg-amber-50" : 
                                           item.TrangThaiDonHang?.Trim() == "Đã xác nhận" ? "text-green-600 bg-green-50" :
                                           item.TrangThaiDonHang?.Trim() == "Đang giao" ? "text-blue-600 bg-blue-50" :
                                           item.TrangThaiDonHang?.Trim() == "Hoàn thành" ? "text-purple-600 bg-purple-50" :
+                                          item.TrangThaiDonHang?.Trim() == "Yêu cầu trả hàng" ? "text-indigo-600 bg-indigo-50" :
+                                          item.TrangThaiDonHang?.Trim() == "Đã trả hàng" ? "text-slate-400 bg-slate-100" :
                                           item.TrangThaiDonHang?.Trim() == "Đã hủy" ? "text-primary bg-red-50" : "text-slate-600 bg-slate-100")">
-                                        <option value="Chờ xử lý" @(item.TrangThaiDonHang?.Trim() == "Chờ xử lý" ? "selected" : "")>Chờ xử lý</option>
-                                        <option value="Đã xác nhận" @(item.TrangThaiDonHang?.Trim() == "Đã xác nhận" ? "selected" : "")>Đã xác nhận</option>
-                                        <option value="Đang giao" @(item.TrangThaiDonHang?.Trim() == "Đang giao" ? "selected" : "")>Đang giao</option>
+                                        @if (item.TrangThaiDonHang?.Trim() != "Hoàn thành")
+                                        {
+                                            <option value="Chờ xử lý" @(item.TrangThaiDonHang?.Trim() == "Chờ xử lý" ? "selected" : "")>Chờ xử lý</option>
+                                            <option value="Đã xác nhận" @(item.TrangThaiDonHang?.Trim() == "Đã xác nhận" ? "selected" : "")>Đã xác nhận</option>
+                                            <option value="Đang giao" @(item.TrangThaiDonHang?.Trim() == "Đang giao" ? "selected" : "")>Đang giao</option>
+                                        }
                                         <option value="Hoàn thành" @(item.TrangThaiDonHang?.Trim() == "Hoàn thành" ? "selected" : "")>Hoàn thành</option>
-                                        <option value="Chờ hoàn tiền" @(item.TrangThaiDonHang?.Trim() == "Chờ hoàn tiền" ? "selected" : "")>Chờ hoàn tiền</option>
-                                        <option value="Đã hủy" @(item.TrangThaiDonHang?.Trim() == "Đã hủy" ? "selected" : "")>Đã hủy</option>
+                                        
+                                        @* Chỉ hiển thị các trạng thái đặc biệt nếu đơn hàng đang ở trạng thái đó (để làm nhãn), không cho chọn thủ công *@
+                                        @if (item.TrangThaiDonHang?.Trim() == "Yêu cầu trả hàng") {
+                                            <option value="Yêu cầu trả hàng" selected>Yêu cầu trả hàng</option>
+                                        }
+                                        @if (item.TrangThaiDonHang?.Trim() == "Đã trả hàng") {
+                                            <option value="Đã trả hàng" selected>Đã trả hàng</option>
+                                        }
+                                        @if (item.TrangThaiDonHang?.Trim() == "Chờ duyệt hủy") {
+                                            <option value="Chờ duyệt hủy" selected>Chờ duyệt hủy</option>
+                                        }
+                                        @if (item.TrangThaiDonHang?.Trim() == "Chờ hoàn tiền") {
+                                            <option value="Chờ hoàn tiền" selected>Chờ hoàn tiền</option>
+                                        }
+                                        @if (item.TrangThaiDonHang?.Trim() == "Đã hủy") {
+                                            <option value="Đã hủy" selected>Đã hủy</option>
+                                        }
                                     </select>
                                     @if (item.NguoiDung1 != null)
                                     {
@@ -100,10 +124,22 @@
                                     <button onclick="openDetailsModal(@item.MaDonHang)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-slate-200 hover:-translate-y-0.5 hover:scale-[1.05] active:scale-[0.97] transition-all flex items-center justify-center cursor-pointer" title="Xem chi tiết">
                                         <i class="fa fa-eye text-xs"></i>
                                     </button>
+                                    @if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ duyệt hủy")
+                                    {
+                                        <button onclick="openRefundModal(@item.MaDonHang, 'Duyệt hủy đơn?', 'Xác nhận duyệt hủy đơn hàng COD này. Email thông báo sẽ được gửi cho khách.')" class="px-3 py-1.5 rounded-lg bg-red-600 text-white text-[10px] font-black uppercase hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-red-100 cursor-pointer">
+                                            Duyệt hủy
+                                        </button>
+                                    }
                                     @if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Chờ hoàn tiền")
                                     {
-                                        <button onclick="openRefundModal(@item.MaDonHang)" class="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-[10px] font-black uppercase hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-orange-100 cursor-pointer">
+                                        <button onclick="openRefundModal(@item.MaDonHang, 'Duyệt hoàn tiền?', 'Xác nhận duyệt hoàn tiền cho đơn hàng bị hủy này.')" class="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-[10px] font-black uppercase hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-orange-100 cursor-pointer">
                                             Duyệt hoàn tiền
+                                        </button>
+                                    }
+                                    @if (item.TrangThaiDonHang != null && item.TrangThaiDonHang.Trim() == "Yêu cầu trả hàng")
+                                    {
+                                        <button onclick="openRefundModal(@item.MaDonHang, 'Duyệt trả hàng & Hoàn tiền?', 'Xác nhận nhận lại hàng và hoàn tiền cho khách hàng.')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-[10px] font-black uppercase hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-indigo-100 cursor-pointer">
+                                            Duyệt trả hàng/hoàn tiền
                                         </button>
                                     }
                                     <button onclick="openCancelModal(@item.MaDonHang)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-400 text-[10px] font-black uppercase hover:bg-red-50 hover:text-primary transition-all cursor-pointer" title="Hủy đơn hàng">
@@ -231,6 +267,23 @@
 
 @section scripts {
     <script>
+        function reloadPage() {
+            window.location.href = window.location.pathname + window.location.search + (window.location.search ? '&' : '?') + 't=' + new Date().getTime();
+        }
+
+        function handleStatusChange(id, selectElement) {
+            const status = selectElement.value;
+            const oldStatus = selectElement.getAttribute('data-old-status') || '';
+            
+            if (status === 'Hoàn thành') {
+                selectElement.value = oldStatus;
+                completeOrder(id);
+            } else {
+                selectElement.setAttribute('data-old-status', status);
+                updateOrderStatus(id, status);
+            }
+        }
+
         async function updateOrderStatus(id, status) {
             try {
                 const response = await fetch('@Url.Action("UpdateStatus", "QuanLyDonHang")', {
@@ -244,7 +297,7 @@
                 const data = await response.json();
                 if (data.success) {
                     showToast(data.message || 'Cập nhật thành công!', 'success');
-                    setTimeout(() => location.reload(), 800);
+                    setTimeout(() => reloadPage(), 800);
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
@@ -381,7 +434,7 @@
                 const data = await response.json();
                 if (data.success) {
                     showToast('Đã hủy đơn hàng thành công!', 'success');
-                    location.reload();
+                    reloadPage();
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
@@ -394,10 +447,15 @@
             }
         }
 
-        function openRefundModal(id) {
+        function openRefundModal(id, title = 'Duyệt hoàn tiền?', desc = 'Xác nhận duyệt hoàn tiền cho đơn hàng này.<br>Email xác nhận sẽ được gửi tự động đến khách hàng.') {
             document.getElementById('refundOrderId').value = id;
             const modal = document.getElementById('refundModal');
             const content = document.getElementById('refundContent');
+            
+            // Cập nhật text động
+            modal.querySelector('h3').innerText = title;
+            modal.querySelector('p').innerHTML = desc;
+            
             modal.classList.remove('invisible', 'opacity-0');
             modal.classList.add('opacity-100');
             content.classList.remove('scale-95');
@@ -428,7 +486,7 @@
                 if (data.success) {
                     showToast(data.message || 'Đã duyệt hoàn tiền!', 'success');
                     closeRefundModal();
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => reloadPage(), 1500);
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
@@ -437,6 +495,26 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
+            }
+        }
+
+        async function approveReturn(id) {
+            if (!confirm('Xác nhận đã nhận lại hàng và đồng ý hoàn tiền cho khách hàng?')) return;
+            
+            try {
+                const response = await fetch('@Url.Action("DuyetTraHang", "QuanLyDonHang")?id=' + id, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message || 'Đã duyệt trả hàng & hoàn tiền!', 'success');
+                    setTimeout(() => reloadPage(), 1500);
+                } else {
+                    showToast(data.message || 'Lỗi xử lý!', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối!', 'error');
             }
         }
 
@@ -474,7 +552,7 @@
                 if (data.success) {
                     showToast('Đã chuyển sang trạng thái đang giao hàng!', 'success');
                     closeShipModal();
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => reloadPage(), 1000);
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
@@ -520,7 +598,7 @@
                 if (data.success) {
                     showToast('Đã hoàn thành đơn hàng!', 'success');
                     closeCompleteModal();
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => reloadPage(), 1000);
                 } else {
                     showToast(data.message || 'Lỗi xử lý!', 'error');
                 }
